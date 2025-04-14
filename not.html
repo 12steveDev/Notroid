@@ -445,27 +445,72 @@
             background: #333333;
             transition: background 0.2s;
         } #Settings-app .specclass-Settings-icon {
-            font-size: 20px;
+            font-size: 25px;
+        } #Settings-app .specclass-Settings-appbox {
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        } #Settings-app .specclass-Settings-appbox p {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 50%;
+        } #Settings-app .specclass-Settings-appbox p:active {
+            background: #333333;
+        } #Settings-app .specclass-Settings-appBtns {
+            width: 50%;
+        } #Settings-app .specclass-Settings-appBtns button {
+            text-transform: none;
+            min-width: 0;
+        } #Settings-app .specclass-Settings-ex {
+            background: #00ff00;
+        } #Settings-app .specclass-Settings-ex:active {
+            background: #00bb00;
+        }#Settings-app .specclass-Settings-un {
+            background: #ff0000;
+        } #Settings-app .specclass-Settings-un:active {
+            background: #bb0000;
         }
         </style>
         <div class="screen" id="MAIN-screen">
             <h3>Siéntete como el creador de Notroid</h3>
             <small>(en el hecho de poder, no de hambre)</small>
-            <div class="specclass-Settings-section" style="margin-top: 20px;" data-screen="apps">
+            <div class="specclass-Settings-section" style="margin-top: 20px;" data-screen="apps" onclick="specfunc_Settings_loadapps()">
                 <p class="specclass-Settings-icon">🎛️</p>
                 <p>Aplicaciones instaladas</p>
             </div>
         </div>
         <div class="screen" id="apps-screen">
-            <p>apps...</p>
+            <div id="specid-Settings-installedApps"></div>
         </div>
         <script>
-        const app = document.getElementById("Settings-app");
-        app.querySelectorAll(".specclass-Settings-section").forEach(section =>{
+        const specv_Settings_app = document.getElementById("Settings-app");
+        const specv_Settings_installedApps = document.getElementById("specid-Settings-installedApps");
+        specv_Settings_app.querySelectorAll(".specclass-Settings-section").forEach(section =>{
             section.addEventListener("click", ()=>{
-                navigateTo(app, section.getAttribute("data-screen"));
+                navigateTo(specv_Settings_app, section.getAttribute("data-screen"));
             })
         })
+        function specfunc_Settings_loadapps(){
+            specv_Settings_installedApps.innerHTML = "Contando...<div class='progressbar'/>";
+            const apps = document.querySelectorAll(".icon");
+            setTimeout(()=>{
+            specv_Settings_installedApps.innerHTML = "";
+            apps.forEach(app =>{
+                const name = app.querySelector("p").textContent;
+                specv_Settings_installedApps.innerHTML += `<div class="specclass-Settings-appbox">
+                    <p title="${name}">${name}</p>
+                    <div class="specclass-Settings-appBtns">
+                        <button>Info</button>
+                        <button class="specclass-Settings-ex">Exportar (.notapp)</button>
+                        <button class="specclass-Settings-un">Desinstalar</button>
+                    </div>
+                </div>`;
+            })
+            }, Math.random() * 1000)
+        }
+
         </script>
     </div>
     </div>
