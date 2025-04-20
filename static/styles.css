@@ -1,0 +1,361 @@
+/* static/styles.css */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Comic Sans", sans-serif;
+} body {
+    height: 100vh;
+    width: 100vw;
+} div.desktop {
+    display: grid;
+    height: 100%;
+    grid-template-columns: repeat(5, calc(20% - 8px));
+    grid-template-rows: repeat(6, calc(20% - 20px));
+    gap: 10px;
+    padding: 30px 10px;
+    margin: 0 auto;
+    background-image: url("../assets/images/moi.jpg");
+    background-size: 100% 100%;
+    background-attachment: fixed;
+} div.icon {
+    aspect-ratio: 1;
+    background: #f000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transition: transform 0.1s ease;
+    color: #ffffff;
+    text-shadow: 1px 1px 1px #000000;
+} div.icon:active {
+    transform: scale(0.9);
+} div.icon img {
+    width: 65%;
+    height: auto;
+    border-radius: 10px;
+} div.icon p {
+    font-size: 12px;
+    width: 110%;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+} .app {
+    position: absolute;
+    display: block;
+    min-height: 100vh;
+    width: 100%;
+    background: #ffffff;
+    color: #000000;
+    top: 0;
+    left: 0;
+    transition: opacity 0.2s ease-in, transform 0.2s ease;
+    z-index: 200;
+} .app .screen * {
+    margin: 5px;
+    padding: 5px;
+    max-width: 100vw;
+} .app.hide {
+    display: none;
+    opacity: 0;
+    transform: scale(0.8);
+} .app .toolbar {
+    position: fixed;
+    display: flex;
+    justify-content: space-between;
+    height: 70px;
+    width: 100%;
+    padding: 15px 15px 15px 15px;
+    background: #008080;
+    color: #ffffff;
+    border-top: 20px solid #000000;
+} .app .toolbar p {
+    font-size: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: bold;
+    width: 80%;
+} .app .toolbar .btn-close {
+    border: none;
+    background: #ff0000;
+    height: 25px;
+    width: 25px;
+    font-size: 20px;
+    border-radius: 5px;
+    font-weight: bold;
+} .app .toolbar .btn-close:active {
+    background: #990000;
+} .app .screen {
+    padding-top: 70px;
+    padding-bottom: 35px;
+    min-height: 100vh;
+    display: none;
+} .app input[type="text"]{
+    background: #00000000;
+    border: none;
+    border-bottom: 1px solid #bbbbbb;
+    outline: none;
+    padding: 3px 0;
+} .app input[type="text"]:focus {
+    border-bottom: 2px solid #008080;
+} .app .screen button {
+    border: none;
+    background: #bbbbbb;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 10px;
+    min-width: 150px;
+    transition: background 0.5s ease-out;
+} .app .screen button:active {
+    background: #888888;
+    transition: background 0.2s;
+} .app input[type="checkbox"] {
+    appearance: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 20px;
+    width: 20px;
+    border: 2px solid #777777;
+    border-radius: 5px;
+    transition: background 0.2s ease, border-color 0.2s;
+} .app input[type="checkbox"]:checked {
+    background: #008080;
+    border-color: #008080;
+} .app input[type="checkbox"]:checked:before {
+    content: "✓";
+    color: #ffffff;
+} .app div.audio-box {
+    background: #bbbbbb;
+} .app .audio-box .controls {
+    display: flex;
+    align-items: center;
+    padding: 2px;
+} .app .audio-box .controls * {
+    margin: 0 2.5px
+} .app .audio-box .controls #playBtn {
+    height: 30px;
+    width: 60px;
+    min-width: 0;
+    padding: 5px;
+    background: #008080;
+    border-radius: 10px;
+    transition: background 0.5s ease-out;
+} .app .audio-box .controls #seekbar {
+    appearance: none;
+    background: #00000000;
+    width: 100%;
+} .app .audio-box .controls #seekbar::-webkit-slider-runnable-track {
+    background: #999999;
+    height: 10px;
+    border-radius: 10px;
+    border: 2px solid #777777;
+} .app .audio-box .controls #seekbar::-webkit-slider-thumb {
+    appearance: none;
+    height: 16px;
+    width: 16px;
+    background: #008080;
+    border-radius: 50%;
+    margin-top: -5px;
+    transition: background 0.5s ease-out;
+} .app .audio-box .controls #playBtn:active, .app .audio-box .controls #seekbar::-webkit-slider-thumb:active {
+    background: #005050;
+    transition: background 0.2s;
+} .app div.progressbar {
+    border: 3px solid #008080;
+    border-bottom: 3px solid #00000000;
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    animation: spin 1s infinite linear;
+} .toast {
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    bottom: 65px;
+    width: 100%;
+    transition: opacity 0.5s ease;
+    z-index: 300;
+} .toast p {
+    background: #000000cc;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 80%;
+} .toast.hide {
+    display: none;
+    opacity: 0;
+} .navigation-bar {
+    position: fixed;
+    display: flex;
+    justify-content: space-around;
+    background: #000000;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+} .navigation-bar button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    color: #dddddd;
+    background: #00000000;
+    font-size: 20px;
+    padding: 5px;
+    height: 35px;
+    width: 25%;
+    border-radius: 20px;
+    transition: background 0.5s ease-out;
+} .navigation-bar button:active {
+    background: #ffffff44;
+    transition: background 0s;
+} .alertPopup {
+    position: fixed;
+    top: 40%;
+    left: 30px;
+    width: calc(100% - 60px);
+    min-height: 100px;
+    background: #ffffff;
+    padding: 10px;
+    transition: opacity 0.3s;
+    box-shadow: 0 0 10px #00000055;
+    z-index: 500;
+} .alertPopup .content {
+    padding: 10px;
+} .alertPopup .footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    margin-top: 20px;
+} .alertPopup .footer button {
+    border: none;
+    background: #00000000;
+    font-size: 16px;
+    color: #008080;
+    text-transform: uppercase;
+    padding: 10px;
+    transition: background 0.5s ease-out
+} .alertPopup .footer button:active {
+    background: #cccccc;
+    transition: background 0.2s;
+} .alertPopup.hide {
+    display: none;
+    opacity: 0;
+} .status-bar {
+    position: fixed;
+    display: grid;
+    grid-template-columns: repeat(2, 50%);
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #00000000;
+    color: #ffffff;
+    height: 20px;
+    font-size: 14px;
+    text-shadow: 0 0 5px #000000;
+    z-index: 1000;
+} .status-bar .div1, .status-bar .div2 {
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+    height: 100%;
+} .status-bar .div2 {
+    justify-content: flex-end;
+} .notifications-bar {
+    position: fixed;
+    background: #000000;
+    color: #ffffff;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 999;
+    padding: 20px 5px 5px 5px;
+    transition: top 0.3s ease-out, opacity 0.5s ease-out;
+} .notifications-bar.hide {
+    top: -105%;
+    opacity: 0;
+} .notifications-bar .header {
+    display: flex;
+    flex-direction: column;
+    color: #ffffff44;
+    align-items: center;
+} .notifications-bar .quick-btns {
+    justify-content: space-around;
+    margin: 10px 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    gap: 15px;
+} .notifications-bar .quick-btns button {
+    aspect-ratio: 1;
+    border: none;
+    background: #ffffff22;
+    border-radius: 15px;
+    color: #ffffff;
+    transition: transform 0.2s ease-out;
+} .notifications-bar .quick-btns button:active {
+    transform: scale(0.9);
+} .notifications-bar .quick-btns button.active {
+    border: 2px solid #00a0a0;
+    color: #00a0a0;
+} .notifications-bar .noti-box {
+    display: block;
+    background: #ffffff22;
+    height: 50%;
+    max-height: 75%;
+    padding: 10px;
+    border-radius: 10px;
+    overflow-y: auto;
+} .notifications-bar .noti {
+    background: #ffffff22;
+    padding: 10px;
+    border-radius: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    min-height: 40px;
+    margin: 2.5px 0;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+} .noti.hide {
+    transform: translateX(110%);
+} .noti small {
+    color: #ffffff77;
+} .noti .header {
+    display: grid;
+    grid-template-columns: 60% 20% 20%;
+    color: #ffffff;
+} .noti .header * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+} .noti.open .header {
+    display: block;
+    white-space: normal
+} .noti .content {
+    display: none;
+    padding: 5px;
+    color: #ffffffaa;
+} .noti.open .content {
+    display: block;
+    white-space: normal;
+} .noti .actions {
+    display: none;
+    margin-top: 10px;
+} .noti .actions button {
+    border: none;
+    background: #00000000;
+    font-weight: bold;
+    color: #00a0a0;
+    margin: 0 10px;
+} .noti .actions button:active {
+    color: #007070;
+} .noti.open .actions {
+    display: block;
+}
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
