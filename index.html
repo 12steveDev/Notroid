@@ -4,289 +4,211 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notroid</title>
-    <script src="notlang.js"></script>
-    <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: sans-serif;
-} body {
-    height: 100vh;
-    width: 100vw;
-} div.desktop {
-    display: grid;
-    height: 100%;
-    grid-template-columns: repeat(5, calc(20% - 8px));
-    grid-template-rows: repeat(6, calc(20% - 20px));
-    gap: 10px;
-    padding: 30px 10px;
-    margin: 0 auto;
-    background-image: url("moi.jpg");
-    background-size: 100% 100%;
-    background-attachment: fixed;
-} div.icon {
-    aspect-ratio: 1;
-    background: #f000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    transition: transform 0.1s ease;
-    color: #ffffff;
-    text-shadow: 1px 1px 1px #000000;
-} div.icon:active {
-    transform: scale(0.9);
-} div.icon img {
-    width: 65%;
-    height: auto;
-    border-radius: 10px;
-} div.icon p {
-    font-size: 12px;
-    width: 110%;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-} .app {
-    position: absolute;
-    display: block;
-    min-height: 100vh;
-    width: 100%;
-    background: #ffffff;
-    color: #000000;
-    top: 0;
-    left: 0;
-    transition: opacity 0.2s ease-in, transform 0.2s ease;
-    z-index: 20;
-} .app .screen * {
-    margin: 5px;
-    padding: 5px;
-    max-width: 100vw;
-} .app.hide {
-    display: none;
-    opacity: 0;
-    transform: scale(0.8);
-} .app .toolbar {
-    position: fixed;
-    display: flex;
-    justify-content: space-between;
-    height: 70px;
-    width: 100%;
-    padding: 15px 15px 15px 15px;
-    background: #008080;
-    color: #ffffff;
-    border-top: 20px solid #000000;
-} .app .toolbar p {
-    font-size: 20px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-weight: bold;
-    width: 80%;
-} .app .toolbar .btn-close {
-    border: none;
-    background: #ff0000;
-    height: 25px;
-    width: 25px;
-    font-size: 20px;
-    border-radius: 5px;
-    font-weight: bold;
-} .app .toolbar .btn-close:active {
-    background: #990000;
-} .app .screen {
-    padding-top: 70px;
-    padding-bottom: 35px;
-    min-height: 100vh;
-    display: none;
-} .app input[type="text"]{
-    background: #00000000;
-    border: none;
-    border-bottom: 1px solid #bbbbbb;
-    outline: none;
-    padding: 3px 0;
-} .app input[type="text"]:focus {
-    border-bottom: 2px solid #008080;
-} .app .screen button {
-    border: none;
-    background: #bbbbbb;
-    text-transform: uppercase;
-    font-weight: bold;
-    padding: 10px;
-    min-width: 150px;
-    transition: background 0.5s ease-out;
-} .app .screen button:active {
-    background: #888888;
-    transition: background 0.2s;
-} .app input[type="checkbox"] {
-    appearance: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 20px;
-    width: 20px;
-    border: 2px solid #777777;
-    border-radius: 5px;
-    transition: background 0.2s ease, border-color 0.2s;
-} .app input[type="checkbox"]:checked {
-    background: #008080;
-    border-color: #008080;
-} .app input[type="checkbox"]:checked:before {
-    content: "✓";
-    color: #ffffff;
-} .app div.audio-box {
-    background: #bbbbbb;
-} .app .audio-box .controls {
-    display: flex;
-    align-items: center;
-    padding: 2px;
-} .app .audio-box .controls * {
-    margin: 0 2.5px
-} .app .audio-box .controls #playBtn {
-    height: 30px;
-    width: 60px;
-    min-width: 0;
-    padding: 5px;
-    background: #008080;
-    border-radius: 10px;
-    transition: background 0.5s ease-out;
-} .app .audio-box .controls #seekbar {
-    appearance: none;
-    background: #00000000;
-    width: 100%;
-} .app .audio-box .controls #seekbar::-webkit-slider-runnable-track {
-    background: #999999;
-    height: 10px;
-    border-radius: 10px;
-    border: 2px solid #777777;
-} .app .audio-box .controls #seekbar::-webkit-slider-thumb {
-    appearance: none;
-    height: 16px;
-    width: 16px;
-    background: #008080;
-    border-radius: 50%;
-    margin-top: -5px;
-    transition: background 0.5s ease-out;
-} .app .audio-box .controls #playBtn:active, .app .audio-box .controls #seekbar::-webkit-slider-thumb:active {
-    background: #005050;
-    transition: background 0.2s;
-} .app div.progressbar {
-    border: 3px solid #008080;
-    border-bottom: 3px solid #00000000;
-    height: 40px;
-    width: 40px;
-    border-radius: 50%;
-    animation: spin 1s infinite linear;
-} .toast {
-    display: flex;
-    justify-content: center;
-    position: fixed;
-    bottom: 65px;
-    width: 100%;
-    transition: opacity 0.5s ease;
-    z-index: 100;
-} .toast p {
-    background: #000000cc;
-    color: #ffffff;
-    padding: 10px;
-    border-radius: 10px;
-    max-width: 80%;
-} .toast.hide {
-    display: none;
-    opacity: 0;
-} .navigation-bar {
-    position: fixed;
-    display: flex;
-    justify-content: space-around;
-    background: #000000;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    z-index: 50;
-} .navigation-bar button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    color: #dddddd;
-    background: #00000000;
-    font-size: 20px;
-    padding: 5px;
-    height: 35px;
-    width: 25%;
-    border-radius: 20px;
-    transition: background 0.5s ease-out;
-} .navigation-bar button:active {
-    background: #ffffff44;
-    transition: background 0s;
-} .alertPopup {
-    position: fixed;
-    top: 40%;
-    left: 30px;
-    width: calc(100% - 60px);
-    min-height: 100px;
-    background: #ffffff;
-    padding: 10px;
-    transition: opacity 0.3s;
-    box-shadow: 0 0 10px #00000055;
-    z-index: 150;
-} .alertPopup .content {
-    padding: 10px;
-} .alertPopup .footer {
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-end;
-    margin-top: 20px;
-} .alertPopup .footer button {
-    border: none;
-    background: #00000000;
-    font-size: 16px;
-    color: #008080;
-    text-transform: uppercase;
-    padding: 10px;
-    transition: background 0.5s ease-out
-} .alertPopup .footer button:active {
-    background: #cccccc;
-    transition: background 0.2s;
-} .alertPopup.hide {
-    display: none;
-    opacity: 0;
-} .status-bar {
-    position: fixed;
-    display: grid;
-    grid-template-columns: repeat(2, 50%);
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: #00000000;
-    color: #ffffff;
-    height: 20px;
-    font-size: 14px;
-    text-shadow: 0 0 5px #000000;
-    z-index: 50;
-} .status-bar .div1, .status-bar .div2 {
-    display: flex;
-    align-items: center;
-    padding: 0 5px;
-    height: 100%;
-} .status-bar .div2 {
-    justify-content: flex-end;
-}
-@keyframes spin {
-    100% {
-        transform: rotate(360deg);
-    }
-}
-    </style>
+    <link rel="stylesheet" href="static/styles.css">
+    <script src="static/notlang.js"></script>
 </head>
 <body>
     <div class="desktop">
         <div class="status-bar">
             <div class="div1">
-                <p>7:39 p. m.</p>
+                <p>14:30 p. m.</p>
             </div>
             <div class="div2">
                 <p>32%</p>
+            </div>
+        </div>
+        <div class="notifications-bar hid">
+            <div class="header">
+                <small>Viernes, 12 de abril • 14:30 p. m.</small>
+                <small>Parece que va a llover</small>
+            </div>
+            <div class="quick-btns">
+                <button class="active" onclick="this.classList.toggle('active')">WIFI</button>
+                <button onclick="this.classList.toggle('active')">Dienteazul</button>
+                <button onclick="this.classList.toggle('active')">Modo Avioneta</button>
+            </div>
+            <div class="noti-box">
+                <div class="noti">
+                    <div class="header">
+                        <b></b>
+                        <small> • Whatsapp</small>
+                        <small> • 2 horas</small>
+                    </div>
+                    <div class="content">
+                        <p>Reenvía esto a 10 personas o tendrás mala suerte por 7 años. El bebé Jesús llora si no compartes. 🙏</p>
+                    </div>
+                    <div class="actions">
+                        <button>Responder</button>
+                        <button>Silenciar por 1 año</button>
+                    </div>
+                </div>
+                <div class="noti">
+                    <div class="header">
+                        <b>Jefazo</b>
+                        <small> • Correo</small>
+                        <small> • 8.15 a.m.</small>
+                    </div>
+                    <div class="content">
+                        <p>¿Por qué llegaste 1 minuto tarde? Reunión urgente a las 8:30 para discutir tu compromiso con la empresa.</p>
+                    </div>
+                    <div class="actions">
+                        <button>Llorar en el baño</button>
+                    </div>
+                </div>
+                <div class="noti">
+                    <div class="header">
+                        <b>Mamá</b>
+                        <small> • Llamada perdida</small>
+                        <small> • 11 veces</small>
+                    </div>
+                    <div class="content">
+                        <p>¿POR QUÉN NO CONTESTAS? SOLO QUERÍA SABER SI COMISTE</p>
+                    </div>
+                    <div class="actions">
+                        <button>Llamar</button>
+                        <button>Decir que sí comí</button>
+                    </div>
+                </div>
+                <div class="noti">
+                    <div class="header">
+                        <b>Tío Ricardo</b>
+                        <small> • Whatsapp</small>
+                        <small> • Ayer</small>
+                    </div>
+                    <div class="content">
+                        <p>[VIDEO] "MIRA COMO ESTA JOVEN LE HACE MAGIA AL TOCINO (no es fake)</p>
+                    </div>
+                    <div class="actions">
+                        <button>Ver</button>
+                        <button>Reportar a la OMS</button>
+                    </div>
+                </div>
+                <div class="noti">
+                    <div class="header">
+                        <b>Amazon</b>
+                        <small> • Promoción</small>
+                        <small> • 1 día</small>
+                    </div>
+                    <div class="content">
+                        <p>Compra ahora este collar anti-5G por solo $99.99 (¡90% descuento porque eres especial!)</p>
+                    </div>
+                    <div class="actions">
+                        <button>Comprar</button>
+                        <button>Ignorar</button>
+                    </div>
+                </div>
+                <div class="noti">
+                    <div class="header">
+                        <b>Crush</b>
+                        <small> • Instagram</small>
+                        <small> • 5 min</small>
+                    </div>
+                    <div class="content">
+                        <p>Acaba de publicar una historia con alguien que podría ser su pareja (o su primo, quién sabe).</p>
+                    </div>
+                    <div class="actions">
+                        <button>Espiar</button>
+                        <button>AutoEliminarse</button>
+                    </div>
+                </div>
+                <div class="noti">
+                    <div class="header">
+                        <b>Banco</b>
+                        <small> • Alerta</small>
+                        <small> • Ahora</small>
+                    </div>
+                    <div class="content">
+                        <p>Tienes $3.42 en tu cuenta. ¿Quieres solicitar un préstamo para comprar un chicle?</p>
+                    </div>
+                    <div class="actions">
+                        <button>Sí</button>
+                        <button>Llorar</button>
+                    </div>
+                </div>
+                <div class="noti">
+                    <div class="header">
+                        <b>Hermano</b>
+                        <small> • SMS</small>
+                        <small> • 2 horas</small>
+                    </div>
+                    <div class="content">
+                        <p>Oye, ¿me prestas $50? Es para... cosas (te devuelvo nunca).</p>
+                    </div>
+                    <div class="actions">
+                        <button>Enviar</button>
+                        <button>Bloquear ADN</button>
+                    </div>
+                </div>
+                <div class="noti">
+                    <div class="header">
+                        <b>App del Clima</b>
+                        <small> • Alerta</small>
+                        <small> • Mañana</small>
+                    </div>
+                    <div class="content">
+                        <p>Lluvia intensa. Recomendación: No salgas, duerme como los dioses te dieron derecho.</p>
+                    </div>
+                    <div class="actions">
+                        <button>Aceptar</button>
+                        <button>Agradecer al universo</button>
+                    </div>
+                </div>
+                <div class="noti">
+                    <div class="header">
+                        <b>Grupo "Los panas"</b>
+                        <small> • Whatsapp</small>
+                        <small> • 30 min</small>
+                    </div>
+                    <div class="content">
+                        <p>[MEME] "Cuando el profe dice 'pregunten sin miedo' y alguien pregunta:</p>
+                    </div>
+                    <div class="actions">
+                        <button>Reír</button>
+                        <button>Guardar para usarlo en 2030</button>
+                    </div>
+                </div>
+                <div class="noti">
+                    <div class="header">
+                        <b>Vecino (grupo "Condominio")</b>
+                        <small> • Whatsapp</small>
+                        <small> • 5 horas</small>
+                    </div>
+                    <div class="content">
+                        <p>¿Quién dejó el ascensor con olor a empanadas de ayer? CONFIESEN.</p>
+                    </div>
+                    <div class="actions">
+                        <button>😈</button>
+                        <button>Decir que fué el gato</button>
+                    </div>
+                </div>
+                <div class="noti">
+                    <div class="header">
+                        <b>App de Salud</b>
+                        <small> • Notificación</small>
+                        <small> • 8.00 a.m.</small>
+                    </div>
+                    <div class="content">
+                        <p>Tu ritmo cardíaco a las 3 a.m. sugirió que estabas viendo algo *interesante*.</p>
+                    </div>
+                    <div class="actions">
+                        <button>😳</button>
+                        <button>Desinstalar</button>
+                    </div>
+                </div>
+                <div class="noti">
+                    <div class="header">
+                        <b>Prima Karen</b>
+                        <small> • Facebook</small>
+                        <small> • 1 hora</small>
+                    </div>
+                    <div class="content">
+                        <p>¡COMPRA MIS ACEITES ESENCIALES! CURAN EL COVID, LA FALTA DE NOVIO Y EL IMPUESTO PREDIAL 🤑</p>
+                    </div>
+                    <div class="actions">
+                        <button>Ignorar</button>
+                        <button>Denunciar por brujería</button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="navigation-bar">
@@ -341,7 +263,7 @@
         <div class="screen" id="MAIN-screen">
             <h1>Notas del desarrollador</h1>
             <div class="audio-box"> <!-- Me dejé llevar, lo admito... -->
-                <audio id="audio" src="mesobranlaspalabras.mp3"></audio>
+                <audio id="audio" src="assets/audio/mesobranlaspalabras.mp3"></audio>
                 <div class="controls">
                     <button id="playBtn" onclick="btn()">▶</button>
                     <p id="current">0:00</p> <b>/</b> <p id="duration">0:00</p>
@@ -354,7 +276,7 @@
             function btn(){
                 if (c === 0){
                     showToast("Traete unas heladas bro, que hoy se sacan lagrimas", 2500);
-                    c++;
+                    c++; // C++ REFERENCIA!!!???
                 }
             }
             </script>
@@ -415,7 +337,7 @@
                     installApp(appPackage[0], appPackage[1], appPackage[2]);
                 } catch (e){
                     showAlert("Algo salió mal (logs en consola)");
-                    throw e
+                    throw e;
                 }
             }
             </script>
@@ -430,8 +352,8 @@
             background: #000000;
             color: #ffffff;
         } #Settings-app small {
-            font-size: 8px;
-            color: #ffffff66;
+            font-size: 12px;
+            color: #ffffff77;
         } #Settings-app h3 {
             margin-bottom: 0;
         } #Settings-app .specclass-Settings-section {
@@ -441,6 +363,9 @@
             transition: background 0.5s ease-out;
             margin: 0;
             width: 100%;
+        } #Settings-app .specclass-Settings-section small {
+            position: absolute;
+            right: 10px;
         } #Settings-app .specclass-Settings-section:active {
             background: #333333;
             transition: background 0.2s;
@@ -450,206 +375,42 @@
         </style>
         <div class="screen" id="MAIN-screen">
             <h3>Siéntete como el creador de Notroid</h3>
-            <small>(en el hecho de poder, no de hambre)</small>
-            <div class="specclass-Settings-section" style="margin-top: 20px;" data-screen="apps">
-                <p class="specclass-Settings-icon">🎛️</p>
-                <p>Aplicaciones instaladas</p>
+            <small style="font-size: 8px; color: #ffffff66;">(en el hecho de poder, no de hambre)</small>
+            <div class="specclass-Settings-section" style="margin-top: 20px;" data-screen="apps" onclick="document.getElementById('specid-Settings-ver').innerText = `v${randInt(10, 99)}.${randInt(100, 999)}`;">
+                <p class="specclass-Settings-icon">📱</p>
+                <p>Acerca del Telefono</p>
             </div>
         </div>
         <div class="screen" id="apps-screen">
-            <p>apps...</p>
+            <h3>Acerca de tu jaifon</h3>
+            <div class="specclass-Settings-section" ondblclick="showAlert('Notroid > Android...  y punto')">
+                <p>Versión de Notroid</p>
+                <small id="specid-Settings-ver" onclick="showToast('La mejor versión hasta que salga la próxima')"></small>
+            </div>
         </div>
         <script>
         const app = document.getElementById("Settings-app");
         app.querySelectorAll(".specclass-Settings-section").forEach(section =>{
+            const screen = section.getAttribute("data-screen");
+            if (!screen) return;
             section.addEventListener("click", ()=>{
-                navigateTo(app, section.getAttribute("data-screen"));
+                navigateTo(app, screen);
             })
         })
         </script>
     </div>
     </div>
+    <script src="static/script.js"></script>
     <script>
-let navigationStack = [];
-let actualApp = null;
-const formatTime = secs => `${Math.floor(secs / 60)}:${Math.floor(secs % 60).toString().padStart(2, "0")}`
-function initSystem(){
-    document.querySelector(".desktop").addEventListener("click", function(e){
-        const icon = e.target.closest(".icon");
-        if (!icon) return;
-        const target = icon.getAttribute("data-app");
-        if (target !== null){
-            showApp(`${target}-app`);
-        } else {
-            console.log("No tiene app");
-        };
-    });
-    document.querySelectorAll(".audio-box").forEach(box =>{
-        const playBtn = box.querySelector("#playBtn");
-        const audio = box.querySelector("#audio");
-        const current = box.querySelector("#current");
-        const duration = box.querySelector("#duration");
-        const seekbar = box.querySelector("#seekbar");
-        audio.addEventListener("loadedmetadata", ()=>{
-            duration.innerText = formatTime(audio.duration)
-        });
-        playBtn.addEventListener("click", ()=>{
-            if (audio.paused){
-                audio.play();
-                playBtn.innerText = "||";
-            } else {
-                audio.pause();
-                playBtn.innerText = "▶";
-            }
-        });
-        seekbar.addEventListener("input", ()=>{
-            const val = (seekbar.value / 100) * audio.duration;
-            current.innerText = formatTime(val);
-            audio.currentTime = val;
-        });
-        audio.addEventListener("timeupdate", ()=>{
-            seekbar.value = (audio.currentTime / audio.duration) * 100 || 0;
-            current.innerText = formatTime(audio.currentTime);
-        });
-    });
-}
-initSystem();
-function installApp(name, icon, app, quest=true){
-    let accepted = true
-    if (quest){
-        accepted = confirm(`¿Estás seguro que quieres instalar '${name}'?`);
-    }
-    if (!accepted) return;
-    showToast(`Instalando '${name}' (logs en consola)...`);
-    console.warn(`--- INSTALLING ---\n- NAME:\n${name}\n-ICON:\n${icon}\n-APP:\n${app}\n--- LOG END ---`)
-    document.querySelector(".desktop").insertAdjacentHTML("beforeend", icon)
-    document.body.querySelector("div.helper").insertAdjacentHTML("beforeend", app);
-}
-function showApp(id){
-    navigationStack = [];
-    const app = document.getElementById(id);
-    if (app === null){
-        alert(`Error: App no existe: ${id}`);
-        return;
-    }
-    const mainScreen = app.querySelector("#MAIN-screen");
-    if (mainScreen === null){
-        console.error("No tiene pantalla principal (SCREEN MAIN)");
-        return;
-    }
-    setTimeout(()=>{
-        navigateTo(app, "MAIN");
-        app.style.display = "block";
-        void app.offsetWidth;
-        app.classList.remove("hide");
-        actualApp = app;
-    }, 200);
-}
-//showApp("Settings-app")
-function hideApp(cntxt){
-    const app = cntxt.closest(".app");
-    setTimeout(()=>{
-        app.classList.add("hide");
-        setTimeout(()=>{
-            app.style.display = "none";
-            app.querySelectorAll(".screen").forEach(screen => screen.style.display="none")
-        }, 200);
-    }, 200);
-}
-function navigateTo(cntxt, id, save=true){
-    const app = cntxt.closest(".app");
-    const currScreen = Array.from(app.querySelectorAll(".screen")).find(screen=>{
-        return window.getComputedStyle(screen).display === "block";
-    });
-    if (currScreen && save){
-        navigationStack.push({
-            app: app,
-            screen: currScreen.id.split("-screen")[0]
-        })
-    }
-    app.querySelectorAll(".screen").forEach(screen=>{
-        screen.style.display = "none";
-    });
-    const screen = app.querySelector(`#${id}-screen`);
-    if (screen === null){
-        console.error(`La pantalla '${id}' no existe`);
-        return;
-    }
-    screen.style.display = "block";
-}
-function showToast(msg, time=2000){
-    let toast = document.getElementById("globalToast");
-    if (toast === null){
-        toast = document.createElement("div");
-        toast.id = "globalToast";
-        toast.classList.add("toast", "hide");
-        document.body.appendChild(toast);
-    }
-    toast.innerHTML = `<p>${msg}</p>`;
-    toast.style.display = "flex";
-    void toast.offsetWidth;
-    toast.classList.remove("hide");
-    setTimeout(()=>{
-        toast.classList.add("hide");
-        setTimeout(()=>{
-            toast.style.display = "none";
-        }, 500)
-    }, time)
-}
-function showAlert(msg){
-    let alrt = document.getElementById("globalAlert");
-    if (alrt === null){
-        alrt = document.createElement("div");
-        alrt.id = "globalAlert";
-        alrt.classList.add("alertPopup", "hide");
-        document.body.appendChild(alrt);
-    }
-    alrt.innerHTML = `
-    <div class="content">
-        <p>${msg}</p>
-    </div>
-    <div class="footer">
-        <button onclick="hideAlert(this)">Aceptar</button>
-    </div>`;
-    alrt.style.display = "block";
-    void alrt.offsetWidth;
-    alrt.classList.remove("hide");
-}
-function hideAlert(cntxt){
-    const alrt = cntxt.closest(".alertPopup");
-    alrt.classList.add("hide");
-    setTimeout(()=>{
-        alrt.style.display = "none";
-    }, 300);
-}
-function goHome(){
-    if (actualApp === null){
-        console.log("No hay apps abiertas");
-        return;
-    }
-    hideApp(actualApp);
-    actualApp = null;
-    return;
-}
-function goBack(){
-    if (navigationStack.length === 0){
-        if (actualApp === null){
-            console.log("No hay apps abiertas");
-            return;
-        }
-        hideApp(actualApp);
-        actualApp = null;
-        return;
-    }
-    const prevStat = navigationStack.pop();
-    const app = prevStat.app;
-    const screen = prevStat.screen;
-    navigateTo(app, screen, save=false);
-}
+initSystem(); //showApp("Settings-app")
+sendNotification('Mamá', 'Compra pan', 'Whatsapp Plus', {'time': 'Ayer', 'isOpen': true, 'urgent': true, 'actions': ['Ok', 'Perdí la plata']})
     </script>
 </body>
 </html>
 
 <!--
-SIENTO QUE TE AMO MAS, QUE HOY ME GUSTAS MAS, ES ALGO SINGULAAAR, ME SOBRAN LAS PALAAABRAAAS...
+SIENTO QUE TE AMO MAS,
+QUE HOY ME GUSTAS MAS,
+ES ALGO SINGULAAAR,
+ME SOBRAN LAS PALAAABRAAAS...
 -->
