@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notroid (2.0)</title>
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+    <div class="statusBar">
+        <p id="statusTime">18:28</p>
+        <p id="statusBat">71%</p>
+    </div>
+    <div class="navBar">
+        <button>▢</button>
+        <button onclick="goHome()" style="font-size: 30px">○</button>
+        <button>◀</button>
+    </div>
+  
+    <div class="desktop"></div>
+    
+    <div id="NotroidGlobalAlertDialog" class="alertDialog hide">
+        <div class="main">
+            <div class="content">
+                <h2>Titulo</h2>
+                <p>Mensaje</p>
+            </div>
+            <div class="buttons">
+                <button>Aceptar</button>
+                <button>Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="static/script.js"></script>
+    <script>
+loadIcons()
+showToast("Notroid 2.0")
+    </script>
+</body>
+  
+</html>
