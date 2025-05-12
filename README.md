@@ -123,12 +123,13 @@ En Notroid nos da flojera especificar si quieres el contenido de texto de un ele
 ---
 
 ## Ideas para el futuro (y con "futuro" me refiero a nunca por pereza 👀🔥)
-- **Acciones implícitas**: Poder visualizar un contenido con varias apps.
 - **2do método de creación de apps**: Crear apps con un `NotroidManifest.xml`, `MainScreen.kt` y `main_screen.xml` para los traumados (ni en sueños hago eso).
-- **Guardado de datos por app**: Permitir a las apps tener datos que persistan (*sufre localStorage, sufre...*).
+- **Más tipos de elementos**, como `switch`, `checkbox`, `range`/`seekbar`, etc.
+- ***Notroid Studio***? 🗣😭🔥🙏☠
 
 ---
 
 ## Mensajes del desarrollador (yo):
 *Tuve que repasar cada mldito componente (más los mlditos `Intents` y sus multi-funciones raras) para poder hacer esto.*
+
 *(Y recuerda: Si un dev Android te dice "eso no es escalable", grítale "¡NOTROID NO ES TÚ PAPI!" y muestra un toast épico). 🗣🍞*
