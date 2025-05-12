@@ -480,7 +480,6 @@ function navigateTo(context, screenId){
         }
     })
 }
-statusbar
 // ========== ELEMENTOS NATIVOS (NO PODIAN FALTAR JEJE) ========== //
 function showToast(msg, time=2500){
     const toast = document.getElementById("NotroidGlobalToast");
