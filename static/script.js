@@ -1,15 +1,5 @@
 // static/script.js
 // TODO: FIleSystem, AlertDialog, Notifications, SaveStateInLocalStorage, NavigationBar(currApp, register)
-const EnvStorage = (appId) => ({
-    set: (key, value) => localStorage.setItem(`env-${appId}-${key}`, value),
-    get: (key) => localStorage.getItem(`env-${appId}-${key}`),
-    remove: (key) => localStorage.removeItem(`env-${appId}-${key}`),
-    clearAll: () => {
-        for (const k in localStorage) {
-            if (k.startsWith(`env-${appId}-`)) localStorage.removeItem(k);
-        }
-    }
-});
 const desktop = document.querySelector(".desktop");
 let currApp = null;
 const permissions = JSON.parse(localStorage.getItem("__notroid_permissions__")) || {
