@@ -40,6 +40,7 @@ Las apps siguen una estructura *JSON-like* para ser eficiente, accesible y legí
 ```json
 "main": {
     "entry": "MAIN", // Nombre de la primer pantalla al iniciar
+    "toolbarTitle": "Mi Toolbar", // Titulo del toolbar (por default el manifest/name de la app)
     "functions": { // Funciones predefinidas
         "bienvenida": [
             ["SHOW_TOAST", "¡Hola usuario promedio!"],
