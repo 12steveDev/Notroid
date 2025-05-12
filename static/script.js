@@ -1,198 +1,454 @@
 // static/script.js
-let navigationStack = [];
-let actualApp = null;
-let isNotificationsOpen = false;
-let openApps = [];
-let currY = 0;
-const formatTime = secs => `${Math.floor(secs / 60)}:${Math.floor(secs % 60).toString().padStart(2, "0")}`;
-const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-// ===== SISTEMA ===== //
-function initSystem(){
-    // Interactuar con iconos
-    document.querySelector(".desktop").addEventListener("click", function(e){
-        const icon = e.target.closest(".icon");
-        if (!icon) return;
-        const target = icon.getAttribute("data-app");
-        if (target !== null){
-            showApp(`${target}-app`);
-        } else {
-            console.log("No tiene app");
-        };
-    });
-    // Expandir notificaciones
-    document.querySelector(".noti-box").addEventListener("click", (e)=>{
-        const tar = e.target.closest(".header");
-        const noti = tar.closest(".noti");
-        if (noti && tar){
-            noti.classList.toggle("open");
+// TODO: FIleSystem, AlertDialog, Notifications, SaveStateInLocalStorage, NavigationBar(currApp, register)
+const EnvStorage = (appId) => ({
+    set: (key, value) => localStorage.setItem(`env-${appId}-${key}`, value),
+    get: (key) => localStorage.getItem(`env-${appId}-${key}`),
+    remove: (key) => localStorage.removeItem(`env-${appId}-${key}`),
+    clearAll: () => {
+        for (const k in localStorage) {
+            if (k.startsWith(`env-${appId}-`)) localStorage.removeItem(k);
         }
-    });
-    // Borrar notificaciones
-    document.querySelectorAll(".noti-box .noti").forEach(noti =>{
-        let currX = 0;
-        noti.addEventListener("touchstart", (e)=>{
-            currX = e.touches[0].clientX;
-        });
-        noti.addEventListener("touchmove", (e)=>{
-            if (currX + 100 < e.touches[0].clientX){
-                const tar = e.target.closest(".noti");
-                tar.classList.add("hide");
-                setTimeout(()=>{
-                    tar.remove();
-                }, 350);
-            };
-        });
-    });
-    // Expandir barra de notificaciones
-    document.querySelector(".status-bar").addEventListener("touchstart", (e)=>{
-        currY = e.touches[0].clientY;
-    });
-    document.querySelector(".status-bar").addEventListener("touchmove", (e)=>{
-        const bar = document.querySelector(".notifications-bar");
-        const newY = e.touches[0].clientY;
-        if (currY < newY && !isNotificationsOpen){
-            bar.classList.remove("hide");
-            isNotificationsOpen = true;
-        } else if (currY > newY && isNotificationsOpen){
-            bar.classList.add("hide");
-            isNotificationsOpen = false;
-        }
-    });
-    // Interactuar con audios
-    document.querySelectorAll(".audio-box").forEach(box =>{
-        const playBtn = box.querySelector("#playBtn");
-        const audio = box.querySelector("#audio");
-        const current = box.querySelector("#current");
-        const duration = box.querySelector("#duration");
-        const seekbar = box.querySelector("#seekbar");
-        audio.addEventListener("loadedmetadata", ()=>{
-            duration.innerText = formatTime(audio.duration)
-        });
-        playBtn.addEventListener("click", ()=>{
-            if (audio.paused){
-                audio.play();
-                playBtn.innerText = "||";
-            } else {
-                audio.pause();
-                playBtn.innerText = "▶";
+    }
+});
+const desktop = document.querySelector(".desktop");
+let currApp = null;
+const permissions = JSON.parse(localStorage.getItem("__notroid_permissions__")) || {
+    "notroid.permission.STORAGE": [],
+    "notroid.permission.EXACT_IP_ACCESS🙏🤑🔥": [] // WTF 🙏☠🔥
+}
+// Default por ahora (futuro localStorage)
+const icons = JSON.parse(localStorage.getItem("__notroid_icons__")) || {
+    "MiApp": {
+        manifest: {
+            id: "MiApp",
+            name: "Mi App",
+            icon: "https://placehold.co/150x150/008080/FFFFFF?text=Hola\\nMundo",
+            categories: [],
+            permissions: []
+        },
+        main: {
+            entry: "MAIN",
+            toolbarTitle: "Épico, ¿Verdad?",
+            functions: {},
+            lifecycle: {
+                onCreate: ["SHOW_TOAST", "Iniciando $e"],
+                onDestroy: ["SHOW_TOAST", "Cerrando"]
+            },
+            env: {
+                "e": "valor"
             }
-        });
-        seekbar.addEventListener("input", ()=>{
-            const val = (seekbar.value / 100) * audio.duration;
-            current.innerText = formatTime(val);
-            audio.currentTime = val;
-        });
-        audio.addEventListener("timeupdate", ()=>{
-            seekbar.value = (audio.currentTime / audio.duration) * 100 || 0;
-            current.innerText = formatTime(audio.currentTime);
-        });
-    });
-}
-function installApp(name, icon, app, quest=true){
-    let accepted = true
-    if (quest){
-        accepted = confirm(`¿Estás seguro que quieres instalar '${name}'?`);
+        },
+        screens: {
+            "MAIN": [
+                {type: "text", text: "Hola Mundo"},
+                {type: "button", text: "Detalles", action: ["NAVIGATE_TO", "Details"]}
+            ],
+            "Details": [
+                {type: "text", text: "Detalles..."},
+                {type: "button", text: "...", action: ["SHOW_TOAST", "Has sido un gran explorador, pequeño bro 🗿🔥"]}
+            ]
+        }
+    },
+    "Calculadora": {
+        manifest: {
+            id: "Calculadora",
+            name: "Calculadora",
+            icon: "https://placehold.co/150x150/000000/FFFFFF?text=Calc",
+            categories: [],
+            permissions: []
+        },
+        main: {
+            entry: "MAIN",
+            functions: {},
+            lifecycle: {
+                onCreate: [],
+                onDestroy: ["SHOW_TOAST", "9 + 11 queda de tarea 🗣🗣🔥🔥"]
+            },
+            env: {}
+        },
+        screens: {
+            "MAIN": [
+                {type: "text", text: "2 + 2 = 4", id: "label"},
+                {type: "button", text: "Aburrido...", action: [["SET_TEXT", "label", "9 + 11 = 🛩🗼🔥"], ["SHOW_TOAST", "épico"]]},
+                {type: "button", text: "Salir", action: ["CLOSE_APP"]}
+            ]
+        }
+    },
+    "CondicionalTest": {
+        manifest: {
+            id: "CondicionalTest",
+            name: "Condicional Test",
+            icon: "https://placehold.co/150x150/orange/fff?text=IF",
+            categories: [],
+            permissions: []
+        },
+        main: {
+            entry: "MAIN",
+            functions: {},
+            lifecycle: {
+                onCreate: [],
+                onDestroy: []
+            },
+            env: {}
+        },
+        screens: {
+            "MAIN": [
+                {type: "text", text: "Nada aún...", id: "label"},
+                {type: "input", placeholder: "Escribe algo", id: "entrada"},
+                {
+                    type: "button",
+                    text: "Confirmar",
+                    action: [
+                        "IF", "$entrada",
+                        ["SET_TEXT", "label", "Escribiste: $entrada"],
+                        ["SET_TEXT", "label", "No escribiste nada"]
+                    ]
+                }
+            ]
+        }
+    },
+    "VSCodeChafa": {
+        manifest: {
+            id: "VSCodeChafa",
+            name: "VSCode Chafa",
+            icon: "https://placehold.co/150x150/FF00FF/FFFFFF?text=VSC",
+            categories: ["enterText"],
+            permissions: []
+        },
+        main: {
+            entry: "MAIN",
+            functions: {},
+            lifecycle: {
+                onCreate: ["IF", "$__intentData", [["SET_TEXT", "label", "$__intentData"], ["NAVIGATE_TO", "GETTEXT"]]],
+                onDestroy: []
+            },
+            env: {}
+        },
+        screens: {
+            "MAIN": [
+                {type: "text", text: "Visual Studio Code sin miedo al éxito 🗣🔥"},
+                {type: "input", placeholder: "Pone tu texto aquí..."}
+            ],
+            "GETTEXT": [
+                {type: "text", text: "Usando VSCodeChafa desde un intent implícito? Interesante... 🧐🔥"},
+                {type: "text", text: "", id: "label"},
+                {type: "input", placeholder: "Pone tu texto aquí...", id: "entry"},
+                {type: "button", text: "Enviar respuesta", action: ["RESOLVE_INTENT", "$entry"]}
+            ]
+        }
+    },
+    "BlocDeNotasChafa": {
+        manifest: {
+            id: "BlocDeNotasChafa",
+            name: "Bloc De Notas Chafa",
+            icon: "https://placehold.co/150x150/FFFF00/000000?text=BDN",
+            categories: ["enterText"],
+            permissions: []
+        },
+        main: {
+            entry: "MAIN",
+            functions: {},
+            lifecycle: {
+                onCreate: ["IF", "$__intentData", [["SET_TEXT", "label", "$__intentData"], ["NAVIGATE_TO", "GETTEXT"]]],
+                onDestroy: []
+            },
+            env: {}
+        },
+        screens: {
+            "MAIN": [
+                {type: "text", text: "Bloc de notas sin miedo al éxito 🗣🔥"},
+                {type: "input", placeholder: "Pone tu texto aquí..."}
+            ],
+            "GETTEXT": [
+                {type: "text", text: "Usando BlocDeNotasChafa desde un intent implícito? Interesante... 🧐🔥"},
+                {type: "text", text: "", id: "label"},
+                {type: "input", placeholder: "Pone tu texto aquí...", id: "entry"},
+                {type: "button", text: "Enviar respuesta", action: ["RESOLVE_INTENT", "$entry"]}
+            ]
+        }
+    },
+    "ToastManager": {
+        manifest: {
+            id: "ToastManager",
+            name: "Toast Manager",
+            icon: "https://placehold.co/150x150/770000/FFFFFF?text=T",
+            categories: [],
+            permissions: []
+        },
+        main: {
+            entry: "MAIN",
+            functions: {},
+            lifecycle: {
+                onCreate: [],
+                onDestroy: []
+            },
+            env: {}
+        },
+        screens: {
+            "MAIN": [
+                {type: "text", text: "Todavía nada introducido...", id: "label"},
+                {type: "button", text: "Mostrar Toast", action: ["SHOW_TOAST", "$label"]},
+                {type: "button", text: "Escoger texto", action: ["SEND_INTENT", "enterText", "Pone texto:", [["SET_TEXT", "label", "$__intentResult"], ["SHOW_TOAST", "Recibió: $__intentResult"]]]}
+            ],
+        }
+    },
+    "PersistentTest": {
+        manifest: {
+            id: "PersistentTest",
+            name: "Persistent Test",
+            icon: "https://placehold.co/150x150/FF00FF/FFFFFF?text=Perm",
+            categories: [],
+            permission: ["notroid.permission.STORAGE"]
+        },
+        main: {},
+        screens: {}
     }
-    if (!accepted) return;
-    showToast(`Instalando '${name}' (logs en consola)...`);
-    console.warn(`--- INSTALLING ---\n- NAME:\n${name}\n-ICON:\n${icon}\n-APP:\n${app}\n--- LOG END ---`)
-    document.querySelector(".desktop").insertAdjacentHTML("beforeend", icon)
-    document.body.querySelector("div.helper").insertAdjacentHTML("beforeend", app);
+};
+
+function findAppsByCategory(category){
+    const finded = [];
+    for (const appObj of Object.values(icons)){
+        if (appObj.manifest.categories.includes(category)){
+            finded.push(appObj.manifest.id);
+        };
+    };
+    return finded;
 }
-// ===== "MANEJAMIENTO" DE APPS ===== //
-function showApp(id){
-    navigationStack = [];
-    const app = document.getElementById(id);
-    if (app === null){
-        alert(`Error: App no existe: ${id}`);
+
+function __cond(appId, cond){
+    if (typeof cond === "string"){
+        return Boolean(resolveValue(appId, cond));
+    } else if (Array.isArray(cond)){
+        const op = cond[1];
+        const a = resolveValue(appId, cond[0]);
+        const b = resolveValue(appId, cond[2]);
+        switch (op){
+            case "==":
+                return a === b;
+            case "!=":
+                return a !== b;
+            case ">":
+                return a > b;
+            case "<":
+                return a < b;
+            case ">=":
+                return a >= b;
+            case "<=":
+                return a <= b;
+            default:
+                console.warn("[__cond] Condición inesperada:", op);
+                return null;
+        }
+    } else {
+        console.error("[__cond] No se pudo leer la condición (no es string ni array)");
+    }
+}
+
+function executeNotroid(appId, elem, actionArr){
+    console.log(`[ExecuteNotroid] ${appId}\nelem: ${elem}\nactionArr: ${actionArr}`)
+    if (!actionArr || actionArr.length === 0) return;
+    const [action, ...args] = actionArr
+    if (Array.isArray(action)){
+        for (const act of [action, ...args]){
+            executeNotroid(appId, elem, act);
+        }
         return;
     }
-    const mainScreen = app.querySelector("#MAIN-screen");
-    if (mainScreen === null){
-        console.error("No tiene pantalla principal (SCREEN MAIN)");
-        return;
+    switch (action){
+        case "NAVIGATE_TO":
+            navigateTo(elem, resolveValue(appId, args[0]));
+            break;
+        case "SHOW_TOAST":
+            showToast(resolveValue(appId, args[0]));
+            break;
+        case "SET_TEXT":
+            resolveId(appId, args[0]).textContent = resolveValue(appId, args[1]);
+            break;
+        case "CLOSE_APP":
+            closeApp(appId);
+            break;
+        case "IF":
+            const cond = args.shift();
+            executeNotroid(appId, elem, __cond(appId, cond) ? args[0] : args[1]);
+            break;
+        case "SEND_INTENT":
+            const [category, data, callback] = args;
+            const apps = findAppsByCategory(category);
+            let targetId;
+            if (!apps) {
+                showToast("No se pudo resolver la acción");
+                console.error("[SEND_INTENT] No se pudo resolver:", category);
+                return;
+            }
+            if (apps.length === 1){
+                targetId = apps[0];
+            } else if (apps.length > 1) {
+                targetId = apps[Number(prompt(`Abrir con...\n${apps}`))];
+                // TODO: Manejar un "Abrir con..." visual
+            }
+            icons[targetId].main.env.__pendingCallback = {
+                fromApp: appId,
+                callback: callback
+            }
+            launchApp(targetId, true, data);
+            break;
+        case "RESOLVE_INTENT":
+            const responseData = resolveValue(appId, args[0]);
+            const tcallback = icons[appId].main.env.__pendingCallback;
+            if (tcallback){
+                function parseIntentResults(actions, intentResult){
+                    if (Array.isArray(actions)){
+                        return actions.map(item => {
+                            if (Array.isArray(item)){
+                                return parseIntentResults(item, intentResult);
+                            } else if (typeof item === "string"){
+                                return item.replace(/\$__intentResult/g, intentResult)
+                            } else {
+                                return item;
+                            }
+                        });
+                    }
+                    return actions;
+                }
+                tcallback.callback = parseIntentResults(tcallback.callback, responseData);
+                executeNotroid(tcallback.fromApp, null, tcallback.callback);
+            }
+            delete icons[appId].main.env.__pendingCallback;
+            closeApp(appId);
+            break;
+        default:
+            console.warn("[ExecuteNotroid] Acción desconocida:", action);
+            break;
     }
+}
+function loadIcons(){
+    for (const appObj of Object.values(icons)){
+        const icon = document.createElement("div");
+        icon.className = "icon";
+        const img = document.createElement("img");
+        img.src = appObj.manifest.icon;
+        img.alt = appObj.manifest.id;
+        const label = document.createElement("p");
+        label.textContent = appObj.manifest.name;
+        icon.appendChild(img);
+        icon.appendChild(label)
+        icon.onclick = ()=>{
+            launchApp(appObj.manifest.id, reset=true)
+        }
+        desktop.appendChild(icon)
+
+        const app = document.createElement("div");
+        app.className = "app hide";
+        app.id = `${appObj.manifest.id}-app`;
+        const toolbar = document.createElement("div");
+        toolbar.className = "toolbar";
+        toolbar.textContent = appObj.main.toolbarTitle || appObj.manifest.name;
+        app.appendChild(toolbar)
+        for (const [scrName, elements] of Object.entries(appObj.screens)){
+            const screen = document.createElement("div");
+            screen.className = "screen hide";
+            screen.id = `${scrName}-screen`;
+            for (const element of elements){
+                let elem;
+                switch (element.type){
+                    case "text":
+                        elem = document.createElement("p");
+                        elem.textContent = element.text || "";
+                        break;
+                    case "button":
+                        elem = document.createElement("button");
+                        elem.textContent = element.text || "Botón";
+                        break;
+    
+                    case "input":
+                        elem = document.createElement("input");
+                        elem.placeholder = element.placeholder || "";
+                        elem.value = element.value || "";
+                        break;
+                    default:
+                        console.warn("Elemento desconocido:", element);
+                        elem = document.createElement("div");
+                        elem.textContent = `[Elemento no soportado: ${element.type}]`;
+                        break;
+                }
+                if (element.id){
+                    elem.id = `specid-${appObj.manifest.id}-${element.id}`;
+                }
+                if (element.action){
+                    elem.onclick = ()=>{
+                        executeNotroid(appObj.manifest.id, elem, element.action)
+                    }
+                }
+                screen.appendChild(elem);
+            }
+            app.appendChild(screen);
+        }
+        desktop.appendChild(app);
+    }
+}
+// ========== INICIALIZACIÓN DE APPS ========== //
+function launchApp(appId, reset=false, data=null){
+    const app = document.getElementById(`${appId}-app`);
+    const appObj = icons[appId];
+    if (!app){
+        alert(`Error: No se pudo lanzar '${appId}'`);
+        return null;
+    }
+    if (reset){
+        navigateTo(app, appObj.main.entry);
+    }
+    if (data){ // Mediante intent implícito
+        icons[appId].main.env.__intentData = data;
+        app.style.zIndex = "110"; // La enfoca encima
+    }
+    currApp = appId;
     setTimeout(()=>{
-        navigateTo(app, "MAIN");
         app.style.display = "block";
-        void app.offsetWidth;
+        void app.offsetWidth; // Tremendo hack, campeón
         app.classList.remove("hide");
-        actualApp = app;
-    }, 200);
+        executeNotroid(appId, app, appObj.main.lifecycle.onCreate);
+    }, 200)
 }
-//showApp("Settings-app")
-function hideApp(cntxt){
-    const app = cntxt.closest(".app");
+function closeApp(appId){
+    const app = document.getElementById(`${appId}-app`);
+    const appObj = icons[appId];
+    if (!app){
+        alert(`Error: POR ALGUNA RAZÓN no se pudo cerrar '${appId}' (considera reportar esto como extorsión)`);
+        return null;
+    }
     setTimeout(()=>{
         app.classList.add("hide");
+        executeNotroid(appId, app, appObj.main.lifecycle.onDestroy);
         setTimeout(()=>{
             app.style.display = "none";
-            app.querySelectorAll(".screen").forEach(screen => screen.style.display="none")
-        }, 200);
-    }, 200);
+        }, 400);
+    }, 200)
 }
-function navigateTo(cntxt, id, save=true){
-    const app = cntxt.closest(".app");
-    const currScreen = Array.from(app.querySelectorAll(".screen")).find(screen=>{
-        return window.getComputedStyle(screen).display === "block";
-    });
-    if (currScreen && save){
-        navigationStack.push({
-            app: app,
-            screen: currScreen.id.split("-screen")[0]
-        })
+function navigateTo(context, screenId){
+    const app = context.closest(".app");
+    if (!app){
+        alert(`Error al acceder a la app`);
+        return null;
     }
-    app.querySelectorAll(".screen").forEach(screen=>{
-        screen.style.display = "none";
-    });
-    const screen = app.querySelector(`#${id}-screen`);
-    if (screen === null){
-        console.error(`La pantalla '${id}' no existe`);
-        return;
-    }
-    screen.style.display = "block";
+    app.querySelectorAll(".screen").forEach(screen =>{
+        if (screen.id === `${screenId}-screen`){
+            screen.style.display = "block";
+        } else {
+            screen.style.display = "none"
+        }
+    })
 }
-// ===== ALERTAS Y ELEMENTOS ===== //
-function sendNotification(title, content, appName="Sistema", options={}) {
-    // Opciones defaults con espacio para el humor
-    const defaults = {
-        time: "Ahora", // o puede ser "1 hora", "5 min", etc.
-        isOpen: false, // si la noti aparece expandida
-        actions: ["👍", "👎"], // botones personalizables
-        urgent: false, // ¿Notificación de "ABUELA EN LLAMADA"?
-    };
-    const config = { ...defaults, ...options };
-
-    // Estructura dinámica pero con normas flexibles
-    const notiHTML = `
-    <div class="noti ${config.isOpen ? 'open' : ''}" ${config.urgent ? 'style="border-left: 5px solid #ff0000aa;"' : ''}>
-        <div class="header">
-            <b>${title}</b>
-            <small> • ${appName}</small>
-            <small> • ${config.time}</small>
-        </div>
-        <div class="content">
-            <p>${content}</p>
-        </div>
-        <div class="actions">
-            ${config.actions.map(action => 
-                `<button onclick="this.closest('.noti').remove()">${action}</button>`
-            ).join('')}
-        </div>
-    </div>`;
-
-    // ¡Inyectar la notificación como un meme en el grupo familiar!
-    document.querySelector(".noti-box").insertAdjacentHTML("afterbegin", notiHTML);
-}
-function showToast(msg, time=2000){
-    let toast = document.getElementById("globalToast");
-    if (toast === null){
+// ========== ELEMENTOS NATIVOS (NO PODIAN FALTAR JEJE) ========== //
+function showToast(msg, time=2500){
+    let toast = document.getElementById("NotroidGlobalToast");
+    if (!toast){
         toast = document.createElement("div");
-        toast.id = "globalToast";
-        toast.classList.add("toast", "hide");
-        document.body.appendChild(toast);
+        toast.className = "toast hide";
+        toast.id = "NotroidGlobalToast";
+        toast.appendChild(document.createElement("p"));
+        desktop.appendChild(toast);
     }
-    toast.innerHTML = `<p>${msg}</p>`;
+    toast.querySelector("p").textContent = msg;
     toast.style.display = "flex";
     void toast.offsetWidth;
     toast.classList.remove("hide");
@@ -201,72 +457,62 @@ function showToast(msg, time=2000){
         setTimeout(()=>{
             toast.style.display = "none";
         }, 500)
-    }, time)
+    }, time);
 }
-function showAlert(msg){
-    let alrt = document.getElementById("globalAlert");
-    if (alrt === null){
-        alrt = document.createElement("div");
-        alrt.id = "globalAlert";
-        alrt.classList.add("alertPopup", "hide");
-        document.body.appendChild(alrt);
-    }
-    alrt.innerHTML = `
-    <div class="content">
-        <p>${msg}</p>
-    </div>
-    <div class="footer">
-        <button onclick="hideAlert(this)">Aceptar</button>
-    </div>`;
-    alrt.style.display = "block";
-    void alrt.offsetWidth;
-    alrt.classList.remove("hide");
+// ========== UTILES ========== //  
+function resolveId(appId, id){
+    // Obtener el ID encerrado en la app
+    return document.getElementById(`specid-${appId}-${id}`); 
 }
-function hideAlert(cntxt){
-    const alrt = cntxt.closest(".alertPopup");
-    alrt.classList.add("hide");
-    setTimeout(()=>{
-        alrt.style.display = "none";
-    }, 300);
-}
-// ===== NAVEGACION ===== //
-function showOpenApps(){
-    // TODO: Terminar esto
-}
-function goHome(){
-    if (isNotificationsOpen){
-        setTimeout(()=>{
-            document.querySelector(".notifications-bar").classList.add("hide");
-            isNotificationsOpen = false;
-        }, 200);
-    }
-    if (actualApp === null){
-        console.log("No hay apps abiertas");
-        return;
-    }
-    hideApp(actualApp);
-    actualApp = null;
-    return;
-}
-function goBack(){
-    if (isNotificationsOpen){
-        setTimeout(()=>{
-            document.querySelector(".notifications-bar").classList.add("hide");
-            isNotificationsOpen = false;
-        }, 200);
-        return;
-    }
-    if (navigationStack.length === 0){
-        if (actualApp === null){
-            console.log("No hay apps abiertas");
-            return;
+function resolveValue(appId, str){
+    if (typeof str !== "string") return str;
+
+    // Reemplaza todas las variables tipo $id
+    return str.replace(/\$([a-zA-Z_]+)/g, (_, id) => {
+        const element = document.getElementById(`specid-${appId}-${id}`) || icons[appId].main.env[id]; 
+        if (!element) {
+            console.warn(`resolveValue: ID '${id}' no encontrado`);  
+            return "";  
         }
-        hideApp(actualApp);
-        actualApp = null;
-        return;
-    }
-    const prevStat = navigationStack.pop();
-    const app = prevStat.app;
-    const screen = prevStat.screen;
-    navigateTo(app, screen, save=false);
+        if (typeof element === "string") return element; // Por si es una variable en la env
+        return element.textContent || element.value || "";  
+    });
 }
+// ========== NAVEGACIÓN ========== //
+function goHome(){
+    if (currApp){
+        closeApp(currApp)
+    } else {
+        console.log("[goHome] Raíz")
+    }
+}
+// ========== Relleno ========== //
+function actualizarHora() {
+    const ahora = new Date();
+    const horas = ahora.getHours().toString().padStart(2, '0');
+    const minutos = ahora.getMinutes().toString().padStart(2, '0');
+
+    const statusTime = document.getElementById('statusTime');
+    if (statusTime) {
+        statusTime.textContent = `${horas}:${minutos}`;
+    }
+}
+// Actualizar la hora al cargar
+actualizarHora();
+// Luego actualizar cada 30 segundos para evitar sobrecarga
+setInterval(actualizarHora, 60000);
+// Batería
+navigator.getBattery().then(battery => {
+    const statusBat = document.getElementById('statusBat');
+
+    function actualizar() {
+        const porcentaje = Math.round(battery.level * 100);
+        const cargando = battery.charging ? ' ⚡' : '';
+        statusBat.textContent = `${porcentaje}%${cargando}`;
+    }
+
+    actualizar(); // inicial
+
+    battery.addEventListener('levelchange', actualizar);
+    battery.addEventListener('chargingchange', actualizar);
+});
