@@ -2,15 +2,15 @@
 /*
 
 Anotaciones:
-- Celdas por pagina:            5 x 6
-- Altura de SatusBar:           20px
-- Altura de NavigationBar:      35px
-- Altura de toolbar:            75px
+- Celdas por pagina:       5 x 6
+- Altura de SatusBar:      20px
+- Altura de NavigationBar: 35px
+- Altura de toolbar:       75px
 
-- Status/Navigations bar:       z-index 1000
-- Toasts:                       z-index 500
-- AlertDialogs/ActivityChooser: z-index 300
-- Apps:                         z-index 100
+- Status/Navigations bar   z-index 1000
+- Toasts                   z-index 500
+- talvez alertdialogs...   z-index 300
+- Apps:                    z-index 100
 
 */
 * {
@@ -32,6 +32,7 @@ Anotaciones:
     background-image: url("../assets/images/moi.jpg");
     background-size: 100% 100%;
     background-attachment: fixed;
+    /* overflow: hidden; Remover al depurar */
 } div.icon {
     display: flex;
     flex-direction: column;
@@ -105,7 +106,6 @@ Anotaciones:
     background: #eeeeee;
     border-bottom: 35px solid #000000;
     overflow-y: scroll;
-    scrollbar-width: none;
     z-index: 100;
     padding-top: 75px; /* Debajo del toolbar */
     transition: opacity 0.3s ease, transform 0.4s ease;
@@ -136,7 +136,7 @@ Anotaciones:
     justify-content: center;
     width: 100%;
     position: fixed;
-    bottom: 50px;
+    bottom: 40px;
     left: 0;
     z-index: 500;
     transition: opacity 0.5s ease;
@@ -186,11 +186,12 @@ Anotaciones:
 } div.alertDialog div.buttons button:active {
     background: #00000022;
     transition: background 0.2s ease;
-} 
+}
+
 /* Media queries para ajustes específicos */
 @media (max-width: 600px) {
     div.desktop {
-        grid-template-columns: repeat(3, 1fr); /* 3 columnas en móviles */
+        grid-template-columns: repeat(3, 33%); /* 3 columnas en móviles */
         padding: 20px 5px;
     }
     
