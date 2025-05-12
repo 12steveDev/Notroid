@@ -29,8 +29,8 @@ Las apps siguen una estructura *JSON-like* para ser eficiente, accesible y legí
     "id": "MiApp", // ID único de la app (¿not.example.miapp?)
     "name": "Mi Aplicacón", // Nombre visible de la app
     "icon": "https://placehold.co/...", // Ícono de la app
-    "categories": ["viewImage"], // Categorías que puede abarcar (ojito con esos intents implícitos 👀)
-    "permissions": ["NOTIFICATIONS", "CAMERA"] // Permisos que necesita la app (se viene "EXACT_IP_ACCESS" 🤑🔥)
+    "categories": ["notroid.categoryviewImage"], // Categorías que puede abarcar (ojito con esos intents implícitos 👀)
+    "permissions": ["notroid.permission.NOTIFICATIONS", "notroid.permission.CAMERA"] // Permisos que necesita la app (se viene "EXACT_IP_ACCESS" 🤑🔥)
 }
 ```
 
@@ -46,7 +46,7 @@ Las apps siguen una estructura *JSON-like* para ser eficiente, accesible y legí
     },
     "lifecycle": { // Ciclo de vida sin 3000 líneas de kotlin
         "onOpen": ["CALL", "bienvenida"], // Al hacerle click al ícono
-        "onClose": ["SHOW_TOAST", "¿Seguro? Oh cierto, soy un toast nomás XD, ¡CHAO!"] // ¿Al salir o cuando se le acabe el wifi al usuario?
+        "onClose": ["SHOW_TOAST", "¿Seguro? [si/no] Oh cierto, soy un toast nomás XD, ¡CHAO!"] // ¿Al salir o cuando se le acabe el wifi al usuario?
     },
     "env": {
         "usuario": "ElWe3000"
@@ -74,11 +74,14 @@ Las apps siguen una estructura *JSON-like* para ser eficiente, accesible y legí
 Las acciones son como funciones built-in que permiten hacer cosas del OS *sin tocar el OS*.
 > Los `<text>` pueden tener variables metidas con el prefijo `$` (Ej: `Hola, $nombre!`)
 
-- `SHOW_TOAST <text>`: Muestra un Toast con un texto, así de simple (ya vemos a kotlin llorando con sus `Context` 😢).
-- `CLOSE_APP`: Automaticamente cierra la app actual.
 - `NAVIGATE_TO <screen>`: Muestra la pantalla especificada.
+- `SHOW_TOAST <text>`: Muestra un Toast con un texto, así de simple (ya vemos a kotlin llorando con sus `Context` 😢).
 - `SET_TEXT <id> <text>`: Cambia el texto de un elemento usando su ID.
-- `CALL <function>`: Ejecuta la lista de acciones de una función definida en `main/functions`.
+- `SET_ENV <name> <text>`: Guarda una variable en el entorno actual. **No se guarda en el *storage***.
+- `CLOSE_APP`: Automaticamente cierra la app actual.
+- `IF <cond> <actionTrue> <actionFalse>`: Una condicional. Dependiendo
+  - `<cond>` puede ser para ver si una variable existe (`["IF", "$esAdmin", [...], [...]]`) o una condicional simple (`["IF", ["$valor", "==/!=/>/</>=/<=", "$valor"], [...], [...]]`)
+- `CALLc <function>`: Ejecuta la lista de acciones de una función definida en `main/functions`.
 
 **Recuerda** que son en formato `array` (Ej: `[action, arg1, arg2, etc...]`).
 
@@ -97,6 +100,15 @@ Cada elemento es solo un `type` más, **no una clase de sitio de dudosa proceden
 - `action`: Una acción al hacer click en el elemento (**Tip:** si quieres varias acciones, usa un `array`: `[[act1], [act1]]`).
 
 **Recuerda** que son en formato `obj` (Ej: `{type: type, text: text, etc...}]`).
+
+---
+
+## Manejo de variables (importante)
+En Notroid nos da flojera especificar si quieres el contenido de texto de un elemento, valor de una entrada o una variable, por lo que... ¡`$miVariable` significa las 3! Exactamente en el orden:
+- **Variable** en el *env*.
+- **Elemento** dentro de la app con ese `id`.
+  - Su **contenido de texto** (Ej: `text`).
+  - Su **valor** (Ej: `input`).
 
 ---
 
