@@ -3,7 +3,8 @@
 const desktop = document.querySelector(".desktop");
 let currApp = null;
 const permissions = JSON.parse(localStorage.getItem("__notroid_permissions__")) || {
-    "notroid.permission.STORAGE": [],
+    "notroid.permission.WRITE_STORAGE": ["NotasChafas"],
+    "notroid.permission.READ_STORAGE": ["NotasChafas"],
     "notroid.permission.EXACT_IP_ACCESS🙏🤑🔥": [] // WTF 🙏☠🔥
 }
 // Default por ahora (futuro localStorage)
@@ -182,17 +183,39 @@ const icons = JSON.parse(localStorage.getItem("__notroid_icons__")) || {
             ],
         }
     },
-    "PersistentTest": {
+    "NotasChafas": {
         manifest: {
-            id: "PersistentTest",
-            name: "Persistent Test",
-            icon: "https://placehold.co/150x150/FF00FF/FFFFFF?text=Perm",
-            categories: [],
-            permission: ["notroid.permission.STORAGE"]
+            id: "NotasChafas",
+            name: "Notas Chafas",
+            icon: "https://placehold.co/150x150/2222FF/FFFFFF?text=N",
+            categories: ["notes"],
+            permissions: ["notroid.permission.STORAGE"]
         },
-        main: {},
-        screens: {}
+        main: {
+            entry: "HOME",
+            functions: {
+                saveNote: ["SAVE_ENV", "notaGuardada", "$noteInput"],
+                loadNote: [["LOAD_ENV", "notaGuardada", "notaGuardada"], ["SET_TEXT", "noteLabel", "$notaGuardada"]]
+            },
+            lifecycle: {
+                onCreate: [["CALL", "loadNote"]],
+                onDestroy: []
+            },
+            env: {
+                notaGuardada: ""
+            }
+        },
+        screens: {
+            "HOME": [
+                {type: "text", text: "Tus notas chafas... persistentes 🧠"},
+                {type: "input", id: "noteInput", placeholder: "Escribe tu nota..."},
+                {type: "button", text: "Guardar Nota", action: ["CALL", "saveNote"]},
+                {type: "text", id: "noteLabel", text: ""},
+                {type: "button", text: "Cargar Nota", action: ["CALL", "loadNote"]}
+            ]
+        }
     }
+    
 };
 
 function findAppsByCategory(category){
@@ -204,7 +227,9 @@ function findAppsByCategory(category){
     };
     return finded;
 }
-
+function hasPermission(appId, permission){
+    return permissions[permission].includes(appId);
+}
 function __cond(appId, cond){
     if (typeof cond === "string"){
         return Boolean(resolveValue(appId, cond));
@@ -235,7 +260,7 @@ function __cond(appId, cond){
 }
 
 function executeNotroid(appId, elem, actionArr){
-    console.log(`[ExecuteNotroid] ${appId}\nelem: ${elem}\nactionArr: ${actionArr}`)
+    console.log(`[i] [ExecuteNotroid] ${appId}\nelem: ${elem}\nactionArr: ${actionArr[0]} - ${actionArr.slice(1)}`) // Bro esta línea convierte la consola en logs del gobierno 🙏☠
     if (!actionArr || actionArr.length === 0) return;
     const [action, ...args] = actionArr
     if (Array.isArray(action)){
@@ -248,11 +273,14 @@ function executeNotroid(appId, elem, actionArr){
         case "NAVIGATE_TO":
             navigateTo(elem, resolveValue(appId, args[0]));
             break;
-        case "SHOW_TOAST":
+        case "SHOW_TOAST": // TODO: Añadir parametro "context" para que no lloren los de Android 🙏😭
             showToast(resolveValue(appId, args[0]));
             break;
         case "SET_TEXT":
             resolveId(appId, args[0]).textContent = resolveValue(appId, args[1]);
+            break;
+        case "SET_ENV":
+            icons[appId].main.env[args[0]] = resolveValue(appId, args[1]);
             break;
         case "CLOSE_APP":
             closeApp(appId);
@@ -305,6 +333,30 @@ function executeNotroid(appId, elem, actionArr){
             }
             delete icons[appId].main.env.__pendingCallback;
             closeApp(appId);
+            break;
+        case "CALL":
+            const actions = icons[appId].main.functions[args[0]];
+            if (!actions){
+                console.warn(`[ExecuteNotroid] [CALL] La función no existe: ${args[0]}`);
+                return;
+            }
+            executeNotroid(appId, elem, actions)
+            break;
+        case "SAVE_ENV":
+            if (!hasPermission(appId, "notroid.permission.WRITE_STORAGE")){
+                alert("Popup epiko que pida si quieres o no otorgarle permisos de escritura🔥🤑🤑🔥🔥🔥🗣🗣🔥🔥🤑🔥");
+                // TODO: Hacer un popup de confirmación si queremos otorgarle permisos
+                return;
+            }
+            localStorage.setItem(`env-${appId}-${args[0]}`, resolveValue(appId, args[1]));
+            break;
+        case "LOAD_ENV":
+            if (!hasPermission(appId, "notroid.permission.READ_STORAGE")){
+                alert("Popup epiko que pida si quieres o no otorgarle permisos de lectura🔥🤑🤑🔥🔥🔥🗣🗣🔥🔥🤑🔥");
+                // TODO: Hacer un popup de confirmación si queremos otorgarle permisos
+                return;
+            }
+            icons[appId].main.env[args[1]] = localStorage.getItem(`env-${appId}-${args[0]}`) || "";
             break;
         default:
             console.warn("[ExecuteNotroid] Acción desconocida:", action);
@@ -462,7 +514,7 @@ function resolveValue(appId, str){
         const element = document.getElementById(`specid-${appId}-${id}`) || icons[appId].main.env[id]; 
         if (!element) {
             console.warn(`resolveValue: ID '${id}' no encontrado`);  
-            return "";  
+            return "";
         }
         if (typeof element === "string") return element; // Por si es una variable en la env
         return element.textContent || element.value || "";  
@@ -506,3 +558,5 @@ navigator.getBattery().then(battery => {
     battery.addEventListener('levelchange', actualizar);
     battery.addEventListener('chargingchange', actualizar);
 });
+
+if (Math.random() > 0.9) console.log("Notroid > Android"); // El inicio literal de Notroid sigue presente 🙏☠ ...
