@@ -29,7 +29,7 @@ Las apps siguen una estructura *JSON-like* para ser eficiente, accesible y legí
     "id": "MiApp", // ID único de la app (¿not.example.miapp?)
     "name": "Mi Aplicacón", // Nombre visible de la app
     "icon": "https://placehold.co/...", // Ícono de la app
-    "categories": ["notroid.categoryviewImage"], // Categorías que puede abarcar (ojito con esos intents implícitos 👀)
+    "categories": ["notroid.category.VIEW_IMAGE"], // Categorías que puede abarcar (ojito con esos intents implícitos 👀)
     "permissions": ["notroid.permission.NOTIFICATIONS", "notroid.permission.CAMERA"] // Permisos que necesita la app (se viene "EXACT_IP_ACCESS" 🤑🔥)
 }
 ```
@@ -77,11 +77,19 @@ Las acciones son como funciones built-in que permiten hacer cosas del OS *sin to
 - `NAVIGATE_TO <screen>`: Muestra la pantalla especificada.
 - `SHOW_TOAST <text>`: Muestra un Toast con un texto, así de simple (ya vemos a kotlin llorando con sus `Context` 😢).
 - `SET_TEXT <id> <text>`: Cambia el texto de un elemento usando su ID.
-- `SET_ENV <name> <text>`: Guarda una variable en el entorno actual. **No se guarda en el *storage***.
+- `SET_ENV <env> <text>`: Guarda una variable en el entorno actual (`main/env`). **No se guarda en el *storage***.
 - `CLOSE_APP`: Automaticamente cierra la app actual.
 - `IF <cond> <actionTrue> <actionFalse>`: Una condicional. Dependiendo
   - `<cond>` puede ser para ver si una variable existe (`["IF", "$esAdmin", [...], [...]]`) o una condicional simple (`["IF", ["$valor", "==/!=/>/</>=/<=", "$valor"], [...], [...]]`)
-- `CALLc <function>`: Ejecuta la lista de acciones de una función definida en `main/functions`.
+- `SEND_INTENT <category> <data/text> <callback>`: Envía un *intento implícito* al sistema para manejar una acción con cualquier app instalada que pueda manejarla. (Espera, **¿Esto no era un OS de broma? ☠️🔥**)
+  - `<category>` es la categoría de la acción que queremos manejar (Ej: `notroid.category.ENTRY_TEXT`).
+  - `<data/text>` puede ser datos extra para pasarle a la app que maneje la acción (Ej, un *prompt*) (Para *devs*: Se agrega en `main/env/__intentData` de la app que maneje la acción).
+  - `<callback>` son las acciones que ejecutará la otra app usando `RESOLVE_INTENT` después de manejar la acción que le dimos.
+  - Para *devs*: Se guarda un objeto `main/env/__pendingCallback` con `{fromApp: appId, callback: callback}` a la app que maneje la acción.
+- `RESOLVE_INTENT <text>` ejecuta el `callback` que nos dió la app que mandó el *SEND_INTENT* (Para *devs*: Usando `__pendingCallback`).
+- `CALL <function>`: Ejecuta la lista de acciones de una función definida en `main/functions`.
+- `SAVE_ENV <name> <text>`: Guarda datos persistentes en `localStorage`. **Requiere permiso `notroid.permission.WRITE_STORAGE`**.
+- `LOAD_ENV <name> <env>`: Carga un dato de `localStorage` a una variable del *env*. **Requiere permiso `notroid.permission.READ_STORAGE`**.
 
 **Recuerda** que son en formato `array` (Ej: `[action, arg1, arg2, etc...]`).
 
