@@ -7,6 +7,7 @@ const permissions = JSON.parse(localStorage.getItem("__notroid_permissions__")) 
     "notroid.permission.READ_STORAGE": ["NotasChafas"],
     "notroid.permission.EXACT_IP_ACCESS🙏🤑🔥": [] // WTF 🙏☠🔥
 }
+const toastStack = []; // [msg]
 // Default por ahora (futuro localStorage)
 const icons = JSON.parse(localStorage.getItem("__notroid_icons__")) || {
     "MiApp": {
@@ -401,7 +402,6 @@ function loadIcons(){
                         elem = document.createElement("button");
                         elem.textContent = element.text || "Botón";
                         break;
-    
                     case "input":
                         elem = document.createElement("input");
                         elem.placeholder = element.placeholder || "";
@@ -480,15 +480,13 @@ function navigateTo(context, screenId){
         }
     })
 }
+statusbar
 // ========== ELEMENTOS NATIVOS (NO PODIAN FALTAR JEJE) ========== //
 function showToast(msg, time=2500){
-    let toast = document.getElementById("NotroidGlobalToast");
-    if (!toast){
-        toast = document.createElement("div");
-        toast.className = "toast hide";
-        toast.id = "NotroidGlobalToast";
-        toast.appendChild(document.createElement("p"));
-        desktop.appendChild(toast);
+    const toast = document.getElementById("NotroidGlobalToast");
+    if (toast.style.display == "flex"){
+        toastStack.push(msg);
+        return;
     }
     toast.querySelector("p").textContent = msg;
     toast.style.display = "flex";
@@ -498,8 +496,31 @@ function showToast(msg, time=2500){
         toast.classList.add("hide");
         setTimeout(()=>{
             toast.style.display = "none";
+            if (toastStack.length > 0) showToast(toastStack.pop())
         }, 500)
     }, time);
+}
+function showAlertDialog(appId, title, msg, positive, negative){ // Perdonenme, pero aquí si necesitaba appId 😭😭💔💔 cada vez se parece más a context 😢😔
+    const alertDialog = document.getElementById("NotroidGlobalAlertDialog");
+    alertDialog.style.display = "flex";
+    void alertDialog.offsetWidth;
+    alertDialog.classList.remove("hide");
+    alertDialog.querySelector("h2").textContent = title;
+    alertDialog.querySelector("p").textContent = msg
+    const btnPos = alertDialog.querySelector("#btnPositive");
+    btnPos.textContent = positive[0];
+    btnPos.onclick = ()=>{
+        alertDialog.classList.add("hide");
+        setTimeout(()=>{ alertDialog.style.display = "none" }, 400);
+        executeNotroid(appId, null, positive[1] || []);
+    }
+    const btnNeg = alertDialog.querySelector("#btnNegative");
+    btnNeg.textContent = negative[0];
+    btnNeg.onclick = ()=>{
+        alertDialog.classList.add("hide");
+        setTimeout(()=>{ alertDialog.style.display = "none" }, 400);
+        executeNotroid(appId, null, negative[1] || []);
+    }
 }
 // ========== UTILES ========== //  
 function resolveId(appId, id){
@@ -512,8 +533,8 @@ function resolveValue(appId, str){
     // Reemplaza todas las variables tipo $id
     return str.replace(/\$([a-zA-Z_]+)/g, (_, id) => {
         const element = document.getElementById(`specid-${appId}-${id}`) || icons[appId].main.env[id]; 
-        if (!element) {
-            console.warn(`resolveValue: ID '${id}' no encontrado`);  
+        if (!element){
+            console.warn(`[resolveValue]: ID '${id}' no encontrado`);  
             return "";
         }
         if (typeof element === "string") return element; // Por si es una variable en la env
