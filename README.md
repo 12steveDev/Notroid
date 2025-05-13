@@ -87,7 +87,7 @@ Las acciones son como funciones built-in que permiten hacer cosas del OS *sin to
 - `SEND_INTENT <category> <data/text> <callback>`: Envía un *intento implícito* al sistema para manejar una acción con cualquier app instalada que pueda manejarla. (Espera, **¿Esto no era un OS de broma? ☠️🔥**)
   - `<category>` es la categoría de la acción que queremos manejar (Ej: `notroid.category.ENTRY_TEXT`).
   - `<data/text>` puede ser datos extra para pasarle a la app que maneje la acción (Ej, un *prompt*) (Para *devs*: Se agrega en `main/env/__intentData` de la app que maneje la acción).
-  - `<callback>` son las acciones que ejecutará la otra app usando `RESOLVE_INTENT` después de manejar la acción que le dimos. Usa el *placeholder* `$__intentResult` para referirte a la *respuesta* que de la app llamada.
+  - `<callback>` son las acciones que ejecutará la otra app usando `RESOLVE_INTENT` después de manejar la acción que le dimos. Usa el *placeholder* `$__intentResult` para referirte a la *respuesta* de la app llamada.
   - Para *devs*: Se guarda un objeto `main/env/__pendingCallback` con `{fromApp: appId, callback: callback}` a la app que maneje la acción.
 - `RESOLVE_INTENT <text>` ejecuta el `callback` que nos dió la app que mandó el *SEND_INTENT* (Para *devs*: Usando `__pendingCallback`).
 - `CALL <function>`: Ejecuta la lista de acciones de una función definida en `main/functions`.
