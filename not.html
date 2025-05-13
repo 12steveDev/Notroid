@@ -18,16 +18,18 @@
     </div>
   
     <div class="desktop"></div>
-    
-    <div id="NotroidGlobalAlertDialog" class="alertDialog hide">
+    <div class="toast hide" id="NotroidGlobalToast">
+        <p></p>
+    </div>
+    <div class="alertDialog hide" id="NotroidGlobalAlertDialog">
         <div class="main">
             <div class="content">
                 <h2>Titulo</h2>
                 <p>Mensaje</p>
             </div>
             <div class="buttons">
-                <button>Aceptar</button>
-                <button>Cancelar</button>
+                <button id="btnPositive">Aceptar</button>
+                <button id="btnNegative">Cancelar</button>
             </div>
         </div>
     </div>
@@ -36,7 +38,17 @@
     <script>
 loadIcons()
 showToast("Notroid 2.0")
+launchApp("NotasChafas", reset=true)
     </script>
 </body>
-  
 </html>
+<!--
+       ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+       ░  DEVTOOLS GOAT 👑🛠️      ░
+       ░  Gracias por dejarnos     ░
+       ░  testear en 4K, girar     ░
+       ░  la pantalla, y debuggear ░
+       ░  como dioses sin emus.    ░
+       ░  ~ Notroid Team           ░
+       ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+-->
