@@ -12,6 +12,9 @@ Anotaciones:
 - talvez alertdialogs...   z-index 300
 - Apps:                    z-index 100
 
+- Para probar como en chrome:           375x680
+. Para probar como en mi app de código: 375x570
+
 */
 * {
     box-sizing: border-box;
@@ -170,6 +173,8 @@ Anotaciones:
     width: 80%;
 } div.alertDialog div.content {
     padding: 20px;
+} div.alertDialog h2 {
+    margin-bottom: 15px;
 } div.alertDialog div.buttons {
     display: flex;
     justify-content: flex-end;
@@ -185,7 +190,7 @@ Anotaciones:
     transition: background 0.5s ease;
 } div.alertDialog div.buttons button:active {
     background: #00000022;
-    transition: background 0.2s ease;
+    transition: background 0.1s ease;
 }
 
 /* Media queries para ajustes específicos */
