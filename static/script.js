@@ -104,7 +104,7 @@ const icons = JSON.parse(localStorage.getItem("__notroid_icons__")) || {
             id: "VSCodeChafa",
             name: "VSCode Chafa",
             icon: "https://placehold.co/150x150/FF00FF/FFFFFF?text=VSC",
-            categories: ["enterText"],
+            categories: ["notroid.category.ENTRY_TEXT"],
             permissions: []
         },
         main: {
@@ -134,7 +134,7 @@ const icons = JSON.parse(localStorage.getItem("__notroid_icons__")) || {
             id: "BlocDeNotasChafa",
             name: "Bloc De Notas Chafa",
             icon: "https://placehold.co/150x150/FFFF00/000000?text=BDN",
-            categories: ["enterText"],
+            categories: ["notroid.category.ENTRY_TEXT"],
             permissions: []
         },
         main: {
@@ -180,7 +180,7 @@ const icons = JSON.parse(localStorage.getItem("__notroid_icons__")) || {
             "MAIN": [
                 {type: "text", text: "Todavía nada introducido...", id: "label"},
                 {type: "button", text: "Mostrar Toast", action: ["SHOW_TOAST", "$label"]},
-                {type: "button", text: "Escoger texto", action: ["SEND_INTENT", "enterText", "Pone texto:", [["SET_TEXT", "label", "$__intentResult"], ["SHOW_TOAST", "Recibió: $__intentResult"]]]}
+                {type: "button", text: "Escoger texto", action: ["SEND_INTENT", "notroid.category.ENTRY_TEXT", "Pone texto:", [["SET_TEXT", "label", "$__intentResult"], ["SHOW_TOAST", "Recibió: $__intentResult"]]]}
             ],
         }
     },
@@ -189,14 +189,14 @@ const icons = JSON.parse(localStorage.getItem("__notroid_icons__")) || {
             id: "NotasChafas",
             name: "Notas Chafas",
             icon: "https://placehold.co/150x150/2222FF/FFFFFF?text=N",
-            categories: ["notes"],
-            permissions: ["notroid.permission.STORAGE"]
+            categories: [],
+            permissions: ["notroid.permission.READ_STORAGE", "notroid.permission.WRITE_STORAGE"]
         },
         main: {
             entry: "HOME",
             functions: {
-                saveNote: ["SAVE_ENV", "notaGuardada", "$noteInput"],
-                loadNote: [["LOAD_ENV", "notaGuardada", "notaGuardada"], ["SET_TEXT", "noteLabel", "$notaGuardada"]]
+                saveNote: [["SAVE_ENV", "notaGuardada", "$noteInput"], ["SHOW_TOAST", "Guardado"], ["IF", "$autoLoad", ["CALL", "loadNote"]]],
+                loadNote: [["LOAD_ENV", "notaGuardada", "notaGuardada"], ["IF", "$notaGuardada", ["SET_TEXT", "noteLabel", "$notaGuardada"]]]
             },
             lifecycle: {
                 onCreate: [["CALL", "loadNote"]],
@@ -211,12 +211,22 @@ const icons = JSON.parse(localStorage.getItem("__notroid_icons__")) || {
                 {type: "text", text: "Tus notas chafas... persistentes 🧠"},
                 {type: "input", id: "noteInput", placeholder: "Escribe tu nota..."},
                 {type: "button", text: "Guardar Nota", action: ["CALL", "saveNote"]},
-                {type: "text", id: "noteLabel", text: ""},
-                {type: "button", text: "Cargar Nota", action: ["CALL", "loadNote"]}
+                {type: "text", id: "noteLabel", text: "nada guardado todavía..."},
+                {type: "button", text: "Cargar Nota", action: ["CALL", "loadNote"]},
+                {type: "button", text: "Configuraciónes", action: ["NAVIGATE_TO", "CONFIG"]},
+                {type: "button", text: "Otros métodos de entrada", action: ["NAVIGATE_TO", "OTHER_METHODS"]}
+            ],
+            "CONFIG": [
+                {type: "button", text: "<-", action: ["NAVIGATE_TO", "HOME"]}, {type: "br"},
+                {type: "text", text: "Cargar automaticamente: ", inline: true},
+                {type: "checkbox", id: "autoLoad", checked: true},
+            ],
+            "OTHER_METHODS": [
+                {type: "button", text: "<-", action: ["NAVIGATE_TO", "HOME"]}, {type: "br"},
+                {type: "button", text: "Otras apps de entrada de texto", action: ["SEND_INTENT", "notroid.category.ENTRY_TEXT", "Introduce la nota: ", ["SET_TEXT", "noteInput", "$__intentResult"]]}
             ]
         }
     }
-    
 };
 
 function findAppsByCategory(category){
@@ -229,7 +239,7 @@ function findAppsByCategory(category){
     return finded;
 }
 function hasPermission(appId, permission){
-    return permissions[permission].includes(appId);
+    return permissions[permission].includes(appId) && icons[appId].manifest.permissions.includes(permission);
 }
 function __cond(appId, cond){
     if (typeof cond === "string"){
@@ -278,7 +288,8 @@ function executeNotroid(appId, elem, actionArr){
             showToast(resolveValue(appId, args[0]));
             break;
         case "SET_TEXT":
-            resolveId(appId, args[0]).textContent = resolveValue(appId, args[1]);
+            let target = resolveId(appId, args[0])
+            target.type == "text" ? target.value = resolveValue(appId, args[1]) : target.textContent = resolveValue(appId, args[1]);
             break;
         case "SET_ENV":
             icons[appId].main.env[args[0]] = resolveValue(appId, args[1]);
@@ -288,7 +299,7 @@ function executeNotroid(appId, elem, actionArr){
             break;
         case "IF":
             const cond = args.shift();
-            executeNotroid(appId, elem, __cond(appId, cond) ? args[0] : args[1]);
+            executeNotroid(appId, elem, __cond(appId, cond) ? args[0] || [] : args[1] || []);
             break;
         case "SEND_INTENT":
             const [category, data, callback] = args;
@@ -407,6 +418,14 @@ function loadIcons(){
                         elem.placeholder = element.placeholder || "";
                         elem.value = element.value || "";
                         break;
+                    case "checkbox":
+                        elem = document.createElement("input");
+                        elem.type = "checkbox";
+                        elem.checked = element.checked || false;
+                        break;
+                    case "br":
+                        screen.appendChild(document.createElement("br"));
+                        continue;
                     default:
                         console.warn("Elemento desconocido:", element);
                         elem = document.createElement("div");
@@ -415,6 +434,9 @@ function loadIcons(){
                 }
                 if (element.id){
                     elem.id = `specid-${appObj.manifest.id}-${element.id}`;
+                }
+                if (element.inline === true){
+                    elem.style.display = "inline";
                 }
                 if (element.action){
                     elem.onclick = ()=>{
@@ -537,6 +559,9 @@ function resolveValue(appId, str){
             return "";
         }
         if (typeof element === "string") return element; // Por si es una variable en la env
+        if (element.type === "checkbox"){
+            return element.checked ? "true" : "";
+        }
         return element.textContent || element.value || "";  
     });
 }
