@@ -78,7 +78,7 @@ Las acciones son como funciones built-in que permiten hacer cosas del OS *sin to
 > Los `<text>` pueden tener variables metidas con el prefijo `$` (Ej: `Hola, $nombre!`)
 
 - `NAVIGATE_TO <screen>`: Muestra la pantalla especificada.
-- `SHOW_TOAST <text>`: Muestra un Toast con un texto, así de simple (ya vemos a kotlin llorando con sus `Context` 😢).
+- `SHOW_TOAST <text>`: Muestra un Toast con un texto, así de simple (ya vemos a kotlin llorando con sus `Context` 😢). Y si, si llamas a muchos en corto tiempo se almacenarán en `toastStack` y se irán mostrando uno por uno.
 - `SET_TEXT <id> <text>`: Cambia el texto de un elemento usando su ID.
 - `SET_ENV <env> <text>`: Guarda una variable en el entorno actual (`main/env`). **No se guarda en el *storage***.
 - `CLOSE_APP`: Automaticamente cierra la app actual.
@@ -106,9 +106,14 @@ Cada elemento es solo un `type` más, **no una clase de sitio de dudosa proceden
   - `text`: Un texto.
   - `button`: Un botón.
   - `input`: Una entrada de texto.
+  - `checkbox`: Un cuadro de confirmación.
+  - `br`: Un salto de línea.
 - `text`: El contenido de texto del elemento.
 - `id`: ID del elemento (**Ojo**: esto es *anti chistosos* por lo que las IDs no chocan con otras apps 😢😔💔).
+- `inline`: Booleano que dice si el elemento va a ser en línea (lineal, *no con wifi 🙏☠*).
 - `action`: Una acción al hacer click en el elemento (**Tip:** si quieres varias acciones, usa un `array`: `[[act1], [act1]]`).
+- `value`: Valor del elemento. **Solo compatible con `input`**.
+- `checked`: Si el elemento está marcado. **Solo compatible con `checkbox`**.
 
 **Recuerda** que son en formato `obj` (Ej: `{type: type, text: text, etc...}]`).
 
@@ -120,6 +125,7 @@ En Notroid nos da flojera especificar si quieres el contenido de texto de un ele
 - **Elemento** dentro de la app con ese `id`.
   - Su **contenido de texto** (Ej: `text`).
   - Su **valor** (Ej: `input`).
+  - Si está **checkeado** (Ej: `checkbox`).
 
 ---
 
