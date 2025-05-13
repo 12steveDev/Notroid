@@ -89,7 +89,7 @@ Las acciones son como funciones built-in que permiten hacer cosas del OS *sin to
   - `<data/text>` puede ser datos extra para pasarle a la app que maneje la acción (Ej, un *prompt*) (Para *devs*: Se agrega en `main/env/__intentData` de la app que maneje la acción).
   - `<callback>` son las acciones que ejecutará la otra app usando `RESOLVE_INTENT` después de manejar la acción que le dimos. Usa el *placeholder* `$__intentResult` para referirte a la *respuesta* de la app llamada.
   - Para *devs*: Se guarda un objeto `main/env/__pendingCallback` con `{fromApp: appId, callback: callback}` a la app que maneje la acción.
-- `RESOLVE_INTENT <text>` ejecuta el `callback` que nos dió la app que mandó el *SEND_INTENT* (Para *devs*: Usando `__pendingCallback`).
+- `RESOLVE_INTENT <text>`: Ejecuta el `callback` que nos dió la app que mandó el *SEND_INTENT* (Para *devs*: Usando `__pendingCallback`).
 - `CALL <function>`: Ejecuta la lista de acciones de una función definida en `main/functions`.
 - `SAVE_ENV <name> <text>`: Guarda datos persistentes en `localStorage`. **Requiere permiso `notroid.permission.WRITE_STORAGE`**.
 - `LOAD_ENV <name> <env>`: Carga un dato de `localStorage` a una variable del *env*. **Requiere permiso `notroid.permission.READ_STORAGE`**.
