@@ -112,7 +112,9 @@ Anotaciones:
     z-index: 100;
     padding-top: 75px; /* Debajo del toolbar */
     transition: opacity 0.3s ease, transform 0.4s ease;
-} div.app.hide {
+} div.app::-webkit-scrollbar {
+    display: none;
+} .app.hide {
     opacity: 0;
     transform: scale(0.8);
     display: none;
