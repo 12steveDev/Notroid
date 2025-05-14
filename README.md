@@ -202,6 +202,7 @@ En Notroid nos da flojera especificar si quieres el contenido de texto de un ele
 
 **Notroid Studio:**
 ```js
+// Bro esto es más útil que el 60% de la Play Store y Google Play
 "NotroidStudio": {
     manifest: {
         id: "NotroidStudio",
