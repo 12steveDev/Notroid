@@ -141,7 +141,7 @@ Anotaciones:
     justify-content: center;
     width: 100%;
     position: fixed;
-    bottom: 40px;
+    bottom: 60px;
     left: 0;
     z-index: 500;
     transition: opacity 0.5s ease;
@@ -198,29 +198,25 @@ Anotaciones:
 /* Media queries para ajustes específicos */
 @media (max-width: 600px) {
     div.desktop {
-        grid-template-columns: repeat(3, 33%); /* 3 columnas en móviles */
+        grid-template-columns: repeat(3, 32%); /* 3 columnas en móviles */
         padding: 20px 5px;
     }
-    
-    div.icon {
-        width: 90%;
+}
+
+@media (min-width: 601px) and (max-width: 750px) {
+    div.desktop {
+        grid-template-columns: repeat(4, 24%); /* 4 columnas en tablets pequeñas */
     }
 }
 
-@media (min-width: 601px) and (max-width: 900px) {
+@media (min-width: 751px) and (max-width: 900px){
     div.desktop {
-        grid-template-columns: repeat(4, 1fr); /* 4 columnas en tablets pequeñas */
+        grid-template-columns: repeat(5, 19%); /* 5 columnas en pantallas grandes */
     }
 }
 
-@media (min-width: 901px) and (max-width: 1200px){
+@media (min-width: 901px) {
     div.desktop {
-        grid-template-columns: repeat(5, 1fr); /* 5 columnas en pantallas grandes */
-    }
-}
-
-@media (min-width: 1201px) {
-    div.desktop {
-        grid-template-columns: repeat(6, 1fr); /* 6 columnas en pantalla completa y PC */
+        grid-template-columns: repeat(6, 15.6%); /* 6 columnas en pantalla completa y PC */
     }
 }
