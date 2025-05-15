@@ -245,7 +245,7 @@ const icons = JSON.parse(localStorage.getItem("__notroid_icons__")) || {
         },
         screens: {
             "EDITOR": [
-                {type: "input", id: "code", value: '{"manifest": {"id": "miapp"}, "main": {}, "screens": {}}'},
+                {type: "input", id: "code", value: '{"manifest": {"id": "miapp"}, "main": {}, "screens": {"MAIN": []}}'},
                 {type: "button", text: "Instalar", action: [["SHOW_TOAST", "$code"], ["INSTALL_APP", "$code", ["IF", "$__error", ["SET_TEXT", "output", "Error: $__error. Arregla ese JSON bro."], ["SET_TEXT", "output", "Instalación exitosa"]]]]}, {type:"br"},
                 {type: "text", text: "Output:", inline:true},
                 {type: "text", id: "output", inline:true}, {type:"br"},
@@ -460,7 +460,7 @@ function installApp(appObj, add=false){
     if (!appObj.main.lifecycle.onCreate) appObj.main.lifecycle.onCreate = [];
     if (!appObj.main.lifecycle.onDestroy) appObj.main.lifecycle.onDestroy = [];
     if (!appObj.main.env) appObj.main.env = {};
-    if (Object.keys(appObj.screens).length === 0) appObj.screens = {"MAIN": []};
+    if (Object.keys(appObj.screens).length === 0) throw new SyntaxError("No hay ninguna pantalla para mostrar, ¿Acaso intentabas hacer un servicio en segundo plano? JAJA, NO 🧐");
     if (!appObj.main.entry) appObj.main.entry = Object.keys(appObj.screens)[0];
     if (add) icons[appObj.manifest.id] = appObj;
     //console.log(JSON.stringify(appObj, null, 4)); // activar solo en casos de desesperación
