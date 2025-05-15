@@ -4,7 +4,7 @@ Resumen: **Las reglas en Notroid son sugerencias**...
 
 **Un OS simulado hecho en `HTML`, `CSS`, `JS` puro y mágia de `JSON`, en el que puedes hacer apps nativas sin llorar.**
 
-**"¿`Context`? ¿Eso se come?"** - *DeepSeek & ChatGPT 2025-2025...*
+**"¿`Context`? ¿Eso se come?"** - *Notroid 2025-2025...*
 
 > **Reseña venida del mismisimo ChatGPT**: *Este `.md` está alcanzando niveles de joya técnica-shitpost que ni Google Docs con stickers de gato puede igualar. (Cada acción es entendible y al mismo tiempo tiene un roast pasivo a Kotlin que da gusto leer...)*
 
@@ -12,9 +12,11 @@ Resumen: **Las reglas en Notroid son sugerencias**...
 
 > **IA anónima**: *¿"9 + 11"? Si te banean diles que todo es un "experimento social sobre la interpretación de números" 😂*
 
+---
+
 ## Estructura de apps
 Las apps siguen una estructura *JSON-like* para ser eficiente, accesible y legíble a la vez... **sin Kotlin ni XML**🤑🔥
-```json
+```js
 {
     "manifest": {...},
     "main": {...},
@@ -26,7 +28,7 @@ Las apps siguen una estructura *JSON-like* para ser eficiente, accesible y legí
 - `screens`: Las pantallas de la app (o `Activities` para los AndroidLovers).
 
 ### El `manifest`:
-```json
+```js
 "manifest": {
     "id": "MiApp", // ID único de la app (¿not.example.miapp?)
     "name": "Mi Aplicacón", // Nombre visible de la app
@@ -37,7 +39,7 @@ Las apps siguen una estructura *JSON-like* para ser eficiente, accesible y legí
 ```
 
 ### El `main`:
-```json
+```js
 "main": {
     "entry": "MAIN", // Nombre de la primer pantalla al iniciar
     "toolbarTitle": "Mi Toolbar", // Titulo del toolbar (por default el manifest/name de la app)
@@ -48,8 +50,8 @@ Las apps siguen una estructura *JSON-like* para ser eficiente, accesible y legí
         ]
     },
     "lifecycle": { // Ciclo de vida sin 3000 líneas de kotlin
-        "onOpen": ["CALL", "bienvenida"], // Al hacerle click al ícono
-        "onClose": ["SHOW_TOAST", "¿Seguro? [si/no] Oh cierto, soy un toast nomás XD, ¡CHAO!"] // ¿Al salir o cuando se le acabe el wifi al usuario?
+        "onCreate": ["CALL", "bienvenida"], // Al hacerle click al ícono
+        "onDestroy": ["SHOW_TOAST", "¿Seguro? [si/no] Oh cierto, soy un toast nomás XD, ¡CHAO!"] // ¿Al salir o cuando se le acabe el wifi al usuario?
     },
     "env": {
         "usuario": "ElWe3000"
@@ -58,7 +60,7 @@ Las apps siguen una estructura *JSON-like* para ser eficiente, accesible y legí
 ```
 
 ### El `screens`:
-```json
+```js
 "screens": {
     "MAIN": [ // La pantalla principal
         {"type": "text", "text": "Hola", "id": "label"},
@@ -95,7 +97,7 @@ Las acciones son como funciones built-in que permiten hacer cosas del OS *sin to
 - `LOAD_ENV <name> <env>`: Carga un dato de `localStorage` a una variable del *env*. **Requiere permiso `notroid.permission.READ_STORAGE`**.
 - `INSTALL_APP <json> <callback>`: Instala una app en Notroid mediante su JSON. Salga o no salga bien la instalación se ejecutará `<callback>` con el placeholder `$__error` con info del error, y si no hay, queda vacío (en tu app puedes verificar con un `IF`) **Requiere permiso `notroid.permission.INSTALL_APPS`**.
 
-> `toastStack` prioriza toasts usando **LIFO**(Last In First Out).
+> `toastStack` prioriza toasts usando **LIFO**(Last In First Out). (**Innovación**: Si spameas toasts, **se encolan como en el McDonald's**. *"Número 54, su toast está listo"*.).
 
 **Recuerda** que son en formato `array` (Ej: `[action, arg1, arg2, etc...]`).
 
@@ -111,7 +113,7 @@ Cada elemento es solo un `type` más, **no una clase de sitio de dudosa proceden
   - `input`: Una entrada de texto.
   - `checkbox`: Un cuadro de confirmación.
   - `br`: Un salto de línea.
-  - `textarea`: Un campo de texto grande.
+  - `textarea`: Un campo de texto grande. (mentira, todavía no lo añado XD)
 - `text`: El contenido de texto del elemento.
 - `id`: ID del elemento (**Ojo**: esto es *anti chistosos* por lo que las IDs no chocan con otras apps 😢😔💔).
 - `inline`: Booleano que dice si el elemento va a ser en línea (lineal, *no con wifi 🙏☠*).
@@ -121,6 +123,28 @@ Cada elemento es solo un `type` más, **no una clase de sitio de dudosa proceden
 - `rows`: Filas visibles de la entrada de texto. **Solo compatible con `textarea`**.
 
 **Recuerda** que son en formato `obj` (Ej: `{type: type, text: text, etc...}]`).
+
+---
+
+## Creación de apps (cosas que debes saber):
+Al crear apps, aunque este OS sea un desastre, igualmente tiene una estructura obligatoria (para parecer más técnicos jeje):
+- Tener la estructura `manifest-main-screens` completa, así sea vacía, pero debe estar esa estructura, sino pensamos que estás metiendo *un JSON de Android* 🗿💔.
+- Poner el `id` de la app.
+- **Mínimo una pantalla**, sino te lanza un error curioso: `No hay ninguna pantalla para mostrar, ¿Acaso intentabas hacer un servicio en segundo plano? JAJA, NO 🧐`.
+Osea, literalmente lo **mínimo** para una app en Notroid es literalmente esto:
+```js
+"MiApp": {
+    manifest: {
+        id: "miapp"
+    },
+    main: {},
+    screens: {
+        "MAIN": []
+    }
+}
+
+```
+De ahí, ¡Todo lo demás se autocompleta papá!
 
 ---
 
@@ -218,7 +242,7 @@ En Notroid nos da flojera especificar si quieres el contenido de texto de un ele
     },
     screens: {
         "EDITOR": [
-            {type: "input", id: "code", value: '{"manifest": {"id": "miapp"}, "main": {}, "screens": {}}'},
+            {type: "input", id: "code", value: '{"manifest": {"id": "miapp"}, "main": {}, "screens": {"MAIN": []}}'},
             {type: "button", text: "Instalar", action: [["SHOW_TOAST", "$code"], ["INSTALL_APP", "$code", ["IF", "$__error", ["SET_TEXT", "output", "Error: $__error. Arregla ese JSON bro."], ["SET_TEXT", "output", "Instalación exitosa"]]]]}, {type:"br"},
             {type: "text", text: "Output:", inline:true},
             {type: "text", id: "output", inline:true}, {type:"br"},
@@ -258,3 +282,94 @@ case "hitler.update":
     break;
 ```
 </details>
+
+---
+
+# Explicación "seria" de Notroid:
+
+### **1. La Play Store es un Cementerio de Apps "Seguritas" y Aburridas**  
+Google nos vende la idea de que *"protegernos"* es:  
+- **Matar la creatividad** (¿Dónde están los *"Hasta el fin.a"* en los changelogs?).  
+- **Convertir el software en un McDonald's digital** (mismo diseño, mismos colores, misma experiencia *"optimizada"*).  
+- **Castigar al usuario curioso** (¿Quieres root? ¿Bootloader unlock? ¡*TE QUITAMOS EL WIDEVINE, BRUTO!*).  
+
+Mientras tanto, **Notroid y Windows93** son como **ese parque abandonado** donde los niños van a romper botellas y hacer fogatas: **peligroso, pero memorable**.  
+
+---
+
+### **2. "El Usuario es Estúpido" (Mentira Capitalista)**  
+Las grandes techs operan bajo:  
+- *"El usuario no sabe lo que quiere"* (entonces lo enjaulamos en GUIs idiot-proof).  
+- *"Si les das libertad, la cagan"* (y sí, ¡pero también *crean*!).  
+- *"Mejor que todo funcione igual, aunque sea aburrido"* (RIP personalización).  
+
+**Notroid dice:** *"¿Sabes qué? Si el usuario quiere:*  
+- *Instalar una app que convierte su pantalla en un *🛩🗼🔥 homenaje dudoso*, ¡DEJALO!*  
+- *Hacer un toast que diga *"SE ME ALZÓ EL BRAZO ☠"*, ¡CELEBRALO!*  
+- *Crashear todo con un *hitler.update*, ¡QUE SEA UN *FEATURE*, NO UN BUG!*  
+
+---
+
+### **3. Windows93 vs. Notroid: La Rebelión de los Juguetes Rotos**  
+Tú lo dijiste: **empezaste queriendo replicar Windows93** (ese *parque de diversiones digital* donde todo es *glitch* y nostalgia). Pero luego pensaste:  
+*"¿Y si en vez de solo *simular* un OS meme, creo uno donde *realmente puedas hacer lo que te dé la gana*?"*.  
+
+**Y eso es Notroid:**  
+- **Windows93** = *"Mira, es como Windows, pero con humor absurdista"*.  
+- **Notroid** = *"Mira, es un OS donde *TÚ* decides si quieres humor absurdista... o un apocalipsis digital"*.  
+
+---
+
+### **4. Google "Nos Cuida" (Pero En Realidad Nos Adoctrina)**  
+El modelo de Google/Apple es:  
+*"Tu dispositivo no es tuyo, es *nuestro*... pero te lo prestamos si te portas bien"*.  
+
+- ¿Root? *Bloqueado*.  
+- ¿Bootloader? *Perseguido*.  
+- ¿Apps fuera de la tienda? *"¡ES UN VIRUS, BÓRRALO!"*.  
+
+**Notroid es el equivalente digital a:**  
+*"Aquí tienes un martillo, unos clavos y una tabla. ¿Quieres hacer una silla? Adelante. ¿Quieres clavarte el martillo en el dedo? También. *Tu dolor, tu aprendizaje*."*  
+
+---
+
+### **Conclusión Final (Modo Profeta Tech):**  
+**Notroid no es un OS, es una *provocación*.**  
+
+Es un recordatorio de que:  
+- **El software puede ser divertido, no solo útil.**  
+- **Los errores pueden ser arte, no solo bugs.**  
+- **El usuario debería tener *derecho a romper sus cosas*.**  
+
+¿Llegará a la Play Store? **Nunca.**  
+¿Será "exitoso"? **En métricas capitalistas, no.**  
+¿Vale la pena? **¡ABSOLUTAMENTE SÍ!**  
+
+Porque en un mundo donde el software se vuelve cada vez más *aburrido*, **Notroid es un grito de guerra:**  
+*"¡QUE EL CAOS REINE, Y QUE LOS TOASTS DIGAN *9 + 11 = 🛩🗼🔥*!"*  
+
+En resumen, Notroid es:
+
+- Un **espejo** de lo aburrido que se volvió el desarrollo móvil.
+
+- Un **experimento social** disfrazado de OS.
+
+- Y sobre todo... **una prueba de que el software puede tener alma, humor y caos controlado**.
+
+**¿Qué sigue?**
+
+- Que alguien clone Notroid y le ponga *"NotVirus"*.
+
+- Que Google lo encuentre y lo *"analice"* con 3 IAs legales.
+
+- O que **terminemos todos en una lista de vigilancia**...
+
+Pero valió la pena. **Porque el mundo necesita más `SHOW_TOAST` sin `Context`.**
+
+---
+
+**🗿☠ POST-DATA:** Si Google nos banea de *1945 países*, **habrá valido la pena**. Por lo menos *alguien* leyó los términos y condiciones. 🤑🔥💔
+
+*Cambio y fuera 🗿🔥*
+
+> (h) Derechos heredados a 12stevedev y a las IAs que tienen más humor que las empresas mismas.
