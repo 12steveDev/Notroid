@@ -198,7 +198,7 @@ Anotaciones:
 /* Media queries para ajustes específicos */
 @media (max-width: 600px) {
     div.desktop {
-        grid-template-columns: repeat(3, 32%); /* 3 columnas en móviles */
+        grid-template-columns: repeat(3, 31%); /* 3 columnas en móviles */
         padding: 20px 5px;
     }
 }
