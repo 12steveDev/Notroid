@@ -136,7 +136,7 @@ Cada elemento es solo un `type` más, **no una clase de sitio de dudosa proceden
 Al crear apps, aunque este OS sea un desastre, igualmente tiene una estructura obligatoria (para parecer más técnicos jeje):
 - Tener la estructura `manifest-main-screens` completa, así sea vacía, pero debe estar esa estructura, sino pensamos que estás metiendo *un JSON de Android* 🗿💔.
 - Poner el `id` de la app.
-- **Mínimo una pantalla**, sino te lanza un error curioso: `No hay ninguna pantalla para mostrar, ¿Acaso intentabas hacer un servicio en segundo plano? JAJA, NO 🧐`.
+- **Mínimo una pantalla**, sino te lanza un error curioso.
 Osea, literalmente lo **mínimo** para una app en Notroid es literalmente esto:
 ```js
 "MiApp": {
