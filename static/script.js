@@ -230,7 +230,8 @@ const icons = JSON.parse(localStorage.getItem("__notroid_icons__")) || {
             ]
         }
     },
-    "NotroidStudio": {
+    "NotroidStudio": { 
+        // Bro esto es más útil y divertido que el 60% de la Play Store y Google Play
         manifest: {
             id: "NotroidStudio",
             name: "Notroid Studio",
@@ -245,16 +246,25 @@ const icons = JSON.parse(localStorage.getItem("__notroid_icons__")) || {
         },
         screens: {
             "EDITOR": [
-                {type: "input", id: "code", value: '{"manifest": {"id": "miapp"}, "main": {}, "screens": {"MAIN": []}}'},
+                {type: "input", id: "code", onInput: ["IF", ["$code", "==", "#HH"], ["NAVIGATE_TO", "SECRET_SCREEN"]], placeholder: "mi color favorito es #HH ~ Notroid Team", highlight: "JSON", validColor: "#AA00FF", onValid: ["SET_TEXT", "state", "Bien ahí bro"], onInvalid: ["SET_TEXT", "state", ["Bro, hay un error en la línea 1945 ☠", "¿Quisiste decir 'AdolfOS 2.0'?", "Bro, ¿ESO ES XML?", "Papi Google está orgulloso"][randInt(0, 3)]], value: '{"manifest": {"id": "miapp"}, "main": {}, "screens": {"MAIN": []}}'},
                 {type: "button", text: "Instalar", action: [["SHOW_TOAST", "$code"], ["INSTALL_APP", "$code", ["IF", "$__error", ["SET_TEXT", "output", "Error: $__error. Arregla ese JSON bro."], ["SET_TEXT", "output", "Instalación exitosa"]]]]}, {type:"br"},
+                {type: "text", text: "Estado:", inline:true},
+                {type: "text", id: "state", inline:true}, {type:"br"},
                 {type: "text", text: "Output:", inline:true},
                 {type: "text", id: "output", inline:true}, {type:"br"},
                 {type: "button", text: "Pre-Sets", action: ["NAVIGATE_TO", "PRESETS"]}
             ],
             "PRESETS": [
-                {type: "button", text: "<-", action: ["NAVIGATE_TO", "EDITOR"]},
+                {type: "button", text: "<-", action: ["NAVIGATE_TO", "EDITOR"]}, {type:"br"},
+                {type: "button", text: "Hello World Básico", action: ["SET_TEXT", "code", '{"manifest": {"id": "miapp"}, "main": {}, "screens": {"MAIN": [{"type": "text", "text": "Buenos Dias Mundo"}]}}']}, {type:"br"},
+                {type: "button", text: "Estructura completa", action: ["SET_TEXT", "code", '{"manifest": {"id": "miapp", "name": "Mi App", "icon": "https://placehold.co/150x150/008080/FFFFFF?text=My\\nNot-App", "categories": [], "permissions": []}, "main": {"entry": "MAIN", "functions": {}, "toolbarTitle": "Mi Toolbar", "lifecycle": {"onCreate": [], "onDestroy": [], "env": {}}}, "screens": {"MAIN": [{"type": "text", "text": "Contenido"}]}}']}, {type:"br"},
                 {type: "button", text: "Notroid EasterEgg", action: ["SET_TEXT", "code", '{"manifest": {"id": "miapp"}, "main": {}, "screens": {"MAIN": [{"type": "hitler.update"}]}}']},
                 {type: "text", text: "Proximamente, pero es buena idea..."}
+            ],
+            "SECRET_SCREEN": [
+                {type: "text", text: "**MODO ADOLFOS 2.0 ACTIVADO** 🛩🗼🔥" },
+                {type: "text", text: "9 + 11 = 🛩🗼🔥", id: "secretLabel" },
+                {type: "button", text: "Autodestruir", action: [["SET_TEXT", "secretLabel", "¡Hasta el fin.a, camaradas! ☠"], ["SHOW_TOAST", "Se me alzó el brazo..."], ["CLOSE_APP"]]}
             ]
         }
     }
@@ -539,6 +549,9 @@ function installApp(appObj, add=false){
                     elem.textContent = `[Elemento no soportado: ${element.type}]`;
                     break;
             }
+            if (element.color){
+                elem.color = element.color;
+            }
             if (element.id){
                 elem.id = `specid-${appObj.manifest.id}-${element.id}`;
             }
@@ -547,7 +560,26 @@ function installApp(appObj, add=false){
             }
             if (element.action){
                 elem.onclick = ()=>{
-                    executeNotroid(appObj.manifest.id, elem, element.action)
+                    executeNotroid(appObj.manifest.id, elem, element.action);
+                };
+            }
+            if (element.onInput){
+                elem.addEventListener("input", ()=>{
+                    executeNotroid(appObj.manifest.id, elem, element.onInput);
+                });
+            }
+            if (element.highlight && (element.type === "input" || element.type === "textarea")){ // ¡Evita las librerías como Google evita el humor! 🗿🔥
+                if (element.highlight === "JSON"){
+                    elem.addEventListener("input", function(){
+                        try {
+                            JSON.parse(this.value);
+                            this.style.color = element.validColor || "#00FF00";
+                            if (element.onValid) executeNotroid(appObj.manifest.id, elem, element.onValid);
+                        } catch (e){
+                            this.style.color = element.invalidColor || "#FF0000";
+                            if (element.onInvalid) executeNotroid(appObj.manifest.id, elem, element.onInvalid);
+                        };
+                    });
                 }
             }
             screen.appendChild(elem);
