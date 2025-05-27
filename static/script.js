@@ -4,6 +4,7 @@
 const desktop = document.querySelector(".desktop");
 const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 let currApp = null;
+let navigationStack = [];
 const permissions = JSON.parse(localStorage.getItem("__notroid_permissions__")) || {
     "notroid.permission.WRITE_STORAGE": ["NotasChafas"],
     "notroid.permission.READ_STORAGE": ["NotasChafas"],
@@ -220,12 +221,12 @@ const icons = JSON.parse(localStorage.getItem("__notroid_icons__")) || {
                 {type: "button", text: "Otros métodos de entrada", action: ["NAVIGATE_TO", "OTHER_METHODS"]}
             ],
             "CONFIG": [
-                {type: "button", text: "<-", action: ["NAVIGATE_TO", "HOME"]}, {type: "br"},
+                {type: "button", text: "<-", action: ["GO_BACK"]}, {type: "br"},
                 {type: "text", text: "Cargar automaticamente: ", inline: true},
                 {type: "checkbox", id: "autoLoad", checked: true},
             ],
             "OTHER_METHODS": [
-                {type: "button", text: "<-", action: ["NAVIGATE_TO", "HOME"]}, {type: "br"},
+                {type: "button", text: "<-", action: ["GO_BACK"]}, {type: "br"},
                 {type: "button", text: "Otras apps de entrada de texto", action: ["SEND_INTENT", "notroid.category.ENTRY_TEXT", "Introduce la nota: ", ["SET_TEXT", "noteInput", "$__intentResult"]]}
             ]
         }
@@ -255,7 +256,7 @@ const icons = JSON.parse(localStorage.getItem("__notroid_icons__")) || {
                 {type: "button", text: "Pre-Sets", action: ["NAVIGATE_TO", "PRESETS"]}
             ],
             "PRESETS": [
-                {type: "button", text: "<-", action: ["NAVIGATE_TO", "EDITOR"]}, {type:"br"},
+                {type: "button", text: "<-", action: ["GO_BACK"]}, {type:"br"},
                 {type: "button", text: "Hello World Básico", action: ["SET_TEXT", "code", '{"manifest": {"id": "miapp"}, "main": {}, "screens": {"MAIN": [{"type": "text", "text": "Buenos Dias Mundo"}]}}']}, {type:"br"},
                 {type: "button", text: "Estructura completa", action: ["SET_TEXT", "code", '{"manifest": {"id": "miapp", "name": "Mi App", "icon": "https://placehold.co/150x150/008080/FFFFFF?text=My\\nNot-App", "categories": [], "permissions": []}, "main": {"entry": "MAIN", "functions": {}, "toolbarTitle": "Mi Toolbar", "lifecycle": {"onCreate": [], "onDestroy": [], "env": {}}}, "screens": {"MAIN": [{"type": "text", "text": "Contenido"}]}}']}, {type:"br"},
                 {type: "button", text: "Notroid EasterEgg", action: ["SET_TEXT", "code", '{"manifest": {"id": "miapp"}, "main": {}, "screens": {"MAIN": [{"type": "hitler.update"}]}}']},
@@ -311,19 +312,20 @@ function __cond(appId, cond){
     }
 }
 
-function executeNotroid(appId, elem, actionArr){
-    console.log(`[i] [ExecuteNotroid] ${appId}\nelem: ${elem}\nactionArr: ${actionArr[0]} - ${actionArr.slice(1)}`) // Bro esta línea convierte la consola en logs del gobierno 🙏☠
+function executeNotroid(appId, actionArr){
+    //alert(actionArr) // Activar si quieres ver cada maldita acción en tiempo real (spoiler: 25 alerts para abrir una app)
+    console.log(`[i] [ExecuteNotroid] ${appId}\nactionArr: ${actionArr[0]} - ${actionArr.slice(1)}`) // Bro esta línea convierte la consola en logs del gobierno 🙏☠
     if (!actionArr || actionArr.length === 0) return;
     const [action, ...args] = actionArr
     if (Array.isArray(action)){
         for (const act of [action, ...args]){
-            executeNotroid(appId, elem, act);
+            executeNotroid(appId, act);
         }
         return;
     }
     switch (action){
         case "NAVIGATE_TO":
-            navigateTo(elem, resolveValue(appId, args[0]));
+            navigateTo(appId, resolveValue(appId, args[0]));
             break;
         case "SHOW_TOAST": // TODO: Añadir parametro "context" para que no lloren los de Android 🙏😭
             showToast(resolveValue(appId, args[0]));
@@ -340,7 +342,7 @@ function executeNotroid(appId, elem, actionArr){
             break;
         case "IF":
             const cond = args.shift();
-            executeNotroid(appId, elem, __cond(appId, cond) ? args[0] || [] : args[1] || []);
+            executeNotroid(appId, __cond(appId, cond) ? args[0] || [] : args[1] || []);
             break;
         case "SEND_INTENT":
             const [category, data, callback] = args;
@@ -382,7 +384,7 @@ function executeNotroid(appId, elem, actionArr){
                     return actions;
                 }
                 tcallback.callback = parseIntentResults(tcallback.callback, responseData);
-                executeNotroid(tcallback.fromApp, null, tcallback.callback);
+                executeNotroid(tcallback.fromApp, tcallback.callback);
             }
             delete icons[appId].main.env.__pendingCallback;
             closeApp(appId);
@@ -393,7 +395,10 @@ function executeNotroid(appId, elem, actionArr){
                 console.warn(`[ExecuteNotroid] [CALL] La función no existe: ${args[0]}`);
                 return;
             }
-            executeNotroid(appId, elem, actions)
+            executeNotroid(appId, actions);
+            break;
+        case "GO_BACK":
+            goBack();
             break;
         case "SAVE_ENV":
             if (!icons[appId].manifest.permissions.includes("notroid.permission.WRITE_STORAGE")){
@@ -446,9 +451,9 @@ function executeNotroid(appId, elem, actionArr){
             try {
                 appObj = JSON.parse(resolveValue(appId, args[0]));
                 installApp(appObj, add=true);
-                executeNotroid(appId, null, parseIntentResults(args[1] || [], ""));
+                executeNotroid(appId, parseIntentResults(args[1] || [], ""));
             } catch (error){
-                executeNotroid(appId, null, parseIntentResults(args[1] || [], error.message));
+                executeNotroid(appId, parseIntentResults(args[1] || [], error.message));
                 break;
             }
             break;
@@ -497,8 +502,9 @@ function installApp(appObj, add=false){
     app.appendChild(toolbar)
     for (const [scrName, elements] of Object.entries(appObj.screens)){
         const screen = document.createElement("div");
-        screen.className = "screen hide";
+        screen.className = "screen";
         screen.id = `${scrName}-screen`;
+        screen.style.display = "none";
         for (const element of elements){
             let elem;
             switch (element.type){
@@ -560,13 +566,13 @@ function installApp(appObj, add=false){
             }
             if (element.action){
                 elem.onclick = ()=>{
-                    executeNotroid(appObj.manifest.id, elem, element.action);
+                    executeNotroid(appObj.manifest.id, element.action);
                 };
             }
             if (element.onInput){
-                elem.addEventListener("input", ()=>{
-                    executeNotroid(appObj.manifest.id, elem, element.onInput);
-                });
+                elem.oninput = ()=>{
+                    executeNotroid(appObj.manifest.id, element.onInput);
+                };
             }
             if (element.highlight && (element.type === "input" || element.type === "textarea")){ // ¡Evita las librerías como Google evita el humor! 🗿🔥
                 if (element.highlight === "JSON"){
@@ -574,10 +580,10 @@ function installApp(appObj, add=false){
                         try {
                             JSON.parse(this.value);
                             this.style.color = element.validColor || "#00FF00";
-                            if (element.onValid) executeNotroid(appObj.manifest.id, elem, element.onValid);
+                            if (element.onValid) executeNotroid(appObj.manifest.id, element.onValid);
                         } catch (e){
                             this.style.color = element.invalidColor || "#FF0000";
-                            if (element.onInvalid) executeNotroid(appObj.manifest.id, elem, element.onInvalid);
+                            if (element.onInvalid) executeNotroid(appObj.manifest.id, element.onInvalid);
                         };
                     });
                 }
@@ -601,8 +607,9 @@ function launchApp(appId, reset=false, data=null){
         alert(`Error: No se pudo lanzar '${appId}'`);
         return null;
     }
+
     if (reset){
-        navigateTo(app, appObj.main.entry);
+        navigateTo(appId, appObj.main.entry);
     }
     if (data){ // Mediante intent implícito
         icons[appId].main.env.__intentData = data;
@@ -613,7 +620,7 @@ function launchApp(appId, reset=false, data=null){
         app.style.display = "block";
         void app.offsetWidth; // Tremendo hack, campeón
         app.classList.remove("hide");
-        executeNotroid(appId, app, appObj.main.lifecycle?.onCreate || []);
+        executeNotroid(appId, appObj.main.lifecycle?.onCreate || []);
     }, 200);
 }
 function closeApp(appId){
@@ -625,31 +632,33 @@ function closeApp(appId){
     }
     setTimeout(()=>{
         app.classList.add("hide");
-        executeNotroid(appId, app, appObj.main.lifecycle?.onDestroy || []);
+        executeNotroid(appId, appObj.main.lifecycle?.onDestroy || []);
         setTimeout(()=>{
             app.style.display = "none";
         }, 400);
     }, 200);
 }
-function navigateTo(context, screenId){
-    const app = context.closest(".app");
+function navigateTo(appId, screenId, register=true){
+    const app = document.getElementById(`${appId}-app`);
     if (!app){
-        alert(`Error al acceder a la app`);
+        alert(`[navigateTo] Error al acceder a la app`);
         return null;
     }
     app.querySelectorAll(".screen").forEach(screen =>{
         if (screen.id === `${screenId}-screen`){
             screen.style.display = "block";
         } else {
-            screen.style.display = "none"
+            if (screen.style.display === "block" && register) navigationStack.push(screen.id.split("-screen")[0])
+            screen.style.display = "none";
         }
-    })
+    });
+    console.log(`[navigateTo] NavigationStack:`, navigationStack);
 }
 // ========== ELEMENTOS NATIVOS (NO PODIAN FALTAR JEJE) ========== //
 function showToast(msg, time=2500){
     const toast = document.getElementById("NotroidGlobalToast");
     if (toast.style.display == "flex"){
-        toastStack.push(msg);
+        if (toastStack.length <= 5) toastStack.push(msg); // "Talvez añada este valor para ser configurable" - Ideas que las perderé mañana...
         return;
     }
     toast.querySelector("p").textContent = msg;
@@ -676,14 +685,14 @@ function showAlertDialog(appId, title, msg, positive, negative){ // Perdonenme, 
     btnPos.onclick = ()=>{
         alertDialog.classList.add("hide");
         setTimeout(()=>{ alertDialog.style.display = "none" }, 400);
-        executeNotroid(appId, null, positive[1] || []);
+        executeNotroid(appId, positive[1] || []);
     }
     const btnNeg = alertDialog.querySelector("#btnNegative");
     btnNeg.textContent = negative[0];
     btnNeg.onclick = ()=>{
         alertDialog.classList.add("hide");
         setTimeout(()=>{ alertDialog.style.display = "none" }, 400);
-        executeNotroid(appId, null, negative[1] || []);
+        executeNotroid(appId, negative[1] || []);
     }
 }
 function BSOD(){
@@ -732,11 +741,23 @@ function resolveValue(appId, str){
     });
 }
 // ========== NAVEGACIÓN ========== //
+function goBack(){
+    if (currApp){
+        if (navigationStack.length === 0){
+            closeApp(currApp);
+        } else {
+            navigateTo(currApp, navigationStack.pop(), register=false);
+        }
+    } else {
+        console.log("[goBack] Raíz");
+    }
+}
 function goHome(){
     if (currApp){
-        closeApp(currApp)
+        navigationStack = [];
+        closeApp(currApp);
     } else {
-        console.log("[goHome] Raíz")
+        console.log("[goHome] Raíz");
     }
 }
 // ========== Relleno ========== //
