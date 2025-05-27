@@ -91,13 +91,14 @@ Las acciones son como funciones built-in que permiten hacer cosas del OS *sin to
   - `<data/text>` puede ser datos extra para pasarle a la app que maneje la acción (Ej, un *prompt*) (Para *devs*: Se agrega en `main/env/__intentData` de la app que maneje la acción).
   - `<callback>` son las acciones que ejecutará la otra app usando `RESOLVE_INTENT` después de manejar la acción que le dimos. Usa el *placeholder* `$__intentResult` para referirte a la *respuesta* de la app llamada.
   - Para *devs*: Se guarda un objeto `main/env/__pendingCallback` con `{fromApp: appId, callback: callback}` a la app que maneje la acción.
-- `RESOLVE_INTENT <text>`> Ejecuta el `callback` que nos dió la app que mandó el *SEND_INTENT* (Para *devs*: Usando `__pendingCallback`).
+- `RESOLVE_INTENT <text>`: Ejecuta el `callback` que nos dió la app que mandó el *SEND_INTENT* (Para *devs*: Usando `__pendingCallback`).
 - `CALL <function>`: Ejecuta la lista de acciones de una función definida en `main/functions`.
+- `GO_BACK`: Ejecuta el `goBack` del sistema que navega hacia la pantalla anterior o cierra la app si no hay a donde ir.
 - `SAVE_ENV <name> <text>`: Guarda datos persistentes en `localStorage`. **Requiere permiso `notroid.permission.WRITE_STORAGE`**.
 - `LOAD_ENV <name> <env>`: Carga un dato de `localStorage` a una variable del *env*. **Requiere permiso `notroid.permission.READ_STORAGE`**.
 - `INSTALL_APP <json> <callback>`: Instala una app en Notroid mediante su JSON. Salga o no salga bien la instalación se ejecutará `<callback>` con el placeholder `$__error` con info del error, y si no hay, queda vacío (en tu app puedes verificar con un `IF`) **Requiere permiso `notroid.permission.INSTALL_APPS`**.
 
-> `toastStack` prioriza toasts usando **LIFO**(Last In First Out). (**Innovación**: Si spameas toasts, **se encolan como en el McDonald's**. *"Número 54, su toast está listo"*.).
+> `toastStack` prioriza toasts usando **LIFO**(Last In First Out). (**Innovación**: Si spameas toasts, **se encolan como en el McDonald's**. *"Número 54, su toast está listo"*.) **Ultimas notas**: Ya no puedes hacerlo, *efe*, el máximo de toasts acumulados es de 5 😭💔.
 
 **Recuerda** que son en formato `array` (Ej: `[action, arg1, arg2, etc...]`).
 
@@ -168,6 +169,14 @@ En Notroid nos da flojera especificar si quieres el contenido de texto de un ele
 - **2do método de creación de apps**: Crear apps con un `NotroidManifest.xml`, `MainScreen.kt` y `main_screen.xml` para los traumados (ni en sueños hago eso).
 - **Más tipos de elementos**, como `switch`, `checkbox`, `range`/`seekbar`, etc.
 - ***Notroid Studio***? 🗣😭🔥🙏☠ (dato: **SE HIZO REALIDAD CHAVALES**)
+
+---
+
+## Manejo de navegación (NavigationBar)
+El manejo de navegación entre pantallas se divide en 3 acciones:
+- `goBack`: Navega a la pantalla anterior de el `navigationStack` (*yeah*), y si no hay más atrás, cierra la app.
+- `goHome`: Cierra la app sin más, reseteando `navigationStack`.
+- `showRecentApps`: Ni la idea está implementada todavía...
 
 ---
 
