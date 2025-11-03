@@ -206,6 +206,14 @@ const Calvik = {
                 return false;
             case "ANDROID_SHOW_TOAST":
                 return AndroidBridge.showToast(ex(args[0]));
+            case "ANDROID_VIBRATE":
+                return AndroidBridge.showToast(ex(args[0]));
+            case "ANDROID_HAS_PERMISSION":
+                return AndroidBridge.hasPermission(ex(args[0]));
+            case "ANDROID_REQUEST_PERMISSION":
+                return AndroidBridge.requestPermission(ex(args[0]));
+            case "ANDROID_GET_LAST_PERMISSION_RESULT":
+                return AndroidBridge.getLastPermissionResult();
                 // === Default === //
             default:
                 throw new Error(`CALVIK ERROR: Unknown opcode: ${op}`);
@@ -242,5 +250,9 @@ const Calvik = {
         // AndroidBridge
         "VERIFY_ENTORN": [],
         "ANDROID_SHOW_TOAST": ["PERMISSION_GOOGLE_APROVEMENT"],
+        "ANDROID_VIBRATE": ["PERMISSION_GOOGLE_APROVEMENT"], // [android.permission.VIBRATE]
+        "ANDROID_HAS_PERMISSION": ["PERMISSION_GOOGLE_APROVEMENT"],
+        "ANDROID_REQUEST_PERMISSION": ["PERMISSION_GOOGLE_APROVEMENT"],
+        "ANDROID_GET_LAST_PERMISSION_RESULT": ["PERMISSION_GOOGLE_APROVEMENT"],
     },
 }
