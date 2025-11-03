@@ -214,6 +214,8 @@ const Calvik = {
                 return AndroidBridge.requestPermission(ex(args[0]));
             case "ANDROID_GET_LAST_PERMISSION_RESULT":
                 return AndroidBridge.getLastPermissionResult();
+            case "ANDROID_SEND_NOTIFICATION":
+                return AndroidBridge.sendNotification(ex(args[0]), ex(args[1]))
                 // === Default === //
             default:
                 throw new Error(`CALVIK ERROR: Unknown opcode: ${op}`);
@@ -254,5 +256,6 @@ const Calvik = {
         "ANDROID_HAS_PERMISSION": ["PERMISSION_GOOGLE_APROVEMENT"],
         "ANDROID_REQUEST_PERMISSION": ["PERMISSION_GOOGLE_APROVEMENT"],
         "ANDROID_GET_LAST_PERMISSION_RESULT": ["PERMISSION_GOOGLE_APROVEMENT"],
+        "ANDROID_SEND_NOTIFICATION": ["PERMISSION_GOOGLE_APROVEMENT"], // [android.permission.POST_NOTIFICATIONS]
     },
 }
