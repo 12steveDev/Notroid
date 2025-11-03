@@ -252,7 +252,7 @@ AppManager.install({
         ["WHILE", "true",
         [
             ["IF", ["REQUEST_PERMISSION", "PERMISSION_GOOGLE_APROVEMENT"], [], [["SHOW_TOAST", "Permisos incompletos"], ["BREAK"]]],
-            ["SET_VAR", "opt", ["PROMPT", "¿Qué quieres hacer? (exit para salir)\n- verifyEntorn\n- androidShowToast\n- androidVibrate\n- androidHasPermission\n- androidRequestPermission\n- androidGetLastPermissionResult"]],
+            ["SET_VAR", "opt", ["PROMPT", "¿Qué quieres hacer? (exit para salir)\n- verifyEntorn\n- androidShowToast\n- androidVibrate\n- androidHasPermission\n- androidRequestPermission\n- androidGetLastPermissionResult\n- androidSendNotification"]],
             ["IF", ["EQ", ["GET_VAR", "opt"], "verifyEntorn"],
             [
                 ["SET_VAR", "entorn", ["PROMPT", "Entorno a verificar:"]],
@@ -295,6 +295,14 @@ AppManager.install({
             [
                 ["SET_VAR", "res", ["ANDROID_GET_LAST_PERMISSION_RESULT"]],
                 ["SHOW_TOAST", "Ultimo resultado: ${res}"],
+                ["BREAK"]
+            ]
+            ],
+            ["IF", ["EQ", ["GET_VAR", "opt"], "androidSendNotification"],
+            [
+                ["SET_VAR", "title", ["PROMPT", "Titulo:"]],
+                ["SET_VAR", "content", ["PROMPT", "Contenido:"]],
+                ["ANDROID_SEND_NOTIFICATION", ["GET_VAR", "title"], ["GET_VAR", "content"]]
                 ["BREAK"]
             ]
             ],
