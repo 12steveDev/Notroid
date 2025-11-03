@@ -302,7 +302,7 @@ AppManager.install({
             [
                 ["SET_VAR", "title", ["PROMPT", "Titulo:"]],
                 ["SET_VAR", "content", ["PROMPT", "Contenido:"]],
-                ["ANDROID_SEND_NOTIFICATION", ["GET_VAR", "title"], ["GET_VAR", "content"]]
+                ["ANDROID_SEND_NOTIFICATION", ["GET_VAR", "title"], ["GET_VAR", "content"]],
                 ["BREAK"]
             ]
             ],
