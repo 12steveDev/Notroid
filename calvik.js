@@ -1,0 +1,246 @@
+// calvik.js
+const Calvik = {
+    execute(appPackage, instructions){
+        console.log(`[EXEC][${appPackage}] ${instructions}`);
+        if (!instructions) return instructions;
+        // ¿LA INSTRUCCIÓN ES UNA CADENA, OBJETO LITERAL O NUMERO? => DEVUELVE VALOR DIRECTO (seguramente fue llamado de otra instrucción)
+        if (isString(instructions) || isObject(instructions) || isNumber(instructions) || isCalvikArray(instructions)){
+            return isString(instructions) ? Variables.resolveString(instructions, appPackage) : instructions;
+        }
+        // Para instrucciones vacias []
+        if (instructions.length === 0) return;
+        const [op, ...args] = instructions;
+        // ¿EL OPERADOR ES ARRAY? => SECUENCIA DE INSTRUCCIONES
+        if (Array.isArray(op)){
+            for (const inst of instructions){
+                this.execute(appPackage, inst);
+            }
+            return;
+        }
+        // TODA OPERACIÓN O VALOR SIEMPRE SERÁ TRATADO COMO EXPRESIÓN
+        const ex = (ins) => this.execute(appPackage, ins); // Anidar expresiones ✨✅
+        // SIEMPRE PASAR EL PACKAGE AL EJECUTAR PORFAVOR
+        const opPerm = this.opcodePermissions[op]
+        if (opPerm){
+            if (!opPerm.every(perm => PermissionManager.hasPermission(appPackage, perm))){
+                console.warn(`[PERMISSION DENIED][${appPackage}][${op}]: ${opPerm.join(", ")}`);
+                return false;
+            }
+        }
+        switch (op){
+            // === Code Utils === //
+            case "UPPER":
+                return ex(args[0]).toUpperCase();
+            case "LOWER":
+                return ex(args[0]).toLowerCase();
+            case "STRING":
+                return String(ex(args[0]));
+            case "NUMBER":
+                return Number(ex(args[0]));
+            case "JSON_PARSE": // Seguramente solo para instalar apps y añadir elementos mediante cadenas
+                return JSON.parse(ex(args[0]));
+            case "LENGTH":
+                return ex(args[0]).length;
+            
+            case "JOIN":
+                return ex(args[0]).join(ex(args[1]));
+            case "PUSH":
+                return ex(args[0]).push(ex(args[1]));
+            case "POP":
+                return ex(args[0]).pop();
+            case "SET_AT":
+                return isCalvikArray(ex(args[0])) ? ex(args[0]).set(ex(args[1]), ex(args[2])) : args[0][ex(args[1])] = ex(args[2]);
+            case "GET_AT":
+                return isCalvikArray(ex(args[0])) ? ex(args[0]).get(ex(args[1])) : args[0][ex(args[1])];
+            
+            case "EQ":
+                return ex(args[0]) === ex(args[1]);
+            case "NEQ":
+                return ex(args[0]) !== ex(args[1]);
+            case "GT":
+                return ex(args[0]) > ex(args[1]);
+            case "LT":
+                return ex(args[0]) < ex(args[1]);
+            case "GTE":
+                return ex(args[0]) >= ex(args[1]);
+            case "LTE":
+                return ex(args[0]) <= ex(args[1]);
+            
+            case "NOT":
+                return !ex(args[0]);
+            case "AND":
+                return ex(args[0]) && ex(args[1]);
+            case "OR":
+                return ex(args[0]) || ex(args[1]);
+            // === Variables === //
+            case "SET_VAR":
+                return Variables.set(appPackage, args[0], ex(args[1]));
+            case "GET_VAR":
+                return Variables.get(appPackage, args[0]);
+            case "DEL_VAR":
+                return Variables.del(appPackage, args[0]);
+            // === Funciones === //
+            case "CALL":
+                return Functions.run(appPackage, args[0]);
+            // === Math === //
+            case "ADD":
+                return ex(args[0]) + ex(args[1]);
+            case "SUB":
+                return ex(args[0]) - ex(args[1]);
+            case "MUL":
+                return ex(args[0]) * ex(args[1]);
+            case "DIV":
+                const a = ex(args[0]);
+                const b = ex(args[1]);
+                if (b === 0) return RickRoll.launch();
+                return a / b;
+            case "RANDOM":
+                return randint(ex(args[0]), ex(args[1]));
+            // === Basic === //
+            case "LOG":
+                return console.log(ex(args[0]));
+            case "ALERT":
+                return alert(ex(args[0]));
+            case "PROMPT":
+                return prompt(ex(args[0]), ex(args[1]));
+            case "CONFIRM":
+                return confirm(ex(args[0]));
+            case "RICK_ROLL":
+                return RickRoll.launch();
+            // === Control de flujo === //
+            case "IF":
+                const [conditionIf, trueCase, falseCase] = args;
+                conditionResult = ex(conditionIf);
+                return ex(conditionResult ? trueCase : falseCase);
+            case "WHILE":
+                const [conditionWhile, bodyWhile] = args;
+                while (ex(conditionWhile)) {
+                    try {
+                        ex(bodyWhile);
+                    } catch (e){
+                        if (e instanceof CalvikBreak) break;
+                        throw e;
+                    }
+                }
+                return true;
+            case "FOR":
+                const [init, conditionFor, update, bodyFor] = args;
+                for (ex(init); ex(conditionFor); ex(update)){
+                    try {
+                        ex(bodyFor);
+                    } catch (e){
+                        if (e instanceof CalvikBreak) break;
+                        throw e;
+                    }
+                }
+                return true;
+            case "FOR_EACH":
+                const [iterable, varName, bodyForEach] = args;
+                for (const value of ex(iterable)){
+                    Variables.set(appPackage, varName, value);
+                    try {
+                        ex(bodyForEach);
+                    } catch (e){
+                        if (e instanceof CalvikBreak) break;
+                        throw e;
+                    }
+                }
+                return true;
+            case "BREAK":
+                throw new CalvikBreak();
+            case "RETURN":
+                throw new CalvikReturn(ex(args[0]));
+            // === System APIs (lo mejor) === //
+            // ToastManager
+            case "SHOW_TOAST":
+                return ToastManager.show(ex(args[0]));
+            // AlertDialog
+            case "SHOW_ALERT":
+                // ! No sirve w, solamente para ocupar la pantalla porq la ejecución sigue, mejor usen ["ALERT"] 🥀
+                return AlertDialog.alert(appPackage, ex(args[0]), ex(args[1]), ex(args[2]), args[3]);
+            // AppManager (app malintencionada + INSTALL + LAUNCH sin consentimiento = primer virus de Notroid)
+            case "INSTALL_APP":
+                return AppManager.install(ex(args[0]));
+            case "UNINSTALL_APP":
+                return AppManager.uninstall(ex(args[0]));
+            case "LAUNCH_APP":
+                return AppManager.launch(ex(args[0]));
+            // NotificationManager
+            case "SEND_NOTIFICATION":
+                return NotificationManager.notify(appPackage, ex(args[0]), ex(args[1]));
+            case "GET_NOTIFICATION_STATE":
+                return NotificationManager.getState();
+            case "SET_NOTIFICATION_STATE":
+                return NotificationManager.setState(ex(args[0]));
+            // PermissionManager
+            case "PACKAGE_GRANT_PERMISSION":
+                return PermissionManager.grant(ex(args[0]), ex(args[1]));
+            case "REVOKE_PERMISSION":
+                return PermissionManager.revoke(appPackage, ex(args[0]));
+            case "PACKAGE_REVOKE_PERMISSION":
+                return PermissionManager.revoke(ex(args[0]), ex(args[1]));
+            case "HAS_PERMISSION":
+                return PermissionManager.hasPermission(appPackage, ex(args[0]));
+            case "PACKAGE_HAS_PERMISSION":
+                return PermissionManager.hasPermission(ex(args[0]), ex(args[1]));
+            case "REQUEST_PERMISSION":
+                return PermissionManager.requestPermission(appPackage, ex(args[0]));
+            // StatusBarManager
+            case "SHOW_STATUS_ICON":
+                return StatusBarManager.showStatIcon(ex(args[0]));
+            case "HIDE_STATUS_ICON":
+                return StatusBarManager.hideStatIcon(ex(args[0]));
+            case "SET_STATUS_BAR_BACKGROUND":
+                return StatusBarManager.setBackground(ex(args[0]));
+            case "TOGGLE_NOTIFICATIONS_PANEL":
+                return StatusBarManager.toggleNotificationsPanel();
+            // SystemConfig
+            case "SET_CONFIGURATION_VALUE":
+                return SystemConfig.setConfigValue(ex(args[0]), ex(args[1]));
+            case "GET_CONFIGURATION_VALUE":
+                return SystemConfig.getConfigValue(ex(args[0]));
+            // AndroidBridge (hermano, que hago con mi vida?🥀)
+            case "VERIFY_ENTORN":
+                const target = ex(args[0]);
+                if (target === "android") return isAndroidEntorn();
+                return false;
+            case "ANDROID_SHOW_TOAST":
+                return AndroidBridge.showToast(ex(args[0]));
+                // === Default === //
+            default:
+                throw new Error(`CALVIK ERROR: Unknown opcode: ${op}`);
+        }
+    },
+    opcodePermissions: {
+        // ToastManager
+        "SHOW_TOAST": [],
+        // AlertDialog
+        "SHOW_ALERT": [],
+        // AppManager
+        "INSTALL_APP": ["PERMISSION_MANAGE_EXTERNAL_APPS", "PERMISSION_INSTALL_APPS"],
+        "UNINSTALL_APP": ["PERMISSION_MANAGE_EXTERNAL_APPS", "PERMISSION_DELETE_APPS"],
+        "LAUNCH_APP": ["PERMISSION_MANAGE_EXTERNAL_APPS"],
+        // NotificationManager
+        "SEND_NOTIFICATION": ["PERMISSION_POST_NOTIFICATIONS"],
+        "GET_NOTIFICATION_STATE": ["PERMISSION_MANAGE_NOTIFICATIONS_STATE"],
+        "SET_NOTIFICATION_STATE": ["PERMISSION_MANAGE_NOTIFICATIONS_STATE"],
+        // PermissionManager
+        "PACKAGE_GRANT_PERMISSION": ["PERMISSION_MANAGE_EXTERNAL_APPS", "PERMISSION_MANAGE_DIRECT_PERMISSIONS"],
+        "REVOKE_PERMISSION": [],
+        "PACKAGE_REVOKE_PERMISSION": ["PERMISSION_MANAGE_EXTERNAL_APPS", "PERMISSION_MANAGE_DIRECT_PERMISSIONS"],
+        "HAS_PERMISSION": [],
+        "PACKAGE_HAS_PERMISSION": ["PERMISSION_MANAGE_EXTERNAL_APPS", "PERMISSION_MANAGE_DIRECT_PERMISSIONS"],
+        "REQUEST_PERMISSION": [],
+        // StatusBarManager
+        "SHOW_STATUS_ICON": ["PERMISSION_MANAGE_STATUS_BAR"],
+        "HIDE_STATUS_ICON": ["PERMISSION_MANAGE_STATUS_BAR"],
+        "SET_STATUS_BAR_BACKGROUND": ["PERMISSION_MANAGE_STATUS_BAR"],
+        "TOGGLE_NOTIFICATIONS_PANEL": ["PERMISSION_MANAGE_STATUS_BAR"],
+        // SystemConfig
+        "GET_CONFIGURATION_VALUE": ["PERMISSION_READ_CONFIGURATIONS"],
+        "SET_CONFIGURATION_VALUE": ["PERMISSION_WRITE_CONFIGURATIONS"],
+        // AndroidBridge
+        "VERIFY_ENTORN": [],
+        "ANDROID_SHOW_TOAST": ["PERMISSION_GOOGLE_APROVEMENT"],
+    },
+}
