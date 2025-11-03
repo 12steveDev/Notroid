@@ -207,7 +207,7 @@ const Calvik = {
             case "ANDROID_SHOW_TOAST":
                 return AndroidBridge.showToast(ex(args[0]));
             case "ANDROID_VIBRATE":
-                return AndroidBridge.showToast(ex(args[0]));
+                return AndroidBridge.vibrate(ex(args[0]));
             case "ANDROID_HAS_PERMISSION":
                 return AndroidBridge.hasPermission(ex(args[0]));
             case "ANDROID_REQUEST_PERMISSION":
