@@ -252,7 +252,7 @@ AppManager.install({
         ["WHILE", "true",
         [
             ["IF", ["REQUEST_PERMISSION", "PERMISSION_GOOGLE_APROVEMENT"], [], [["SHOW_TOAST", "Permisos incompletos"], ["BREAK"]]],
-            ["SET_VAR", "opt", ["PROMPT", "¿Qué quieres hacer? (exit para salir)\n- verifyEntorn\n- androidShowToast"]],
+            ["SET_VAR", "opt", ["PROMPT", "¿Qué quieres hacer? (exit para salir)\n- verifyEntorn\n- androidShowToast\n- androidVibrate\n- androidHasPermission\n- androidRequestPermission"]],
             ["IF", ["EQ", ["GET_VAR", "opt"], "verifyEntorn"],
             [
                 ["SET_VAR", "entorn", ["PROMPT", "Entorno a verificar:"]],
@@ -265,6 +265,36 @@ AppManager.install({
             [
                 ["SET_VAR", "message", ["PROMPT", "Mensaje a mostrar:"]],
                 ["ANDROID_SHOW_TOAST", ["GET_VAR", "message"]],
+                ["BREAK"]
+            ]
+            ],
+            ["IF", ["EQ", ["GET_VAR", "opt"], "androidVibrate"],
+            [
+                ["SET_VAR", "ms", ["NUMBER", ["PROMPT", "MS a vibrar:"]]],
+                ["ANDROID_VIBRATE", ["GET_VAR", "ms"]],
+                ["BREAK"]
+            ]
+            ],
+            ["IF", ["EQ", ["GET_VAR", "opt"], "androidHasPermission"],
+            [
+                ["SET_VAR", "perm", ["PROMPT", "Permiso a verificar:"]],
+                ["SET_VAR", "res", ["ANDROID_HAS_PERMISSION", ["GET_VAR", "perm"]]],
+                ["SHOW_TOAST", "Resultado: ${res}"],
+                ["BREAK"]
+            ]
+            ],
+            ["IF", ["EQ", ["GET_VAR", "opt"], "androidRequestPermission"],
+            [
+                ["SET_VAR", "perm", ["PROMPT", "Permiso a conceder:"]],
+                ["SET_VAR", "res", ["ANDROID_REQUEST_PERMISSION", ["GET_VAR", "perm"]]],
+                ["SHOW_TOAST", "Resultado: ${res} (verificar el real con androidGetLastPermissionResult)"],
+                ["BREAK"]
+            ]
+            ],
+            ["IF", ["EQ", ["GET_VAR", "opt"], "androidGetLastPermissionResult"],
+            [
+                ["SET_VAR", "res", ["ANDROID_GET_LAST_PERMISSION_RESULT"]],
+                ["SHOW_TOAST", "Ultimo resultado: ${res}"],
                 ["BREAK"]
             ]
             ],
