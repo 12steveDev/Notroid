@@ -61,6 +61,7 @@ class CalvikArray {
 
 const desktop = $("#desktop");
 const statusBar = $("#statusBar");
+const statTime = $("#statTime");
 const statIcons = $("#statIcons");
 const notiIcons = $("#notiIcons");
 const navigationBar = $("#navigationBar");
@@ -69,4 +70,21 @@ const navigationBar = $("#navigationBar");
 function initializeListeners(){
     statusBar.addEventListener("touchstart", (e)=>StatusBarManager._statusBarActionTouchStart(e));
     statusBar.addEventListener("touchend", (e)=>StatusBarManager._statusBarActionTouchEnd(e));
+
+
+    setInterval(()=>{
+        const showSec = SystemConfig.getConfigValue("timeShowSeconds");
+        const hour12mode = SystemConfig.getConfigValue("time12hourMode");
+
+        const now = new Date();
+        const hour = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, "0");
+        const seconds = now.getSeconds().toString().padStart(2, "0");
+        const ampm = hour >= 12 ? "p.m." : "a.m.";
+        const hour12 = hour % 12 || 12; // convierte 0→12, 13→1, etc
+        let text = `${hour12mode ? hour12 : hour}:${minutes}`;
+        if (showSec) text += `:${seconds}`;
+        if (hour12mode) text += ` ${ampm}`;
+        statTime.textContent = text;
+    }, SystemConfig.getConfigValue("timeReloadIntervalMS"));
 }

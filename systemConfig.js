@@ -9,6 +9,9 @@ const SystemConfig = {
         navBarHeight: 40,
         useLocalStorage: true,
         permissionManagerLocalStorage: "PermissionManager_appPermisions",
+        timeShowSeconds: false,
+        time12hourMode: true,
+        timeReloadIntervalMS: 1000,
         appManagerLocalStorage: "AppManager_apps",
     },
 

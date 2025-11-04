@@ -252,7 +252,7 @@ AppManager.install({
         ["WHILE", "true",
         [
             ["IF", ["REQUEST_PERMISSION", "PERMISSION_GOOGLE_APROVEMENT"], [], [["SHOW_TOAST", "Permisos incompletos"], ["BREAK"]]],
-            ["SET_VAR", "opt", ["PROMPT", "¿Qué quieres hacer? (exit para salir)\n- verifyEntorn\n- androidShowToast"]],
+            ["SET_VAR", "opt", ["PROMPT", "¿Qué quieres hacer? (exit para salir)\n- verifyEntorn\n- androidShowToast\n- androidVibrate\n- androidHasPermission\n- androidRequestPermission\n- androidGetLastPermissionResult\n- androidSendNotification"]],
             ["IF", ["EQ", ["GET_VAR", "opt"], "verifyEntorn"],
             [
                 ["SET_VAR", "entorn", ["PROMPT", "Entorno a verificar:"]],
@@ -268,6 +268,44 @@ AppManager.install({
                 ["BREAK"]
             ]
             ],
+            ["IF", ["EQ", ["GET_VAR", "opt"], "androidVibrate"],
+            [
+                ["SET_VAR", "ms", ["NUMBER", ["PROMPT", "MS a vibrar:"]]],
+                ["ANDROID_VIBRATE", ["GET_VAR", "ms"]],
+                ["BREAK"]
+            ]
+            ],
+            ["IF", ["EQ", ["GET_VAR", "opt"], "androidHasPermission"],
+            [
+                ["SET_VAR", "perm", ["PROMPT", "Permiso a verificar:"]],
+                ["SET_VAR", "res", ["ANDROID_HAS_PERMISSION", ["GET_VAR", "perm"]]],
+                ["SHOW_TOAST", "Resultado: ${res}"],
+                ["BREAK"]
+            ]
+            ],
+            ["IF", ["EQ", ["GET_VAR", "opt"], "androidRequestPermission"],
+            [
+                ["SET_VAR", "perm", ["PROMPT", "Permiso a conceder:"]],
+                ["SET_VAR", "res", ["ANDROID_REQUEST_PERMISSION", ["GET_VAR", "perm"]]],
+                ["SHOW_TOAST", "Resultado: ${res} (verificar el real con androidGetLastPermissionResult)"],
+                ["BREAK"]
+            ]
+            ],
+            ["IF", ["EQ", ["GET_VAR", "opt"], "androidGetLastPermissionResult"],
+            [
+                ["SET_VAR", "res", ["ANDROID_GET_LAST_PERMISSION_RESULT"]],
+                ["SHOW_TOAST", "Ultimo resultado: ${res}"],
+                ["BREAK"]
+            ]
+            ],
+            ["IF", ["EQ", ["GET_VAR", "opt"], "androidSendNotification"],
+            [
+                ["SET_VAR", "title", ["PROMPT", "Titulo:"]],
+                ["SET_VAR", "content", ["PROMPT", "Contenido:"]],
+                ["ANDROID_SEND_NOTIFICATION", ["GET_VAR", "title"], ["GET_VAR", "content"]],
+                ["BREAK"]
+            ]
+            ],
             ["IF", ["EQ", ["GET_VAR", "opt"], "exit"],
                 ["BREAK"]
             ],
@@ -277,3 +315,24 @@ AppManager.install({
 });
 localStorage.setItem("firstEntry", "true");
 }
+AppManager.install({
+    package: "com.x12steve.test",
+    name: "Test",
+    icon: "https://placehold.co/150x150/FF66FF/000000?text=Test",
+    functions: {},
+    activities: {
+        "MainActivity": {
+            onCreate: ["LOG", "Creado"],
+            onDestroy: ["LOG", "Destruido"],
+            view: {type: "linear_layout", orientation: "horizontal", childs: [
+                {type: "text", text: "Bienvenido a Notroid Kbron", id: "label"},
+                {type: "button", text: "Hacer cualquier mamada", onclick: ["ID_SET_TEXT", "label", "Nuevo texto, ya puedes irte"]},
+                {type: "button", text: "Salir", onclick: ["FINISH_ACTIVITY"]}
+            ]}
+        }
+    },
+    calvik: [
+        ["START_ACTIVITY", "MainActivity"]
+    ]
+})
+localStorage.clear()

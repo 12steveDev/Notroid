@@ -1,28 +1,6 @@
-# === Notes.py (para resaltado pobre) === #
+# === NOTES.md === #
 
-## === **Clases:** === ##
-- **`AppManager`:**
-- - *[attr]* `.apps`
-- - `.launch(appName)`
-- - `.install(appObj)`
-- - `.uninstall(appName)`
-- - `.list()`
-- - `.refresh()`
-
-- **`NotificationManager`:**
-- - *[attr]* `.notifications`
-- - `.notify(title, message)`
-- - `.refresh()`
-
-- **`SystemUI`:**
-- - `.toast(message)`
-
-- **`TileManager`:**
-- - *[attr]* `.tiles`
-- - `.register(tileObj)`
-- - `.remove(tileName)`
-
-- **`SystemConfig`:**
-- - `.launcherColumns`
-- - `.launcherRows`
-- - `.apply()`
+## TO-DO:
+- Añadir actividades a los paquetes de las aps (`ActivityManager`, `["START_ACTIVITY"]`)
+- Añadir UI al TopPopup de las notificaciones
+- 

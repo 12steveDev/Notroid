@@ -34,7 +34,7 @@ body {
 }
 #statusBar {
     display: grid;
-    grid-template-columns: 15% 35% 50%;
+    grid-template-columns: 17% 33% 50%;
     top: 0;
     font-size: 12px;
     padding: 0 5px;
@@ -42,6 +42,11 @@ body {
 }
 #statusBar.show {
     transform: translateY(100vh);
+}
+#statTime {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 /* === Preview de notificaciones === */
 #notiIcons {
