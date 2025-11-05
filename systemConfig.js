@@ -4,15 +4,23 @@ const SystemConfig = {
         launcherColumns: 5,
         launcherRows: 6,
         launcherGap: 5,
+        launcherBackground: "#008080",
         statusBarHeight: 20,
         statusBarMinSwipe: 50,
         navBarHeight: 40,
         useLocalStorage: true,
         permissionManagerLocalStorage: "PermissionManager_appPermisions",
+        appManagerLocalStorage: "AppManager_apps",
         timeShowSeconds: false,
         time12hourMode: true,
         timeReloadIntervalMS: 1000,
-        appManagerLocalStorage: "AppManager_apps",
+        showAppNames: true,
+        defaultNotificationSound: "discord-notification.mp3",
+        notificationTopPopupTimeout: 5000, // Falta implementar // Duración del TopPopup de las notificaciones
+        startupSound: false, // Falta implementar
+        maxActivitiesInStack: 20, // Falta implementar
+        autoGrantPermissions: false, // Falta implementar // PELIGROSO pero útil para devs (yo JAJAJJAJ)
+        clearAppDataOnUninstall: false, // Falta implementar
     },
 
     _save(){
@@ -45,6 +53,8 @@ const SystemConfig = {
         const gap = this.getConfigValue("launcherGap");
         const statBarHeight = this.getConfigValue("statusBarHeight");
         const navBarHeight = this.getConfigValue("navBarHeight");
+        // Ajuste de fondo
+        desktop.style.background = this.getConfigValue("launcherBackground");
         // Ajuste de celdas
         desktop.style.gridTemplateColumns = `repeat(${cols}, calc((100% - ${(cols - 1) * gap}px) / ${cols}))`;
         desktop.style.gridTemplateRows = `repeat(${rows}, calc((100% - ${(rows - 1) * gap}px) / ${rows}))`;

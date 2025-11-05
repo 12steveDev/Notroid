@@ -6,6 +6,7 @@ ToastManager.show("Tiembla Google..."); // ! Esta linea es clave (Equivalencia: 
 AppManager.refresh();
 
 if (!localStorage.getItem("firstEntry")){
+// (todas estas apps son de la versión anterior de Notroid, sin UI propia, puro código JAJAJA (no se instalan, sale paquete inválido, soy un pro validando paquetes (tiembla google (like y suscribete))))
 AppManager.install({
     package: "com.test.toastmanager",
     name: "Toast Manager Test",
@@ -313,26 +314,81 @@ AppManager.install({
         ]
     ]
 });
-localStorage.setItem("firstEntry", "true");
-}
 AppManager.install({
     package: "com.x12steve.test",
     name: "Test",
     icon: "https://placehold.co/150x150/FF66FF/000000?text=Test",
+    entry: "MainActivity",
     functions: {},
     activities: {
         "MainActivity": {
-            onCreate: ["LOG", "Creado"],
-            onDestroy: ["LOG", "Destruido"],
-            view: {type: "linear_layout", orientation: "horizontal", childs: [
-                {type: "text", text: "Bienvenido a Notroid Kbron", id: "label"},
-                {type: "button", text: "Hacer cualquier mamada", onclick: ["ID_SET_TEXT", "label", "Nuevo texto, ya puedes irte"]},
-                {type: "button", text: "Salir", onclick: ["FINISH_ACTIVITY"]}
+            onCreate: [["SHOW_TOAST", "Creado"], ["SET_VAR", "name", "valor1"]],
+            onDestroy: ["SHOW_TOAST", "Destruido"],
+            view: {type: "layout", class: [], bg: "#f00", child: [
+                {type: "text", text: "Mensaje 1. ${name}", id: "label"},
+                {type: "button", text: "Hacer algo", onclick: [["SET_VAR", "name", "valor2"], ["ID_SET_TEXT", "label", "Mensaje 2. ${name}"]]},
+                {type: "button", text: "Salir", onclick: ["FINISH_ACTIVITY"]},
+                {type: "button", text: "Nueva instancia", onclick: ["START_ACTIVITY", "MainActivity"]},
+                {type: "input", value: "Input parecido al desarrollador...", placeholder: "inútil w 🥀"},
+                {type: "br"},
+                {type: "checkbox", checked: "true"},
             ]}
         }
-    },
-    calvik: [
-        ["START_ACTIVITY", "MainActivity"]
-    ]
+    }
 })
+AppManager.install({ // ! FINAL BOSS DE LOS TESTS ! //
+    package: "com.forms.test",
+    name: "Formulario Pro",
+    icon: "https://placehold.co/150x150/66AAFF/000000?text=Form",
+    entry: "MainActivity",
+    activities: {
+        "MainActivity": {
+            onCreate: [["SHOW_TOAST", "App de formularios cargada"]],
+            view: {type: "layout", class: ["flex", "flex-column"], bg: "#f5f5f5", child: [
+                {type: "text", text: "Formulario de Registro", class: ["justify-center"], bg: "#008080", fg: "white", style: "padding: 10px; font-size: 18px;"},
+                
+                {type: "text", text: "Nombre:"},
+                {type: "input", id: "inputName", placeholder: "Escribe tu nombre"},
+                
+                {type: "text", text: "Email:"},
+                {type: "input", id: "inputEmail", placeholder: "tu@email.com"},
+                
+                {type: "text", text: "Contraseña:"},
+                {type: "input", id: "inputPassword", inputType: "password", placeholder: "••••••••"},
+                
+                {type: "layout", class: ["flex", "items-center"], child: [
+                    {type: "checkbox", id: "checkTerms"},
+                    {type: "text", text: "Acepto los términos y condiciones"}
+                ]},
+                
+                {type: "button", text: "Registrarse", onclick: [
+                    ["SET_VAR", "name", ["ID_GET_VALUE", "inputName"]],
+                    ["SET_VAR", "email", ["ID_GET_VALUE", "inputEmail"]],
+                    ["SET_VAR", "accepted", ["ID_IS_CHECKED", "checkTerms"]],
+                    
+                    ["IF", ["EQ", ["GET_VAR", "name"], ""],
+                        [["ALERT", "El nombre está vacío"]],
+                        []
+                    ],
+                    
+                    ["IF", ["NOT", ["GET_VAR", "accepted"]],
+                        [["ALERT", "Debes aceptar los términos"]],
+                        [["ALERT", ["ADD", "¡Registro exitoso! Hola ", ["GET_VAR", "name"]]]]
+                    ]
+                ]},
+                
+                {type: "button", text: "Limpiar formulario", onclick: [
+                    ["ID_SET_VALUE", "inputName", ""],
+                    ["ID_SET_VALUE", "inputEmail", ""],
+                    ["ID_SET_VALUE", "inputPassword", ""],
+                    ["ID_SET_CHECKED", "checkTerms", false],
+                    ["ALERT", "Formulario limpiado"]
+                ]}
+            ]}
+        }
+    }
+})
+localStorage.setItem("firstEntry", "true");
+}
+
 localStorage.clear()

@@ -2,7 +2,6 @@
 const NotificationManager = {
     notis: [], // { appPackage, title, content }
     notiState: "show", // "show" | "muted" | "hide" | "block"
-    notiSound: ["Discord Notification", "discord-notification.mp3"],
     _showTopPopup(appPackage, message){
         const appObj = AppManager.getAppObj(appPackage);
 
@@ -29,7 +28,7 @@ const NotificationManager = {
         this._showTopPopup(appPackage, "Tiene nuevos mensajes");
         // "show" = Con Sound
         if (this.notiState === "show"){
-            const notiAudio = new Audio(this.notiSound[1]);
+            const notiAudio = new Audio(SystemConfig.getConfigValue("defaultNotificationSound"));
             notiAudio.volume = 0.9;
             notiAudio.play();
             return true;

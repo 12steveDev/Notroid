@@ -1,11 +1,18 @@
 // calvik.js
 const Calvik = {
-    execute(appPackage, instructions){
-        console.log(`[EXEC][${appPackage}] ${instructions}`);
+    execute(appPackage, activityName, instructions){
+        console.log(`[EXEC][${appPackage}][${activityName}] ${instructions}`);
+
+        // GoogleMode: Verificar que el "contexto" sea válido jeje
+        const appObj = AppManager.getAppObj(appPackage);
+        if (!appObj) return console.warn(`La app '${appPackage}' no existe.`);
+        const activityObj = ActivityManager.getActivityObj(appPackage, activityName);
+        if (!activityObj) return console.warn(`La actividad '${activityName}' no existe`);
+
         if (!instructions) return instructions;
         // ¿LA INSTRUCCIÓN ES UNA CADENA, OBJETO LITERAL O NUMERO? => DEVUELVE VALOR DIRECTO (seguramente fue llamado de otra instrucción)
-        if (isString(instructions) || isObject(instructions) || isNumber(instructions) || isCalvikArray(instructions)){
-            return isString(instructions) ? Variables.resolveString(instructions, appPackage) : instructions;
+        if (isString(instructions) || isObject(instructions) || isNumber(instructions) || isBoolean(instructions) || isCalvikArray(instructions)){
+            return isString(instructions) ? Variables.resolveString(instructions, appPackage, activityName) : instructions;
         }
         // Para instrucciones vacias []
         if (instructions.length === 0) return;
@@ -13,17 +20,17 @@ const Calvik = {
         // ¿EL OPERADOR ES ARRAY? => SECUENCIA DE INSTRUCCIONES
         if (Array.isArray(op)){
             for (const inst of instructions){
-                this.execute(appPackage, inst);
+                this.execute(appPackage, activityName, inst);
             }
             return;
         }
         // TODA OPERACIÓN O VALOR SIEMPRE SERÁ TRATADO COMO EXPRESIÓN
-        const ex = (ins) => this.execute(appPackage, ins); // Anidar expresiones ✨✅
+        const ex = (ins) => this.execute(appPackage, activityName, ins); // Anidar expresiones ✨✅
         // SIEMPRE PASAR EL PACKAGE AL EJECUTAR PORFAVOR
         const opPerm = this.opcodePermissions[op]
         if (opPerm){
             if (!opPerm.every(perm => PermissionManager.hasPermission(appPackage, perm))){
-                console.warn(`[PERMISSION DENIED][${appPackage}][${op}]: ${opPerm.join(", ")}`);
+                console.warn(`[PERMISSION DENIED][${appPackage}][${activityName}][${op}]: ${opPerm.join(", ")}`);
                 return false;
             }
         }
@@ -37,6 +44,8 @@ const Calvik = {
                 return String(ex(args[0]));
             case "NUMBER":
                 return Number(ex(args[0]));
+            case "BOOLEAN":
+                return Boolean(ex(args[0]));
             case "JSON_PARSE": // Seguramente solo para instalar apps y añadir elementos mediante cadenas
                 return JSON.parse(ex(args[0]));
             case "LENGTH":
@@ -74,11 +83,11 @@ const Calvik = {
                 return ex(args[0]) || ex(args[1]);
             // === Variables === //
             case "SET_VAR":
-                return Variables.set(appPackage, args[0], ex(args[1]));
+                return Variables.set(appPackage, activityName, args[0], ex(args[1]));
             case "GET_VAR":
-                return Variables.get(appPackage, args[0]);
+                return Variables.get(appPackage, activityName, args[0]);
             case "DEL_VAR":
-                return Variables.del(appPackage, args[0]);
+                return Variables.del(appPackage, activityName, args[0]);
             // === Funciones === //
             case "CALL":
                 return Functions.run(appPackage, args[0]);
@@ -154,6 +163,23 @@ const Calvik = {
             // ToastManager
             case "SHOW_TOAST":
                 return ToastManager.show(ex(args[0]));
+            // ActivityManager
+            case "START_ACTIVITY":
+                return ActivityManager.startActivity(appPackage, args[0]);
+            case "FINISH_ACTIVITY":
+                return ActivityManager.finishActivity(appPackage, activityName);
+            case "ID_SET_TEXT":
+                return ActivityManager.idSetText(appPackage, activityName, args[0], ex(args[1]));
+            case "ID_GET_TEXT":
+                return ActivityManager.idGetText(appPackage, activityName, args[0]);
+            case "ID_SET_VALUE":
+                return ActivityManager.idSetValue(appPackage, activityName, args[0], ex(args[1]));
+            case "ID_GET_VALUE":
+                return ActivityManager.idGetValue(appPackage, activityName, args[0]);
+            case "ID_SET_CHECKED":
+                return ActivityManager.idSetChecked(appPackage, activityName, args[0], ex(args[1]));
+            case "ID_IS_CHECKED":
+                return ActivityManager.idIsChecked(appPackage, activityName, args[0]);
             // AlertDialog
             case "SHOW_ALERT":
                 // ! No sirve w, solamente para ocupar la pantalla porq la ejecución sigue, mejor usen ["ALERT"] 🥀
@@ -215,8 +241,8 @@ const Calvik = {
             case "ANDROID_GET_LAST_PERMISSION_RESULT":
                 return AndroidBridge.getLastPermissionResult();
             case "ANDROID_SEND_NOTIFICATION":
-                return AndroidBridge.sendNotification(ex(args[0]), ex(args[1]))
-                // === Default === //
+                return AndroidBridge.sendNotification(ex(args[0]), ex(args[1]));
+            // === Default === //
             default:
                 throw new Error(`CALVIK ERROR: Unknown opcode: ${op}`);
         }
@@ -224,6 +250,15 @@ const Calvik = {
     opcodePermissions: {
         // ToastManager
         "SHOW_TOAST": [],
+        // ActivityManager
+        "START_ACTIVITY": [],
+        "FINISH_ACTIVITY": [],
+        "ID_SET_TEXT": [],
+        "ID_GET_TEXT": [],
+        "ID_SET_VALUE": [],
+        "ID_GET_VALUE": [],
+        "ID_SET_CHECKED": [],
+        "ID_IS_CHECKED": [],
         // AlertDialog
         "SHOW_ALERT": [],
         // AppManager

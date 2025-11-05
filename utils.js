@@ -4,6 +4,7 @@ const $$ = (query, parent=document) => parent.querySelectorAll(query);
 const E = (tag) => document.createElement(tag);
 const isString = (value) => typeof value === "string" || value instanceof String;
 const isNumber = (value) => typeof value === "number" && !isNaN(value);
+const isBoolean = (value) => typeof value === "boolean";
 const isObject = (value) => Object.prototype.toString.call(value) === "[object Object]";
 const isCalvikArray = (value) => value instanceof CalvikArray;
 const isAndroidEntorn = () => typeof AndroidBridge !== "undefined";
@@ -21,6 +22,7 @@ class CalvikReturn {
         this.value = value;
     }
 }
+class CalvikFinishedProcess {}
 class CalvikArray {
     constructor(elements = []){
         this.elements = elements;

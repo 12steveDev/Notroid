@@ -6,7 +6,10 @@ const AppManager = {
         return (
             appObj.package &&
             appObj.name &&
-            appObj.icon
+            appObj.icon &&
+            appObj.activities &&
+            Object.keys(appObj.activities).length >= 1,
+            appObj.entry
             ); // Recorre cada clave obligatoria para una app
     },
     _save(){
@@ -50,7 +53,9 @@ const AppManager = {
     launch(appPackage){
         const appObj = this.getAppObj(appPackage);
         if (!appObj) return ToastManager.show("La app no está instalada");
-        return appObj.calvik ? Calvik.execute(appPackage, appObj.calvik) : ToastManager.show("No se puede iniciar esta app");
+        const entry = appObj.entry;
+
+        return ActivityManager.getActivityObj(appPackage, entry) ? ActivityManager.startActivity(appPackage, entry) : ToastManager.show("No se puede iniciar esta app");
     },
     refresh(){
         desktop.innerHTML = "";
@@ -66,13 +71,13 @@ const AppManager = {
             titleP.textContent = app.name;
             
             appDiv.appendChild(iconImg);
-            appDiv.appendChild(titleP);
+            if (SystemConfig.getConfigValue("showAppNames")) appDiv.appendChild(titleP);
             desktop.appendChild(appDiv);
             
             // Acción al hacer click
             appDiv.onclick = ()=>{
                 this.launch(app.package);
-            }
+            };
         }
         this._save();
     }

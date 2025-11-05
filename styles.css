@@ -62,7 +62,7 @@ body {
 }
 /* === Iconos de estado === */
 #statIcons i {
-    font-size: 14px
+    font-size: 14px;
 }
 #statIcons {
     column-gap: 5px;
@@ -85,6 +85,7 @@ body {
     padding: 10px 2px 2px 10px;
     width: 75%;
     overflow-wrap: break-word;
+    z-index: 500;
 }
 .alertDialog p {
     margin: 5px 10px 10px 0;
@@ -119,6 +120,7 @@ body {
     overflow-wrap: break-word;
     text-align: center;
     transition: opacity 0.5s;
+    z-index: 500;
 }
 .app {
     background: #f0f0;/*debug*/
@@ -145,4 +147,66 @@ body {
     text-overflow: ellipsis;
     font-size: 12px;
     background: #f000; /*debug*/
+}
+.activity.hide {
+    opacity: 0;
+    transform: scale(0.8);
+}
+.activity {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    transition: opacity 0.4s, transform 0.3s;
+    z-index: 100;
+}
+
+/* Clases accesibles para apps Notroid (Futuros Seniors del CSS Notroid? 🗣😭🥀🔥) */
+.not-allWidth {
+    width: 100%
+}
+.not-allHeight {
+    height: 100%;
+}
+.not-flex {
+    display: flex;
+}
+.not-flex-column {
+    flex-direction: column;
+}
+.not-flex-column-reverse {
+    flex-direction: column-reverse;
+}
+.not-flex-row {
+    flex-direction: row;
+}
+.not-flex-row-reverse {
+    flex-direction: row-reverse;
+}
+.not-justify-center {
+    justify-content: center;
+}
+.not-justify-start {
+    justify-content: flex-start;
+}
+.not-justify-end {
+    justify-content: flex-end;
+}
+.not-justify-around {
+    justify-content: space-around;
+}
+.not-justify-between {
+    justify-content: space-between;
+}
+.not-items-start {
+    align-items: flex-start;
+}
+.not-items-center {
+    align-items: center;
+}
+.not-items-end {
+    align-items: flex-end;
+}
+.not-hide {
+    opacity: 0;
 }
