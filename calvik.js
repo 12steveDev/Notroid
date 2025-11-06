@@ -4,10 +4,7 @@ const Calvik = {
         console.log(`[EXEC][${appPackage}][${activityName}] ${instructions}`);
 
         // GoogleMode: Verificar que el "contexto" sea válido jeje
-        const appObj = AppManager.getAppObj(appPackage);
-        if (!appObj) return console.warn(`La app '${appPackage}' no existe.`);
-        const activityObj = ActivityManager.getActivityObj(appPackage, activityName);
-        if (!activityObj) return console.warn(`La actividad '${activityName}' no existe`);
+        if (!verifyAppActivity(appPackage, activityName)) return false;
 
         if (!instructions) return instructions;
         // ¿LA INSTRUCCIÓN ES UNA CADENA, OBJETO LITERAL O NUMERO? => DEVUELVE VALOR DIRECTO (seguramente fue llamado de otra instrucción)
@@ -191,6 +188,15 @@ const Calvik = {
                 return AppManager.uninstall(ex(args[0]));
             case "LAUNCH_APP":
                 return AppManager.launch(ex(args[0]));
+            // LocalStorage:
+            case "SET_LOCAL":
+                return LocalStorage.set(appPackage, activityName, args[0], ex(args[1]));
+            case "GET_LOCAL":
+                return LocalStorage.get(appPackage, activityName, args[0]);
+            case "DEL_LOCAL":
+                return LocalStorage.del(appPackage, activityName, args[0]);
+            case "CLEAR_ALL_LOCAL_DATA":
+                return LocalStorage.clearAll(appPackage, activityName);
             // NotificationManager
             case "SEND_NOTIFICATION":
                 return NotificationManager.notify(appPackage, ex(args[0]), ex(args[1]));
@@ -265,6 +271,11 @@ const Calvik = {
         "INSTALL_APP": ["PERMISSION_MANAGE_EXTERNAL_APPS", "PERMISSION_INSTALL_APPS"],
         "UNINSTALL_APP": ["PERMISSION_MANAGE_EXTERNAL_APPS", "PERMISSION_DELETE_APPS"],
         "LAUNCH_APP": ["PERMISSION_MANAGE_EXTERNAL_APPS"],
+        // LocalStorage
+        "SET_LOCAL": ["PERMISSION_LOCAL_STORAGE"],
+        "GET_LOCAL": ["PERMISSION_LOCAL_STORAGE"],
+        "DEL_LOCAL": ["PERMISSION_LOCAL_STORAGE"],
+        "CLEAR_ALL_LOCAL_DATA": ["PERMISSION_LOCAL_STORAGE", "PERMISSION_CLEAR_ALL_LOCAL_DATA"],
         // NotificationManager
         "SEND_NOTIFICATION": ["PERMISSION_POST_NOTIFICATIONS"],
         "GET_NOTIFICATION_STATE": ["PERMISSION_MANAGE_NOTIFICATIONS_STATE"],

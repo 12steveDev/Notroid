@@ -9,6 +9,23 @@ const isObject = (value) => Object.prototype.toString.call(value) === "[object O
 const isCalvikArray = (value) => value instanceof CalvikArray;
 const isAndroidEntorn = () => typeof AndroidBridge !== "undefined";
 const randint = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const verifyAppActivity = (appPackage="null", activityName="null") => {
+    if (appPackage){
+        const appObj = AppManager.getAppObj(appPackage);
+        if (!appObj){
+            console.warn(`La app '${appPackage}' no existe.`);
+            return false;
+        }
+    }
+    if (activityName){
+        const activityObj = ActivityManager.getActivityObj(appPackage, activityName);
+        if (!activityObj) {
+            console.warn(`La actividad '${activityName}' no existe.`);
+            return false;
+        }
+    }
+    return true;
+}
 
 const RickRoll = {
     launch(){
@@ -22,7 +39,7 @@ class CalvikReturn {
         this.value = value;
     }
 }
-class CalvikFinishedProcess {}
+class CalvikAbort {}
 class CalvikArray {
     constructor(elements = []){
         this.elements = elements;

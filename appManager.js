@@ -41,11 +41,7 @@ const AppManager = {
     },
     // ["UNINSTALL_APP"] (P_MANAGE_EXTERNAL_APPS)(P_DELETE_APPS)
     uninstall(appPackage){
-        const appObj = this.getAppObj(appPackage);
-        if (!appObj){
-            console.warn(`La app '${appPackage}' no existe.`);
-            return false;
-        }
+        if (!verifyAppActivity(appPackage, null)) return false;
         this.apps = this.apps.filter(app => app.package !== appPackage);
         this.refresh();
     },
@@ -60,6 +56,8 @@ const AppManager = {
     refresh(){
         desktop.innerHTML = "";
         for (const app of this.apps){
+            // Apps ocultas? El inicio de los viruses 👀👀🥀🥀
+            if (app.hidden) continue;
             // Creamos el ícono desde 0
             const appDiv = E("div");
             appDiv.className = "app flex flex-col justify-center items-center";

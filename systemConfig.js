@@ -11,7 +11,7 @@ const SystemConfig = {
         useLocalStorage: true,
         permissionManagerLocalStorage: "PermissionManager_appPermisions",
         appManagerLocalStorage: "AppManager_apps",
-        timeShowSeconds: false,
+        timeShowSeconds: true,
         time12hourMode: true,
         timeReloadIntervalMS: 1000,
         showAppNames: true,
