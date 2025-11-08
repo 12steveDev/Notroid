@@ -48,7 +48,7 @@ const PermissionManager = {
         if (this.hasPermission(appPackage, permission)){
             return true;
         }
-        if (confirm(`La app '${AppManager.getAppObj(appPackage).name}' solicita el permiso:\n${permission}.\n¿Desea permitir?`)){
+        if (SystemConfig.getConfigValue("autoGrantPermissions") || confirm(`La app '${AppManager.getAppObj(appPackage).name}' solicita el permiso:\n${permission}.\n¿Desea permitir?`)){
             this.grant(appPackage, permission);
             return true;
         } else {

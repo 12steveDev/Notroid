@@ -29,7 +29,15 @@ const verifyAppActivity = (appPackage="null", activityName="null") => {
 
 const RickRoll = {
     launch(){
+        if (SystemConfig.getConfigValue("rickRollBlocker")) alert("¿Creistes que iba a ser tan fácil? 🗣🔥");
         window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    }
+}
+
+const PID = {
+    currPid: 0,
+    nextPid(){
+        return currPid++;
     }
 }
 
@@ -88,8 +96,9 @@ const navigationBar = $("#navigationBar");
 // Manage Listeners
 function initializeListeners(){
     statusBar.addEventListener("touchstart", (e)=>StatusBarManager._statusBarActionTouchStart(e));
+    statusBar.addEventListener("mousedown", (e)=>StatusBarManager._statusBarActionTouchStart(e));
     statusBar.addEventListener("touchend", (e)=>StatusBarManager._statusBarActionTouchEnd(e));
-
+    statusBar.addEventListener("mouseup", (e)=>StatusBarManager._statusBarActionTouchEnd(e));
 
     setInterval(()=>{
         const showSec = SystemConfig.getConfigValue("timeShowSeconds");

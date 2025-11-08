@@ -17,10 +17,11 @@ const SystemConfig = {
         showAppNames: true,
         defaultNotificationSound: "discord-notification.mp3",
         notificationTopPopupTimeout: 5000, // Falta implementar // Duración del TopPopup de las notificaciones
-        startupSound: false, // Falta implementar
         maxActivitiesInStack: 20, // Falta implementar
-        autoGrantPermissions: false, // Falta implementar // PELIGROSO pero útil para devs (yo JAJAJJAJ)
-        clearAppDataOnUninstall: false, // Falta implementar
+        autoGrantPermissions: false, // PELIGROSO pero útil para devs (yo JAJAJJAJ)
+        clearAppDataOnUninstall: false, // Falta implementar (cómo hago un ".filter()" a localStorage? 😭🥀)
+        androidSafeMode: false, // Si se ejecuta ["ANDROID_SHOW_TOAST"] en un entorno no-android, se reemplaza con ["SHOW_TOAST"] (ni google se preocupa tanto por nosotros JAJAJJAJ)
+        rickRollBlocker: true, // no es "¿porqué no?", sino "¿porqué????"
     },
 
     _save(){

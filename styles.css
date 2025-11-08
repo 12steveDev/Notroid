@@ -71,6 +71,27 @@ body {
 /* === Barra de navegación === */
 #navigationBar {
     bottom: 0;
+    padding: 0 25px;
+}
+#navigationBar button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    background: #00000000;
+    color: #ffffff;
+    padding: 5px;
+    border-radius: 25px;
+    width: 25%;
+    height: 100%;
+    transition: background 0.4s;
+}
+#navigationBar #backBtn i {
+    font-size: 33px;
+}
+#navigationBar button:active {
+    background: #ffffff33;
+    transition: background 0.1s;
 }
 .backdrop {
     position: absolute;

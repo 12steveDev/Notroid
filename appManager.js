@@ -42,8 +42,13 @@ const AppManager = {
     // ["UNINSTALL_APP"] (P_MANAGE_EXTERNAL_APPS)(P_DELETE_APPS)
     uninstall(appPackage){
         if (!verifyAppActivity(appPackage, null)) return false;
-        this.apps = this.apps.filter(app => app.package !== appPackage);
-        this.refresh();
+        const appName = this.getAppObj(appPackage).name;
+        if (confirm(`¿Deseas eliminar '${appName}'?`)){
+            this.apps = this.apps.filter(app => app.package !== appPackage);
+            this.refresh();
+            return true;
+        }
+        return false;
     },
     // ["LAUNCH_APP"] (P_MANAGE_EXTERNAL_APPS)
     launch(appPackage){
@@ -54,7 +59,7 @@ const AppManager = {
         return ActivityManager.getActivityObj(appPackage, entry) ? ActivityManager.startActivity(appPackage, entry) : ToastManager.show("No se puede iniciar esta app");
     },
     refresh(){
-        desktop.innerHTML = "";
+        $$(".app", desktop).forEach(appIcon => appIcon.remove());
         for (const app of this.apps){
             // Apps ocultas? El inicio de los viruses 👀👀🥀🥀
             if (app.hidden) continue;

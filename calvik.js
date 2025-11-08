@@ -45,8 +45,12 @@ const Calvik = {
                 return Boolean(ex(args[0]));
             case "JSON_PARSE": // Seguramente solo para instalar apps y añadir elementos mediante cadenas
                 return JSON.parse(ex(args[0]));
+            case "JSON_STRINGIFY":
+                return JSON.stringify(ex(args[0]));
             case "LENGTH":
                 return ex(args[0]).length;
+            case "RELOAD_NOTROID":
+                return location.reload();
             
             case "JOIN":
                 return ex(args[0]).join(ex(args[1]));
@@ -156,6 +160,8 @@ const Calvik = {
                 throw new CalvikBreak();
             case "RETURN":
                 throw new CalvikReturn(ex(args[0]));
+            case "ABORT":
+                throw new CalvikAbort();
             // === System APIs (lo mejor) === //
             // ToastManager
             case "SHOW_TOAST":
@@ -177,9 +183,13 @@ const Calvik = {
                 return ActivityManager.idSetChecked(appPackage, activityName, args[0], ex(args[1]));
             case "ID_IS_CHECKED":
                 return ActivityManager.idIsChecked(appPackage, activityName, args[0]);
+            case "ID_ADD_CLASS":
+                return ActivityManager.idAddClass(appPackage, activityName, args[0], ex(args[1]));
+            case "ID_REMOVE_CLASS":
+                return ActivityManager.idRemoveClass(appPackage, activityName, args[0], ex(args[1]));
             // AlertDialog
             case "SHOW_ALERT":
-                // ! No sirve w, solamente para ocupar la pantalla porq la ejecución sigue, mejor usen ["ALERT"] 🥀
+                // ! No sirve w, solamente sirve para ocupar la pantalla porq la ejecución sigue, mejor usen ["ALERT"] 🥀
                 return AlertDialog.alert(appPackage, ex(args[0]), ex(args[1]), ex(args[2]), args[3]);
             // AppManager (app malintencionada + INSTALL + LAUNCH sin consentimiento = primer virus de Notroid)
             case "INSTALL_APP":
@@ -237,8 +247,10 @@ const Calvik = {
                 if (target === "android") return isAndroidEntorn();
                 return false;
             case "ANDROID_SHOW_TOAST":
+                if (SystemConfig.getConfigValue("androidSafeMode") && !isAndroidEntorn()) ToastManager.show(ex(args[0]));
                 return AndroidBridge.showToast(ex(args[0]));
             case "ANDROID_VIBRATE":
+                if (SystemConfig.getConfigValue("androidSafeMode") && !isAndroidEntorn()) ToastManager.show(`📳 Vibrando a ${ex(args[0])} ms`);
                 return AndroidBridge.vibrate(ex(args[0]));
             case "ANDROID_HAS_PERMISSION":
                 return AndroidBridge.hasPermission(ex(args[0]));
@@ -265,6 +277,8 @@ const Calvik = {
         "ID_GET_VALUE": [],
         "ID_SET_CHECKED": [],
         "ID_IS_CHECKED": [],
+        "ID_ADD_CLASS": [],
+        "ID_REMOVE_CLASS": [],
         // AlertDialog
         "SHOW_ALERT": [],
         // AppManager

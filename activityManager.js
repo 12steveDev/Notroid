@@ -82,7 +82,15 @@ const ActivityManager = {
         if (this.currActivity) this.activityStack.push(this.currActivity);
         this.currActivity = {appPackage: appPackage, activityName: activityName, element: actDiv};
 
-        if (activityObj.onCreate) Calvik.execute(appPackage, activityName, activityObj.onCreate);
+        try {
+            if (activityObj.onCreate) Calvik.execute(appPackage, activityName, activityObj.onCreate);
+        } catch (e){
+            if (e instanceof CalvikAbort){
+                this.finishActivity(appPackage, activityName);
+                return false;
+            }
+            throw e;
+        }
 
     },
     // ["FINISH_ACTIVITY"]
@@ -132,6 +140,18 @@ const ActivityManager = {
         const elem = this.getElementById(appPackage, activityName, id);
         if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
         return elem.checked;
+    },
+    // ["ID_ADD_CLASS"]
+    idAddClass(appPackage, activityName, id, clazz){
+        const elem = this.getElementById(appPackage, activityName, id);
+        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
+        this.calvikClasses.includes(clazz) ? elem.classList.add(`not-${clazz}`) : console.warn(`La CalvikClass '${clazz}' no existe.`);
+    },
+    // ["ID_REMOVE_CLASS"]
+    idRemoveClass(appPackage, activityName, id, clazz){
+        const elem = this.getElementById(appPackage, activityName, id);
+        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
+        this.calvikClasses.includes(clazz) ? elem.classList.remove(`not-${clazz}`) : console.warn(`La CalvikClass '${clazz}' no existe.`);
     },
     getElementById(appPackage, activityName, id){
         if (!verifyAppActivity(appPackage, activityName)) return false;
