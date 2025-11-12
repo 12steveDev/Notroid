@@ -18,7 +18,9 @@ const LocalStorage = {
     clearAll(appPackage, activityName){
         if (!verifyAppActivity(appPackage, activityName)) return false;
         if (confirm(`Estás apunto de borrar toda la data que tienes en Notroid. ¿Estás seguro que quieres continuar? No hay ctrl-z.`)){
-            return localStorage.clear();
+            localStorage.clear();
+            return true;
         }
+        return false;
     }
 }

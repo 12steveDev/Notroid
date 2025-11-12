@@ -21,7 +21,7 @@ AppManager.install({
                     {type: "button", text: "← Volver", bg: "#6c757d", fg: "white", onclick: ["FINISH_ACTIVITY"]},
                     {type: "title", text: "Toast Manager Test", class: ["justify-center"]},
                     
-                    {type: "subtitle", text: "SHOW_TOAST", class: ["code", "bg-dark", "fg-white"], padding: "8px", style: "border-radius: 5px;"},
+                    {type: "subtitle", text: "SHOW_TOAST", class: ["code"], padding: "8px"},
                     {type: "input", id: "msgInput", placeholder: "Escribe tu mensaje aquí...", value: "¡Toast de prueba!"},
                     {type: "layout", class: ["flex", "flex-row", "justify-between"], child: [
                         {type: "button", text: "Toast Simple", bg: "#007bff", fg: "white", onclick: [
@@ -32,7 +32,7 @@ AppManager.install({
                         ]}
                     ]},
                     
-                    {type: "subtitle", text: "Operaciones con Variables", class: ["code", "bg-info", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "Operaciones con Variables", class: ["code"], padding: "8px"},
                     {type: "layout", class: ["flex", "flex-row", "justify-between"], child: [
                         {type: "button", text: "SET_VAR", bg: "#17a2b8", fg: "white", onclick: [
                             ["SET_VAR", "testVar", "Valor guardado!"],
@@ -61,14 +61,14 @@ AppManager.install({
                     {type: "button", text: "← Volver", bg: "#6c757d", fg: "white", onclick: ["FINISH_ACTIVITY"]},
                     {type: "title", text: "Activity Manager Test", class: ["justify-center"]},
                     
-                    {type: "subtitle", text: "Navegación", class: ["code", "bg-primary", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "Navegación", class: ["code"], padding: "8px"},
                     {type: "layout", class: ["flex", "flex-row", "justify-between"], child: [
                         {type: "button", text: "🚀 Lanzar SecondActivity", bg: "#17a2b8", fg: "white", onclick: ["START_ACTIVITY", "SecondActivity"]},
                         {type: "button", text: "❌ Finalizar", bg: "#dc3545", fg: "white", onclick: ["FINISH_ACTIVITY"]}
                     ]},
                     
-                    {type: "subtitle", text: "Manipulación de Elementos", class: ["code", "bg-success", "fg-white"], padding: "8px"},
-                    {type: "text", text: "Texto inicial", id: "text1", class: ["bg-white", "padding-10"], style: "border: 1px solid #ccc; border-radius: 5px;"},
+                    {type: "subtitle", text: "Manipulación de Elementos", class: ["code"], padding: "8px"},
+                    {type: "text", text: "Texto inicial", id: "text1"},
                     {type: "layout", class: ["flex", "flex-row", "justify-between"], child: [
                         {type: "button", text: "ID_SET_TEXT", bg: "#007bff", fg: "white", onclick: [
                             ["ID_SET_TEXT", "text1", "¡Texto cambiado! 🎉"]
@@ -78,7 +78,7 @@ AppManager.install({
                         ]}
                     ]},
                     
-                    {type: "subtitle", text: "Inputs", class: ["code", "bg-warning", "fg-dark"], padding: "8px"},
+                    {type: "subtitle", text: "Inputs", class: ["code"], padding: "8px"},
                     {type: "input", value: "Valor inicial", id: "input1", placeholder: "Escribe algo..."},
                     {type: "layout", class: ["flex", "flex-row", "justify-between"], child: [
                         {type: "button", text: "ID_SET_VALUE", bg: "#ffc107", fg: "black", onclick: [
@@ -89,7 +89,7 @@ AppManager.install({
                         ]}
                     ]},
                     
-                    {type: "subtitle", text: "Checkboxes", class: ["code", "bg-info", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "Checkboxes", class: ["code"], padding: "8px"},
                     {type: "layout", class: ["flex", "flex-row", "items-center"], child: [
                         {type: "checkbox", id: "check1"},
                         {type: "text", text: "Checkbox de prueba"}
@@ -108,7 +108,7 @@ AppManager.install({
         "SecondActivity": {
             view: {
                 type: "layout", padding: "20px", bg: "#d1ecf1", class: ["flex", "all-width", "all-height", "flex-column", "justify-center", "items-center"], child: [
-                    {type: "text", text: "🎉 ¡SecondActivity!", class: ["bg-white", "padding-15"], style: "border-radius: 10px; font-size: 18px; text-align: center;"},
+                    {type: "text", text: "🎉 ¡SecondActivity!"},
                     {type: "text", text: "Actividad secundaria demostrando navegación."},
                     {type: "button", text: "← Volver", bg: "#17a2b8", fg: "white", padding: "10px", onclick: ["FINISH_ACTIVITY"]}
                 ]
@@ -130,18 +130,18 @@ AppManager.install({
                     {type: "button", text: "← Volver", bg: "#6c757d", fg: "white", onclick: ["FINISH_ACTIVITY"]},
                     {type: "title", text: "Alert Dialog Test", class: ["justify-center"]},
                     
-                    {type: "subtitle", text: "ALERT Básico", class: ["code", "bg-warning", "fg-dark"], padding: "8px"},
+                    {type: "subtitle", text: "ALERT Básico", class: ["code"], padding: "8px"},
                     {type: "button", text: "Mostrar Alert Simple", bg: "#ffc107", fg: "black", onclick: [
                         ["ALERT", "¡Este es un alert básico!"]
                     ]},
                     
-                    {type: "subtitle", text: "PROMPT", class: ["code", "bg-info", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "PROMPT", class: ["code"], padding: "8px"},
                     {type: "button", text: "Abrir Prompt", bg: "#17a2b8", fg: "white", onclick: [
                         ["SET_VAR", "nombre", ["PROMPT", "¿Cuál es tu nombre?", "Anónimo"]],
                         ["SHOW_TOAST", ["ADD", "Hola ", ["GET_VAR", "nombre"]]]
                     ]},
                     
-                    {type: "subtitle", text: "CONFIRM", class: ["code", "bg-success", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "CONFIRM", class: ["code"], padding: "8px"},
                     {type: "button", text: "Pedir Confirmación", bg: "#28a745", fg: "white", onclick: [
                         ["IF", ["CONFIRM", "¿Estás seguro de continuar?"],
                             [["SHOW_TOAST", "✅ Confirmado"]],
@@ -149,7 +149,7 @@ AppManager.install({
                         ]
                     ]},
                     
-                    {type: "subtitle", text: "SHOW_ALERT (Dialog Personalizado)", class: ["code", "bg-primary", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "SHOW_ALERT (Dialog Personalizado)", class: ["code"], padding: "8px"},
                     {type: "input", id: "alertTitle", placeholder: "Título", value: "Título importante"},
                     {type: "input", id: "alertMsg", placeholder: "Mensaje", value: "Este es un mensaje personalizado"},
                     {type: "input", id: "alertBtn", placeholder: "Texto del botón", value: "Entendido"},
@@ -183,19 +183,19 @@ AppManager.install({
                     {type: "button", text: "← Volver", bg: "#6c757d", fg: "white", onclick: ["FINISH_ACTIVITY"]},
                     {type: "title", text: "App Manager Test", class: ["justify-center"]},
                     
-                    {type: "subtitle", text: "LAUNCH_APP", class: ["code", "bg-success", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "LAUNCH_APP", class: ["code"], padding: "8px"},
                     {type: "input", id: "launchPackage", placeholder: "Paquete (ej: com.test.toastmanager)", value: "com.test.toastmanager"},
                     {type: "button", text: "Lanzar App", bg: "#28a745", fg: "white", onclick: [
                         ["LAUNCH_APP", ["ID_GET_VALUE", "launchPackage"]]
                     ]},
                     
-                    {type: "subtitle", text: "UNINSTALL_APP", class: ["code", "bg-danger", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "UNINSTALL_APP", class: ["code"], padding: "8px"},
                     {type: "input", id: "uninstallPackage", placeholder: "Paquete a desinstalar", value: "com.test.demo"},
                     {type: "button", text: "Desinstalar App", bg: "#dc3545", fg: "white", onclick: [
                         ["SHOW_TOAST", ["IF", ["UNINSTALL_APP", ["ID_GET_VALUE", "uninstallPackage"]], "App desinstalada", "No se desinstaló"]]
                     ]},
                     
-                    {type: "subtitle", text: "INSTALL_APP (Mini Studio)", class: ["code", "bg-primary", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "INSTALL_APP (Mini Studio)", class: ["code"], padding: "8px"},
                     {type: "button", text: "Abrir Mini Notroid Studio", bg: "#007bff", fg: "white", onclick: ["START_ACTIVITY", "MiniStudio"]}
                 ]
             }
@@ -233,7 +233,7 @@ AppManager.install({
                     {type: "button", text: "← Volver", bg: "#6c757d", fg: "white", onclick: ["FINISH_ACTIVITY"]},
                     {type: "title", text: "Notification Manager Test", class: ["justify-center"]},
                     
-                    {type: "subtitle", text: "SEND_NOTIFICATION", class: ["code", "bg-success", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "SEND_NOTIFICATION", class: ["code"], padding: "8px"},
                     {type: "input", id: "notiTitle", placeholder: "Título", value: "¡Nueva notificación!"},
                     {type: "input", id: "notiContent", placeholder: "Contenido", value: "Esto es una prueba del sistema"},
                     {type: "button", text: "Enviar Notificación", bg: "#28a745", fg: "white", onclick: [
@@ -241,7 +241,7 @@ AppManager.install({
                         ["SHOW_TOAST", "Notificación enviada"]
                     ]},
                     
-                    {type: "subtitle", text: "Estados de Notificación", class: ["code", "bg-info", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "Estados de Notificación", class: ["code"], padding: "8px"},
                     {type: "text", text: "Estado actual: ", id: "stateText"},
                     {type: "layout", class: ["flex", "flex-row", "justify-between"], child: [
                         {type: "button", text: "GET_NOTIFICATION_STATE", bg: "#17a2b8", fg: "white", onclick: [
@@ -252,7 +252,7 @@ AppManager.install({
                         ]}
                     ]},
                     
-                    {type: "subtitle", text: "SET_NOTIFICATION_STATE", class: ["code", "bg-warning", "fg-dark"], padding: "8px"},
+                    {type: "subtitle", text: "SET_NOTIFICATION_STATE", class: ["code"], padding: "8px"},
                     {type: "layout", class: ["flex", "flex-row", "justify-between"], child: [
                         {type: "button", text: "Show", bg: "#28a745", fg: "white", onclick: [["SET_NOTIFICATION_STATE", "show"], ["SHOW_TOAST", "Estado: show"]]},
                         {type: "button", text: "Muted", bg: "#ffc107", fg: "black", onclick: [["SET_NOTIFICATION_STATE", "muted"], ["SHOW_TOAST", "Estado: muted"]]},
@@ -281,20 +281,20 @@ AppManager.install({
                     {type: "button", text: "← Volver", bg: "#6c757d", fg: "white", onclick: ["FINISH_ACTIVITY"]},
                     {type: "title", text: "Permission Manager Test", class: ["justify-center"]},
                     
-                    {type: "subtitle", text: "REQUEST_PERMISSION", class: ["code", "bg-primary", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "REQUEST_PERMISSION", class: ["code"], padding: "8px"},
                     {type: "input", id: "requestPerm", placeholder: "Permiso a solicitar", value: "PERMISSION_CAMERA"},
                     {type: "button", text: "Solicitar Permiso", bg: "#007bff", fg: "white", onclick: [
                         ["REQUEST_PERMISSION", ["ID_GET_VALUE", "requestPerm"]],
                         ["SHOW_TOAST", "Solicitud completada"]
                     ]},
                     
-                    {type: "subtitle", text: "HAS_PERMISSION", class: ["code", "bg-info", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "HAS_PERMISSION", class: ["code"], padding: "8px"},
                     {type: "input", id: "checkPerm", placeholder: "Permiso a verificar", value: "PERMISSION_POST_NOTIFICATIONS"},
                     {type: "button", text: "Verificar Permiso", bg: "#17a2b8", fg: "white", onclick: [
                         ["SHOW_TOAST", ["ADD", "Tiene permiso: ", ["HAS_PERMISSION", ["ID_GET_VALUE", "checkPerm"]]]]
                     ]},
                     
-                    {type: "subtitle", text: "Gestión Externa", class: ["code", "bg-success", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "Gestión Externa", class: ["code"], padding: "8px"},
                     {type: "input", id: "extPackage", placeholder: "Paquete", value: "com.test.app"},
                     {type: "input", id: "extPerm", placeholder: "Permiso", value: "PERMISSION_POST_NOTIFICATIONS"},
                     {type: "layout", class: ["flex", "flex-row", "justify-between"], child: [
@@ -307,7 +307,7 @@ AppManager.install({
                         ]}
                     ]},
                     
-                    {type: "subtitle", text: "Revocación", class: ["code", "bg-warning", "fg-dark"], padding: "8px"},
+                    {type: "subtitle", text: "Revocación", class: ["code"], padding: "8px"},
                     {type: "layout", class: ["flex", "flex-row", "justify-between"], child: [
                         {type: "button", text: "REVOKE", bg: "#ffc107", fg: "black", onclick: [
                             ["REVOKE_PERMISSION", ["ID_GET_VALUE", "extPerm"]],
@@ -339,7 +339,7 @@ AppManager.install({
                     {type: "button", text: "← Volver", bg: "#6c757d", fg: "white", onclick: ["FINISH_ACTIVITY"]},
                     {type: "title", text: "StatusBar Manager Test", class: ["justify-center"]},
                     
-                    {type: "subtitle", text: "Iconos de Estado", class: ["code", "bg-warning", "fg-dark"], padding: "8px"},
+                    {type: "subtitle", text: "Iconos de Estado", class: ["code"], padding: "8px"},
                     {type: "layout", class: ["flex", "flex-row", "justify-between"], child: [
                         {type: "button", text: "📶 Mostrar WiFi", bg: "#28a745", fg: "white", onclick: [["SHOW_STATUS_ICON", "wifi"], ["SHOW_TOAST", "WiFi mostrado"]]},
                         {type: "button", text: "📶 Ocultar WiFi", bg: "#dc3545", fg: "white", onclick: [["HIDE_STATUS_ICON", "wifi"], ["SHOW_TOAST", "WiFi oculto"]]}
@@ -349,14 +349,14 @@ AppManager.install({
                         {type: "button", text: "🔋 Ocultar Battery", bg: "#dc3545", fg: "white", onclick: [["HIDE_STATUS_ICON", "battery"], ["SHOW_TOAST", "Battery oculto"]]}
                     ]},
                     
-                    {type: "subtitle", text: "SET_STATUS_BAR_BACKGROUND", class: ["code", "bg-info", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "SET_STATUS_BAR_BACKGROUND", class: ["code"], padding: "8px"},
                     {type: "input", id: "bgColor", placeholder: "Color (ej: #FF0000)", value: "#008080"},
                     {type: "button", text: "Cambiar Color", bg: "#17a2b8", fg: "white", onclick: [
                         ["SET_STATUS_BAR_BACKGROUND", ["ID_GET_VALUE", "bgColor"]],
                         ["SHOW_TOAST", "Color cambiado"]
                     ]},
                     
-                    {type: "subtitle", text: "TOGGLE_NOTIFICATIONS_PANEL", class: ["code", "bg-primary", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "TOGGLE_NOTIFICATIONS_PANEL", class: ["code"], padding: "8px"},
                     {type: "button", text: "Toggle Panel", bg: "#007bff", fg: "white", onclick: [
                         ["TOGGLE_NOTIFICATIONS_PANEL"],
                         ["SHOW_TOAST", "Panel toggled"]
@@ -383,13 +383,13 @@ AppManager.install({
                     {type: "button", text: "← Volver", bg: "#6c757d", fg: "white", onclick: ["FINISH_ACTIVITY"]},
                     {type: "title", text: "System Config Test", class: ["justify-center"]},
                     
-                    {type: "subtitle", text: "GET_CONFIGURATION_VALUE", class: ["code", "bg-info", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "GET_CONFIGURATION_VALUE", class: ["code"], padding: "8px"},
                     {type: "input", id: "readConfig", placeholder: "Configuración (ej: launcherColumns)", value: "launcherColumns"},
                     {type: "button", text: "Leer Valor", bg: "#17a2b8", fg: "white", onclick: [
                         ["SHOW_TOAST", ["ADD", "Valor: ", ["GET_CONFIGURATION_VALUE", ["ID_GET_VALUE", "readConfig"]]]]
                     ]},
                     
-                    {type: "subtitle", text: "SET_CONFIGURATION_VALUE", class: ["code", "bg-primary", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "SET_CONFIGURATION_VALUE", class: ["code"], padding: "8px"},
                     {type: "input", id: "writeConfig", placeholder: "Configuración", value: "launcherBackground"},
                     {type: "input", id: "writeValue", placeholder: "Nuevo valor", value: "#FF5733"},
                     {type: "button", text: "Cambiar Valor", bg: "#007bff", fg: "white", onclick: [
@@ -397,7 +397,7 @@ AppManager.install({
                         ["SHOW_TOAST", "Configuración actualizada"]
                     ]},
                     
-                    {type: "subtitle", text: "Configuraciones Rápidas", class: ["code", "bg-success", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "Configuraciones Rápidas", class: ["code"], padding: "8px"},
                     {type: "layout", class: ["flex", "flex-row", "justify-between"], child: [
                         {type: "button", text: "Fondo Azul", bg: "#007bff", fg: "white", onclick: [["SET_CONFIGURATION_VALUE", "launcherBackground", "#3366FF"], ["SHOW_TOAST", "Fondo azul"]]},
                         {type: "button", text: "Fondo Verde", bg: "#28a745", fg: "white", onclick: [["SET_CONFIGURATION_VALUE", "launcherBackground", "#33FF66"], ["SHOW_TOAST", "Fondo verde"]]}
@@ -427,26 +427,26 @@ AppManager.install({
                     {type: "button", text: "← Volver", bg: "#6c757d", fg: "white", onclick: ["FINISH_ACTIVITY"]},
                     {type: "title", text: "Android Bridge Test", class: ["justify-center"]},
                     
-                    {type: "subtitle", text: "VERIFY_ENTORN", class: ["code", "bg-success", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "VERIFY_ENTORN", class: ["code"], padding: "8px"},
                     {type: "button", text: "¿Es Android?", bg: "#28a745", fg: "white", onclick: [
                         ["SHOW_TOAST", ["ADD", "Es Android: ", ["VERIFY_ENTORN", "android"]]]
                     ]},
                     
-                    {type: "subtitle", text: "ANDROID_SHOW_TOAST", class: ["code", "bg-warning", "fg-dark"], padding: "8px"},
+                    {type: "subtitle", text: "ANDROID_SHOW_TOAST", class: ["code"], padding: "8px"},
                     {type: "input", id: "androidToast", placeholder: "Mensaje para toast", value: "¡Hola desde Android!"},
                     {type: "button", text: "Mostrar Toast Android", bg: "#ffc107", fg: "black", onclick: [
                         ["ANDROID_SHOW_TOAST", ["ID_GET_VALUE", "androidToast"]],
                         ["SHOW_TOAST", "Toast Android enviado"]
                     ]},
                     
-                    {type: "subtitle", text: "ANDROID_VIBRATE", class: ["code", "bg-info", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "ANDROID_VIBRATE", class: ["code"], padding: "8px"},
                     {type: "input", id: "vibrateMs", placeholder: "Milisegundos", value: "500"},
                     {type: "button", text: "Vibrar", bg: "#17a2b8", fg: "white", onclick: [
                         ["ANDROID_VIBRATE", ["NUMBER", ["ID_GET_VALUE", "vibrateMs"]]],
                         ["SHOW_TOAST", "Vibración enviada"]
                     ]},
                     
-                    {type: "subtitle", text: "Permisos Android", class: ["code", "bg-primary", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "Permisos Android", class: ["code"], padding: "8px"},
                     {type: "layout", class: ["flex", "flex-row", "justify-between"], child: [
                         {type: "button", text: "ANDROID_HAS_PERMISSION", bg: "#007bff", fg: "white", onclick: [
                             ["SHOW_TOAST", ["ADD", "Tiene permiso: ", ["ANDROID_HAS_PERMISSION", "android.permission.CAMERA"]]]
@@ -457,7 +457,7 @@ AppManager.install({
                         ]}
                     ]},
                     
-                    {type: "subtitle", text: "ANDROID_SEND_NOTIFICATION", class: ["code", "bg-dark", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "ANDROID_SEND_NOTIFICATION", class: ["code"], padding: "8px"},
                     {type: "input", id: "androidNotiTitle", placeholder: "Título", value: "Notificación Android"},
                     {type: "input", id: "androidNotiContent", placeholder: "Contenido", value: "Desde Notroid con ❤️"},
                     {type: "button", text: "Enviar Notificación", bg: "#343a40", fg: "white", onclick: [
@@ -486,7 +486,7 @@ AppManager.install({
                     {type: "button", text: "← Volver", bg: "#6c757d", fg: "white", onclick: ["FINISH_ACTIVITY"]},
                     {type: "title", text: "Local Storage Test", class: ["justify-center"]},
                     
-                    {type: "subtitle", text: "SET_LOCAL / GET_LOCAL", class: ["code", "bg-danger", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "SET_LOCAL / GET_LOCAL", class: ["code"], padding: "8px"},
                     {type: "input", id: "localKey", placeholder: "Clave", value: "miClave"},
                     {type: "input", id: "localValue", placeholder: "Valor", value: "miValor"},
                     {type: "layout", class: ["flex", "flex-row", "justify-between"], child: [
@@ -499,13 +499,13 @@ AppManager.install({
                         ]}
                     ]},
                     
-                    {type: "subtitle", text: "DEL_LOCAL", class: ["code", "bg-warning", "fg-dark"], padding: "8px"},
+                    {type: "subtitle", text: "DEL_LOCAL", class: ["code"], padding: "8px"},
                     {type: "button", text: "Eliminar Clave", bg: "#ffc107", fg: "black", onclick: [
                         ["DEL_LOCAL", ["ID_GET_VALUE", "localKey"]],
                         ["SHOW_TOAST", "Clave eliminada"]
                     ]},
                     
-                    {type: "subtitle", text: "CLEAR_ALL_LOCAL_DATA", class: ["code", "bg-dark", "fg-white"], padding: "8px"},
+                    {type: "subtitle", text: "CLEAR_ALL_LOCAL_DATA", class: ["code"], padding: "8px"},
                     {type: "button", text: "⚠️ LIMPIAR TODO", bg: "#343a40", fg: "white", onclick: [
                         ["IF", ["CONFIRM", "¿Estás SEGURO de borrar TODA la data?"],
                             [["CLEAR_ALL_LOCAL_DATA"], ["SHOW_TOAST", "Data limpiada"]],
@@ -550,7 +550,7 @@ AppManager.install({ // ! FINAL BOSS DE LOS TESTS ! //
         "MainActivity": {
             onCreate: [["SHOW_TOAST", "App de formularios cargada"]],
             view: {type: "layout", class: ["flex", "flex-column"], bg: "#f5f5f5", child: [
-                {type: "text", text: "Formulario de Registro", class: ["justify-center"], bg: "#008080", fg: "white", style: "padding: 10px; font-size: 18px;"},
+                {type: "text", text: "Formulario de Registro", class: ["justify-center"], bg: "#008080", fg: "white"},
                 
                 {type: "text", text: "Nombre:"},
                 {type: "input", id: "inputName", placeholder: "Escribe tu nombre"},
@@ -605,12 +605,258 @@ AppManager.install({
                 ["IF", ["REQUEST_PERMISSION", "PERMISSION_CLEAR_ALL_LOCAL_DATA"], [], ["ABORT"]]
             ],
             view: {type: "layout", bg: "#FF8888", class: ["all-width", "all-height", "flex", "justify-center", "items-center"], child: [
-                {type: "button", bg: "#FF0000", fg: "#FFFFFF", text: "CLEAR LOCAL STORAGE", padding: "30px", onclick: [["CLEAR_ALL_LOCAL_DATA"], ["FINISH_ACTIVITY"], ["RELOAD_NOTROID"]]}
+                {type: "button", bg: "#FF0000", fg: "#FFFFFF", text: "CLEAR LOCAL STORAGE", padding: "30px", onclick: ["IF", ["CLEAR_ALL_LOCAL_DATA"], [["FINISH_ACTIVITY"], ["RELOAD_NOTROID"]], []]}
+            ]}
+        }
+    }
+})
+AppManager.install({
+    package: "com.x12steve.iamroot",
+    name: "I am root?",
+    hidden: true,
+    icon: "https://placehold.co/150x150/44FFAA/000000?text=ROOT",
+    entry: "Main",
+    activities: {
+        "Main": {
+            onCreate: [
+                ["IF", ["REQUEST_PERMISSION", "PERMISSION_READ_CONFIGURATIONS"], [], ["ABORT"]],
+            ],
+            view: {type: "layout", bg: "#44FFAA", class: ["all-width", "all-height", "flex", "justify-center", "items-center"], child: [
+                {type: "button", text: "Soy ROOT?", padding: "5px", onclick: ["SHOW_TOAST", ["IF", ["GET_CONFIGURATION_VALUE", "root"], "Eres root", "No eres root"]]} // hermano, sintaxis de los DIOSES, viva calvik w
+            ]}
+        }
+    }
+})
+AppManager.install({
+    package: "com.x12steve.arraytest",
+    name: "Array Test",
+    icon: "https://placehold.co/150x150/999999/000000?text=Array",
+    entry: "Main",
+    activities: {
+        "Main": {
+            onCreate: [
+                ["SET_VAR", "frutas", ["ARRAY", "manzana", "banana", "uva"]] // si cambias el ["ARRAY"] por un "{}" literalmente sigue funcionando
+            ],
+            view: {type:"layout",id:"mainLayout",padding:"5px",bg:"#559",fg:"#fff",class:["all-width", "all-height"],child:[
+                {type:"title",text:"Array Test"},
+                {type:"subtitle",text:"(using CalvikArray)"},
+                {type:"text",id:"arrayStateP",text:"Array state: loading..."},
+                {type:"button",text:"Reload",bg:"#f0f",onclick:["ID_SET_TEXT", "arrayStateP", ["ADD", "Array state: ", ["JSON_STRINGIFY", ["GET_VAR", "frutas"]]]]},
+                {type:"br"},
+                {type:"input",placeholder:"Actualicen Notroid",id:"input"},
+                {type:"button",text:"PUSH",bg:"#0f0",onclick:["PUSH", ["GET_VAR", "frutas"], ["ID_GET_VALUE", "input"]]},
+                {type:"button",text:"POP",bg:"#f00",onclick:["ID_SET_TEXT", "arrayStateP", ["POP", ["GET_VAR", "frutas"]]]},
+                {type:"button",text:"SHIFT",bg:"#a00",onclick:["ID_SET_TEXT", "arrayStateP", ["SHIFT", ["GET_VAR", "frutas"]]]},
+                {type:"button",text:"JOIN",bg:"#999",onclick:["ID_SET_TEXT", "arrayStateP", ["JOIN", ["GET_VAR", "frutas"], ["ID_GET_VALUE", "input"]]]},
+                {type:"button",text:"SET_AT",bg:"#0ff",onclick:["SET_AT", ["GET_VAR", "frutas"], ["PROMPT", "Index:"], ["ID_GET_VALUE", "input"]]},
+                {type:"button",text:"GET_AT",bg:"#ff0",onclick:["ID_SET_TEXT", "arrayStateP", ["GET_AT", ["GET_VAR", "frutas"], ["PROMPT", "Index:"]]]},
+                {type:"button",text:"FOR_EACH Test",bg:"#000",fg:"#fff",onclick:[
+                    ["ID_CLEAR_CHILDS", "testLayout"],
+                    ["FOR_EACH", ["GET_VAR", "frutas"], "fruta", // ! Problemas con variables (los textos si salen bien con su item, pero en el ALERT del onclick siempre sale el último elemento (porque al terminar todas las iteraciones el último valor de `frutas` queda siendo el último elemento))
+                        ["ID_APPEND_CHILD", "testLayout", {type:"button", text:"Item: ${fruta}", class:["code"], onclick: ["ALERT", "Clickeaste: '${fruta}'"]}] // Hermano, esto ya literalmente puede ser un launcher
+                    ]
+                ]},
+                {type:"layout",id:"testLayout",padding:"5px",bg:"#995",fg:"#fff",class:["all-width", "all-height"]}
             ]}
         }
     }
 })
 
+AppManager.install({
+    // La app definitiva, no cualquiera empieza por "com.notroid."
+    package: "com.notroid.settings",
+    name: "Ajustes",
+    icon: "https://placehold.co/150x150/666666/FFFFFF?text=Config",
+    entry: "Main",
+    activities: {
+        "Main": {
+            onCreate: [
+                ["IF", ["REQUEST_PERMISSION", "PERMISSION_READ_CONFIGURATIONS"], [], ["ABORT"]],
+                ["IF", ["REQUEST_PERMISSION", "PERMISSION_WRITE_CONFIGURATIONS"], [], ["ABORT"]],
+                ["IF", ["REQUEST_PERMISSION", "PERMISSION_MANAGE_STATUS_BAR"], [], ["ABORT"]],
+                ["IF", ["REQUEST_PERMISSION", "PERMISSION_MANAGE_NAVIGATION_BAR"], [], ["ABORT"]],
+            ],
+            onDestroy: [],
+            background: "#111",
+            foreground: "#fff",
+            view: {type:"layout",padding:"5px",class:["all-width","all-height"],child:[
+                {type:"title",text:"Configuraciones"},{type:"br"},
+
+                {type:"button",text:"🎨 Apariencia",class:["all-width", "flex", "justify-start"],padding:"5px",bg:"#000",fg:"#fff",fontSize:"15px",onclick:["START_ACTIVITY", "Appearance"]},
+
+                {type:"button",text:"⏰ Reloj y tiempo",class:["all-width", "flex", "justify-start"],padding:"5px",bg:"#000",fg:"#fff",fontSize:"15px",onclick:["START_ACTIVITY", "ClockAndTime"]},
+
+                {type:"button",text:"🔔 Notificaciones",class:["all-width", "flex", "justify-start"],padding:"5px",bg:"#000",fg:"#fff",fontSize:"15px",onclick:["START_ACTIVITY", "Notifications"]},
+
+                {type:"button",text:"🔐 Permisos y Seguridad",class:["all-width", "flex", "justify-start"],padding:"5px",bg:"#000",fg:"#fff",fontSize:"15px",onclick:["START_ACTIVITY", "PermissionsAndSecurity"]},
+            ]}
+        },
+        "Appearance": {
+            background: "#111",
+            foreground: "#fff",
+            view: {type:"layout",padding:"5px",class:["all-width","all-height"],child:[
+                {type:"title",text:"🎨 Apariencia"},{type:"br"},
+                {type:"subtitle",text:"Launcher"},{type:"br"},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Columnas en el escritorio"},
+                    {type:"input",inputType:"number",id:"inpLauncherCols",bg:"none",fg:"#999",value:'${["GET_CONFIGURATION_VALUE", "launcherColumns"]}',oninput:[
+                        ["SET_CONFIGURATION_VALUE", "launcherColumns", ["ID_GET_VALUE", "inpLauncherCols"]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Filas en el escritorio"},
+                    {type:"input",inputType:"number",id:"inpLauncherRows",bg:"none",fg:"#999",value:'${["GET_CONFIGURATION_VALUE", "launcherRows"]}',oninput:[
+                        ["SET_CONFIGURATION_VALUE", "launcherRows", ["ID_GET_VALUE", "inpLauncherRows"]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Espacio entre apps"},
+                    {type:"input",inputType:"number",id:"inpLauncherGap",bg:"none",fg:"#999",value:'${["GET_CONFIGURATION_VALUE", "launcherGap"]}',oninput:[
+                        ["SET_CONFIGURATION_VALUE", "launcherGap", ["ID_GET_VALUE", "inpLauncherGap"]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Color de fondo de escritorio"},
+                    {type:"input",inputType:"color",id:"inpLauncherBackground",bg:"none",fg:"#999",value:'${["GET_CONFIGURATION_VALUE", "launcherBackground"]}',onchange:[
+                        ["SET_CONFIGURATION_VALUE", "launcherBackground", ["ID_GET_VALUE", "inpLauncherBackground"]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Mostrar nombres de apps"},
+                    {type:"switch",id:"chkShowAppNames",checked:["GET_CONFIGURATION_VALUE", "showAppNames"],onchange:[
+                        ["SET_CONFIGURATION_VALUE", "showAppNames", ["BOOLEAN", ["ID_IS_CHECKED", "chkShowAppNames"]]]
+                    ]}
+                ]},
+                {type:"br"},{type:"subtitle",text:"Barras del sistema"},{type:"br"},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Altura de barra de estado"},
+                    {type:"input",inputType:"number",id:"inpStatusBarHeight",bg:"none",fg:"#999",value:'${["GET_CONFIGURATION_VALUE", "statusBarHeight"]}',oninput:[
+                        ["SET_CONFIGURATION_VALUE", "statusBarHeight", ["NUMBER", ["ID_GET_VALUE", "inpStatusBarHeight"]]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Altura de barra de navegación"},
+                    {type:"input",inputType:"number",id:"inpNavBarHeight",bg:"none",fg:"#999",value:'${["GET_CONFIGURATION_VALUE", "navBarHeight"]}',oninput:[
+                        ["SET_CONFIGURATION_VALUE", "navBarHeight", ["NUMBER", ["ID_GET_VALUE", "inpNavBarHeight"]]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Invertir barra de navegación"},
+                    {type:"switch",id:"chkFlipNavigationBar",checked:["GET_CONFIGURATION_VALUE", "flipNavigationBar"],onchange:[
+                        ["SET_CONFIGURATION_VALUE", "flipNavigationBar", ["BOOLEAN", ["ID_IS_CHECKED", "chkFlipNavigationBar"]]]
+                    ]}
+                ]},
+                {type:"br"},{type:"subtitle",text:"StatusBar"},{type:"br"},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Color de fondo"},
+                    {type:"input",inputType:"color",id:"inpStatusBarBg",bg:"none",fg:"#999",value:'${["GET_STATUS_BAR_CONFIG", "background"]}',onchange:[
+                        ["SET_STATUS_BAR_CONFIG", "background", ["ID_GET_VALUE", "inpStatusBarBg"]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Color de texto/íconos"},
+                    {type:"input",inputType:"color",id:"inpStatusBarFg",bg:"none",fg:"#999",value:'${["GET_STATUS_BAR_CONFIG", "foreground"]}',onchange:[
+                        ["SET_STATUS_BAR_CONFIG", "foreground", ["ID_GET_VALUE", "inpStatusBarFg"]]
+                    ]}
+                ]},
+                {type:"br"},{type:"subtitle",text:"NavigationBar"},{type:"br"},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Color de fondo"},
+                    {type:"input",inputType:"color",id:"inpNavigationBarBg",bg:"none",fg:"#999",value:'${["GET_NAVIGATION_BAR_CONFIG", "background"]}',onchange:[
+                        ["SET_NAVIGATION_BAR_CONFIG", "background", ["ID_GET_VALUE", "inpNavigationBarBg"]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Color de botones"},
+                    {type:"input",inputType:"color",id:"inpNavigationBarFg",bg:"none",fg:"#999",value:'${["GET_NAVIGATION_BAR_CONFIG", "foreground"]}',onchange:[
+                        ["SET_NAVIGATION_BAR_CONFIG", "foreground", ["ID_GET_VALUE", "inpNavigationBarFg"]]
+                    ]}
+                ]},
+            ]}
+        },
+        "ClockAndTime": {
+            background: "#111",
+            foreground: "#fff",
+            view: {type:"layout",padding:"5px",class:["all-width","all-height"],child:[
+                {type:"title",text:"⏰ Reloj y Tiempo"},{type:"br"},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Mostrar segundos"},
+                    {type:"switch",id:"chkTimeShowSeconds",checked:["GET_CONFIGURATION_VALUE", "timeShowSeconds"],onchange:[
+                        ["SET_CONFIGURATION_VALUE", "timeShowSeconds", ["BOOLEAN", ["ID_IS_CHECKED", "chkTimeShowSeconds"]]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Formato 12 horas"},
+                    {type:"switch",id:"chkTime12hourMode",checked:["GET_CONFIGURATION_VALUE", "time12hourMode"],onchange:[
+                        ["SET_CONFIGURATION_VALUE", "time12hourMode", ["BOOLEAN", ["ID_IS_CHECKED", "chkTime12hourMode"]]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Intervalo de actualización (reiniciar para ver efecto)"},
+                    {type:"input",inputType:"number",id:"inpTimeReloadIntervalMS",bg:"none",fg:"#999",value:'${["GET_CONFIGURATION_VALUE", "timeReloadIntervalMS"]}',oninput:[
+                        ["SET_CONFIGURATION_VALUE", "timeReloadIntervalMS", ["NUMBER", ["ID_GET_VALUE", "inpTimeReloadIntervalMS"]]]
+                    ]}
+                ]},
+            ]}
+        },
+        "Notifications": {
+            background: "#111",
+            foreground: "#fff",
+            view: {type:"layout",padding:"5px",class:["all-width","all-height"],child:[
+                {type:"title",text:"🔔 Notificaciones"},{type:"br"},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Sonido de notificaciones por defecto"},
+                    {type:"input",inputType:"text",id:"inpDefaultNotificationSound",bg:"none",fg:"#999",value:'${["GET_CONFIGURATION_VALUE", "defaultNotificationSound"]}',oninput:[
+                        ["SET_CONFIGURATION_VALUE", "defaultNotificationSound", ["ID_GET_VALUE", "inpDefaultNotificationSound"]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Duración del popup superior"},
+                    {type:"input",inputType:"number",id:"inpNotificationTopPopupTimeout",bg:"none",fg:"#999",value:'${["GET_CONFIGURATION_VALUE", "notificationTopPopupTimeout"]}',oninput:[
+                        ["SET_CONFIGURATION_VALUE", "notificationTopPopupTimeout", ["NUMBER", ["ID_GET_VALUE", "inpNotificationTopPopupTimeout"]]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Sensibilidad mínima para deslizar la barra de notificaciones"},
+                    {type:"input",inputType:"number",id:"inpStatusBarMinSwipe",bg:"none",fg:"#999",value:'${["GET_CONFIGURATION_VALUE", "statusBarMinSwipe"]}',oninput:[
+                        ["SET_CONFIGURATION_VALUE", "statusBarMinSwipe", ["NUMBER", ["ID_GET_VALUE", "inpStatusBarMinSwipe"]]]
+                    ]}
+                ]},
+            ]}
+        },
+        "PermissionsAndSecurity": {
+            background: "#111",
+            foreground: "#fff",
+            view: {type:"layout",padding:"5px",class:["all-width","all-height"],child:[
+                {type:"title",text:"🔐 Permisos y Seguridad"},{type:"br"},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Otorgar permisos automáticamente (peligroso, útil para devs)"},
+                    {type:"switch",id:"chkAutoGrantPermissions",checked:["GET_CONFIGURATION_VALUE", "autoGrantPermissions"],onchange:[
+                        ["SET_CONFIGURATION_VALUE", "autoGrantPermissions", ["BOOLEAN", ["ID_IS_CHECKED", "chkAutoGrantPermissions"]]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Limpiar datos al desinstalar"},
+                    {type:"switch",id:"chkClearAppDataOnUninstall",checked:["GET_CONFIGURATION_VALUE", "clearAppDataOnUninstall"],onchange:[
+                        ["SET_CONFIGURATION_VALUE", "clearAppDataOnUninstall", ["BOOLEAN", ["ID_IS_CHECKED", "chkClearAppDataOnUninstall"]]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Modo root",fg:"#f66"}, // Android, aprende, solo un switch y ya!!
+                    {type:"switch",id:"chkRoot",checked:["GET_CONFIGURATION_VALUE", "root"],onchange:[
+                        ["SET_CONFIGURATION_VALUE", "root", ["BOOLEAN", ["ID_IS_CHECKED", "chkRoot"]]]
+                    ]}
+                ]},
+                {type:"layout",bg:"#000",padding:"5px",class:["flex","flex-column"],child:[
+                    {type:"text",text:"Bloquear RickRoll"},
+                    {type:"switch",id:"chkRickRollBlocker",checked:["GET_CONFIGURATION_VALUE", "rickRollBlocker"],onchange:[
+                        ["SET_CONFIGURATION_VALUE", "rickRollBlocker", ["BOOLEAN", ["ID_IS_CHECKED", "chkRickRollBlocker"]]]
+                    ]}
+                ]},
+            ]}
+        },
+    }
+})
 
 localStorage.setItem("firstEntry", "true");
 }

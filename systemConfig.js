@@ -17,11 +17,13 @@ const SystemConfig = {
         showAppNames: true,
         defaultNotificationSound: "discord-notification.mp3",
         notificationTopPopupTimeout: 5000, // Falta implementar // Duración del TopPopup de las notificaciones
-        maxActivitiesInStack: 20, // Falta implementar
+        maxActivitiesInStack: 20,
+        flipNavigationBar: false,
         autoGrantPermissions: false, // PELIGROSO pero útil para devs (yo JAJAJJAJ)
         clearAppDataOnUninstall: false, // Falta implementar (cómo hago un ".filter()" a localStorage? 😭🥀)
         androidSafeMode: false, // Si se ejecuta ["ANDROID_SHOW_TOAST"] en un entorno no-android, se reemplaza con ["SHOW_TOAST"] (ni google se preocupa tanto por nosotros JAJAJJAJ)
-        rickRollBlocker: true, // no es "¿porqué no?", sino "¿porqué????"
+        rickRollBlocker: false, // no es "¿porqué no?", sino "¿porqué????"
+        root: false, // hermano.... creo que esto será lo que romperá todo con Android.... ¡ROOT CON SOLO UN SWITCH! 🗣🗣🗣🔥🔥🔥😭😭😭😭🥀🥀🥀🥀 (aunque la verdad ni sé para que alguien querría root aquí si ya todo está expuesto al F12 JAJAJAJJA)
     },
 
     _save(){
@@ -32,6 +34,7 @@ const SystemConfig = {
 
     // ["GET_CONFIGURATION_VALUE"] (P_READ_CONFIGURATIONS)
     getConfigValue(configName){
+        // ¿"System.getProperty()" de bajo presupuesto!!????👀🥀😭🔥
         if (!Object.keys(this.settings).includes(configName)){
             console.warn(`La configuración '${configName}' no existe.`);
             return false;
@@ -46,6 +49,8 @@ const SystemConfig = {
         }
         this.settings[configName] = configValue;
         this.apply();
+        NavigationBarManager.apply();
+        AppManager.refresh();
         return true;
     },
     apply(){

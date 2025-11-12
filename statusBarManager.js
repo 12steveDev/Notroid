@@ -9,6 +9,28 @@ const StatusBarManager = {
         lab: [true, `<i class="material-symbols-outlined" id="statLab">science</i>`],
         battery: [true, `<i class="material-symbols-outlined" id="statBattery">battery_horiz_000</i>`]
     },
+    config: {
+        background: "#000000",
+        foreground: "#ffffff"
+    },
+    // ["GET_STATUS_BAR_CONFIG"]
+    getConfigValue(configName){
+        if (!Object.keys(this.config).includes(configName)){
+            console.warn(`La configuración '${configName}' no existe.`);
+            return false;
+        }
+        return this.config[configName];
+    },
+    // ["SET_STATUS_BAR_CONFIG"] (P_MANAGE_STATUS_BAR)
+    setConfigValue(configName, configValue){
+        if (!Object.keys(this.config).includes(configName)){
+            console.warn(`La configuración '${configName}' no existe.`);
+            return false;
+        }
+        this.config[configName] = configValue;
+        this.apply();
+        return true;
+    },
     // ["SHOW_STATUS_ICON"] (P_MANAGE_STATUS_BAR)
     showStatIcon(iconName){
         if (!Object.keys(this.statIcons).includes(iconName)){
@@ -28,10 +50,6 @@ const StatusBarManager = {
         this.statIcons[iconName][0] = false;
         this.apply();
         return true;
-    },
-    // ["SET_STATUS_BAR_BACKGROUND"] (P_MANAGE_STATUS_BAR)
-    setBackground(color){
-        statusBar.style.background = color;
     },
     // ["TOGGLE_NOTIFICATIONS_PANEL"] (P_MANAGE_STATUS_BAR)
     toggleNotificationsPanel(){
@@ -55,6 +73,10 @@ const StatusBarManager = {
     },
     apply(){
         statIcons.innerHTML = "";
+
+        statusBar.style.background = this.getConfigValue("background");
+        statusBar.style.color = this.getConfigValue("foreground");
+
         for (const iconStat of Object.values(this.statIcons)){
             if (iconStat[0]){
                 statIcons.innerHTML += iconStat[1];
