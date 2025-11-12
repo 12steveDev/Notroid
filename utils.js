@@ -1,13 +1,15 @@
 // utils.js
+// #añadanEstoAlJavascriptVanilla
 const $ = (query, parent=document) => parent.querySelector(query);
 const $$ = (query, parent=document) => parent.querySelectorAll(query);
 const E = (tag) => document.createElement(tag);
 const isString = (value) => typeof value === "string" || value instanceof String;
 const isNumber = (value) => typeof value === "number" && !isNaN(value);
 const isBoolean = (value) => typeof value === "boolean";
-const isObject = (value) => Object.prototype.toString.call(value) === "[object Object]";
 const isCalvikArray = (value) => value instanceof CalvikArray;
+const isObject = (value) => Object.prototype.toString.call(value) === "[object Object]";
 const isAndroidEntorn = () => typeof AndroidBridge !== "undefined";
+
 const randint = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const verifyAppActivity = (appPackage="null", activityName="null") => {
     if (appPackage){
@@ -27,6 +29,55 @@ const verifyAppActivity = (appPackage="null", activityName="null") => {
     return true;
 }
 
+const popAt = (arr, index) => arr.splice(index, 1)[0];
+const popWhere = (arr, cond) =>{
+    const index = arr.findIndex(cond);
+    if (index !== -1){
+        return popAt(arr, index);
+    }
+    return undefined;
+}
+const getAt = (arr, index) => arr.slice(index, 1)[0];
+const getWhere = (arr, cond) =>{
+    const index = arr.findIndex(cond);
+    if (index !== -1){
+        return getAt(arr, index);
+    }
+    return undefined;
+}
+
+class CalvikArray extends Array {
+    constructor(...items) {
+        super(...items);
+    }
+    
+    // Override de métodos que devuelven nuevos arrays
+    map(callback) {
+        return new CalvikArray(...super.map(callback));
+    }
+    
+    filter(callback) {
+        return new CalvikArray(...super.filter(callback));
+    }
+    
+    slice(start, end) {
+        return new CalvikArray(...super.slice(start, end));
+    }
+    
+    concat(...arrays) {
+        return new CalvikArray(...super.concat(...arrays));
+    }
+    
+    toString(){
+        return `[CalvikArray: ${this.join(", ")}]`;
+    }
+    
+    // Método útil para Calvik
+    static fromArray(array) {
+        return new CalvikArray(...array);
+    }
+}
+
 const RickRoll = {
     launch(){
         if (SystemConfig.getConfigValue("rickRollBlocker")) alert("¿Creistes que iba a ser tan fácil? 🗣🔥");
@@ -36,8 +87,8 @@ const RickRoll = {
 
 const PID = {
     currPid: 0,
-    nextPid(){
-        return currPid++;
+    next(){
+        return this.currPid++;
     }
 }
 
@@ -48,43 +99,6 @@ class CalvikReturn {
     }
 }
 class CalvikAbort {}
-class CalvikArray {
-    constructor(elements = []){
-        this.elements = elements;
-    }
-    // ["PUSH"]
-    push(element){
-        this.elements.push(element);
-        return this;
-    }
-    // ["POP"]
-    pop(){
-        return this.elements.pop();
-    }
-    // ["GET_AT"]
-    get(index){
-        return this.elements[index];
-    }
-    // ["SET_AT"]
-    set(index, value){
-        this.elements[index] = value;
-        return this;
-    }
-    // ["JOIN"]
-    join(sep){
-        return this.elements.join(sep);
-    }
-    // ["LENGTH"]
-    get length(){
-        return this.elements.length;
-    }
-    toString(){
-        return `CalvikArray[${this.elements.join(", ")}]`;
-    }
-    [Symbol.iterator](){
-        return this.elements[Symbol.iterator]();
-    }
-}
 
 const desktop = $("#desktop");
 const statusBar = $("#statusBar");
@@ -95,6 +109,12 @@ const navigationBar = $("#navigationBar");
 
 // Manage Listeners
 function initializeListeners(){
+    document.addEventListener("keydown", (e)=>{
+        if (e.key === "Escape" && ActivityManager.activityStack.length > 0){
+            e.preventDefault();
+            NavigationBarManager.goBack();
+        }
+    })
     statusBar.addEventListener("touchstart", (e)=>StatusBarManager._statusBarActionTouchStart(e));
     statusBar.addEventListener("mousedown", (e)=>StatusBarManager._statusBarActionTouchStart(e));
     statusBar.addEventListener("touchend", (e)=>StatusBarManager._statusBarActionTouchEnd(e));

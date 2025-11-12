@@ -8,7 +8,8 @@ const Calvik = {
 
         if (!instructions) return instructions;
         // ¿LA INSTRUCCIÓN ES UNA CADENA, OBJETO LITERAL O NUMERO? => DEVUELVE VALOR DIRECTO (seguramente fue llamado de otra instrucción)
-        if (isString(instructions) || isObject(instructions) || isNumber(instructions) || isBoolean(instructions) || isCalvikArray(instructions)){
+        if (isString(instructions) || isObject(instructions) || isNumber(instructions) || isBoolean(instructions) || isCalvikArray()){
+            console.log(`[DIRECT_VALUE]`)
             return isString(instructions) ? Variables.resolveString(instructions, appPackage, activityName) : instructions;
         }
         // Para instrucciones vacias []
@@ -31,7 +32,7 @@ const Calvik = {
                 return false;
             }
         }
-        switch (op){
+        switch (op){ // ! ¿CUANTOS OPCODES SON!???? proximamente división de opcodes al estilo Google (`import notroid.widget.SHOW_TOAST` JAJAJJAJA)
             // === Code Utils === //
             case "UPPER":
                 return ex(args[0]).toUpperCase();
@@ -43,10 +44,17 @@ const Calvik = {
                 return Number(ex(args[0]));
             case "BOOLEAN":
                 return Boolean(ex(args[0]));
+            case "ARRAY":
+                return new CalvikArray(...args.map(arg=> ex(arg)));
             case "JSON_PARSE": // Seguramente solo para instalar apps y añadir elementos mediante cadenas
-                return JSON.parse(ex(args[0]));
+                const r = JSON.parse(ex(args[0]));
+                return Array.isArray(r) ? CalvikArray.fromArray(r) : r;
             case "JSON_STRINGIFY":
                 return JSON.stringify(ex(args[0]));
+            case "OBJECT_KEYS":
+                return Object.keys(ex(args[0]));
+            case "OBJECT_VALUES":
+                return Object.values(ex(args[0]));
             case "LENGTH":
                 return ex(args[0]).length;
             case "RELOAD_NOTROID":
@@ -58,10 +66,12 @@ const Calvik = {
                 return ex(args[0]).push(ex(args[1]));
             case "POP":
                 return ex(args[0]).pop();
+            case "SHIFT":
+                return ex(args[0]).shift();
             case "SET_AT":
-                return isCalvikArray(ex(args[0])) ? ex(args[0]).set(ex(args[1]), ex(args[2])) : args[0][ex(args[1])] = ex(args[2]);
+                return ex(args[0])[ex(args[1])] = ex(args[2]);
             case "GET_AT":
-                return isCalvikArray(ex(args[0])) ? ex(args[0]).get(ex(args[1])) : args[0][ex(args[1])];
+                return ex(args[0])[ex(args[1])];
             
             case "EQ":
                 return ex(args[0]) === ex(args[1]);
@@ -108,7 +118,7 @@ const Calvik = {
                 return randint(ex(args[0]), ex(args[1]));
             // === Basic === //
             case "LOG":
-                return console.log(ex(args[0]));
+                return console.log(...args.map(arg => ex(arg)));
             case "ALERT":
                 return alert(ex(args[0]));
             case "PROMPT":
@@ -147,7 +157,7 @@ const Calvik = {
             case "FOR_EACH":
                 const [iterable, varName, bodyForEach] = args;
                 for (const value of ex(iterable)){
-                    Variables.set(appPackage, varName, value);
+                    Variables.set(appPackage, activityName, varName, value);
                     try {
                         ex(bodyForEach);
                     } catch (e){
@@ -155,6 +165,7 @@ const Calvik = {
                         throw e;
                     }
                 }
+
                 return true;
             case "BREAK":
                 throw new CalvikBreak();
@@ -171,6 +182,8 @@ const Calvik = {
                 return ActivityManager.startActivity(appPackage, args[0]);
             case "FINISH_ACTIVITY":
                 return ActivityManager.finishActivity(appPackage, activityName);
+            case "ID_CLICK":
+                return ActivityManager.idClick(appPackage, activityName, args[0]);
             case "ID_SET_TEXT":
                 return ActivityManager.idSetText(appPackage, activityName, args[0], ex(args[1]));
             case "ID_GET_TEXT":
@@ -187,6 +200,10 @@ const Calvik = {
                 return ActivityManager.idAddClass(appPackage, activityName, args[0], ex(args[1]));
             case "ID_REMOVE_CLASS":
                 return ActivityManager.idRemoveClass(appPackage, activityName, args[0], ex(args[1]));
+            case "ID_APPEND_CHILD":
+                return ActivityManager.idAppendChild(appPackage, activityName, args[0], ex(args[1]));
+            case "ID_CLEAR_CHILDS":
+                return ActivityManager.idClearChilds(appPackage, activityName, args[0]);
             // AlertDialog
             case "SHOW_ALERT":
                 // ! No sirve w, solamente sirve para ocupar la pantalla porq la ejecución sigue, mejor usen ["ALERT"] 🥀
@@ -207,6 +224,11 @@ const Calvik = {
                 return LocalStorage.del(appPackage, activityName, args[0]);
             case "CLEAR_ALL_LOCAL_DATA":
                 return LocalStorage.clearAll(appPackage, activityName);
+            // NavigationBarManager
+            case "GET_NAVIGATION_BAR_CONFIG":
+                return NavigationBarManager.getConfigValue(ex(args[0]));
+            case "SET_NAVIGATION_BAR_CONFIG":
+                return NavigationBarManager.setConfigValue(ex(args[0]), ex(args[1]));
             // NotificationManager
             case "SEND_NOTIFICATION":
                 return NotificationManager.notify(appPackage, ex(args[0]), ex(args[1]));
@@ -232,10 +254,12 @@ const Calvik = {
                 return StatusBarManager.showStatIcon(ex(args[0]));
             case "HIDE_STATUS_ICON":
                 return StatusBarManager.hideStatIcon(ex(args[0]));
-            case "SET_STATUS_BAR_BACKGROUND":
-                return StatusBarManager.setBackground(ex(args[0]));
             case "TOGGLE_NOTIFICATIONS_PANEL":
                 return StatusBarManager.toggleNotificationsPanel();
+            case "GET_STATUS_BAR_CONFIG":
+                return StatusBarManager.getConfigValue(ex(args[0]));
+            case "SET_STATUS_BAR_CONFIG":
+                return StatusBarManager.setConfigValue(ex(args[0]), ex(args[1]));
             // SystemConfig
             case "SET_CONFIGURATION_VALUE":
                 return SystemConfig.setConfigValue(ex(args[0]), ex(args[1]));
@@ -290,6 +314,9 @@ const Calvik = {
         "GET_LOCAL": ["PERMISSION_LOCAL_STORAGE"],
         "DEL_LOCAL": ["PERMISSION_LOCAL_STORAGE"],
         "CLEAR_ALL_LOCAL_DATA": ["PERMISSION_LOCAL_STORAGE", "PERMISSION_CLEAR_ALL_LOCAL_DATA"],
+        // NavigationBarManager
+        "GET_STATUS_BAR_CONFIG": [],
+        "SET_STATUS_BAR_CONFIG": ["PERMISSION_MANAGE_NAVIGATION_BAR"],
         // NotificationManager
         "SEND_NOTIFICATION": ["PERMISSION_POST_NOTIFICATIONS"],
         "GET_NOTIFICATION_STATE": ["PERMISSION_MANAGE_NOTIFICATIONS_STATE"],
@@ -304,8 +331,9 @@ const Calvik = {
         // StatusBarManager
         "SHOW_STATUS_ICON": ["PERMISSION_MANAGE_STATUS_BAR"],
         "HIDE_STATUS_ICON": ["PERMISSION_MANAGE_STATUS_BAR"],
-        "SET_STATUS_BAR_BACKGROUND": ["PERMISSION_MANAGE_STATUS_BAR"],
         "TOGGLE_NOTIFICATIONS_PANEL": ["PERMISSION_MANAGE_STATUS_BAR"],
+        "GET_STATUS_BAR_CONFIG": [],
+        "SET_STATUS_BAR_CONFIG": ["PERMISSION_MANAGE_STATUS_BAR"],
         // SystemConfig
         "GET_CONFIGURATION_VALUE": ["PERMISSION_READ_CONFIGURATIONS"],
         "SET_CONFIGURATION_VALUE": ["PERMISSION_WRITE_CONFIGURATIONS"],
