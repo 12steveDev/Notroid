@@ -8,10 +8,19 @@
 - Pensar, ¿`LocalStorage` también debe ser `notlocal.package.activity.varname` para estar encapsulado o `notlocal.package.varname` para que toda la app pueda acceder?
 - Pensar que haría alguien con `root` en Notroid (literal Notroid ya expone todo)
 - Añadir quizás un `["ID_CLICK"]` para hacer clicks a propósito.
-- Pensar 2 veces si mantener localStorage o mejor añadir un `FileSystem` (con `["CREATE_FILE"]`, `["READ_FILE"]`, `["WRITE_FILE"]`, `["APPEND_FILE"]` y `["DELETE_FILE"]`) y localStorage solo serviría para guardar el estado de FileSystem (por lo que, la data de todas las apps, del sistema, todo, estaría en FileSystem, localstorage solamente guarda el fs).
 - ¿Añadir `["FETCH"]`??? ¿Quieren hacer apps profesionales en Notroid!!???
 - Añadir tipo de elemento `webview` (un `<iframe>`), atributo `src`, y opcodes `["ID_SET_SRC"]` y `["ID_SET_SRCDOC"]` (se viene IDE HTML en Notroid wee 👀👀🔥🔥).
 - ! Por favor, **encontrar solución al problema de que no podemos diferenciar entre instrucciones Calvik y un Array**, por lo tanto, no podemos usar Arrays
+- Después de solucionar el problema con Arrays, añadir opcodes para listar paquetes (y devolver array con objetos de cada app ()).
+- Pensar 2 veces si mantener localStorage o mejor añadir un `FileSystem` (con `["CREATE_FILE"]`, `["READ_FILE"]`, `["WRITE_FILE"]`, `["APPEND_FILE"]` y `["DELETE_FILE"]`) y localStorage solo serviría para guardar el estado de FileSystem (por lo que, la data de todas las apps, del sistema, todo, estaría en FileSystem, localstorage solamente guarda el fs).
+
+### Ideas para el FileSystem
+- `/data/apps/*.npk`: Ahí estarán todas las apps (.npk es una escusa, en simplemente un JSON JAJAJAJ) (**`root` para manejo manual**).
+- `/storage/emulated/0/`: Espacio de trabajo del usuario.
+- `/storage/emulated/0/Notroid/data/com.example.package/files/`: Archivos de las apps.
+- **Buscando ideas:**
+- - Un directorio en el que haya un .clvk (Calvik) para que se ejecute al inicio de todo.
+- - (MUY_IMPORTANTE) Añadir más directorios así "criticos" para que pegue más duro lo "Android-like"
 
 ## TO-DO MUY LEJANO
 - Utilizar Google Sheets (pobre pero útil) o vender caramelos para tener una base de datos estable y hacer un `AppStore`
@@ -20,6 +29,7 @@
 - ¿`Picture On Picture`? ¿`PERMISSION_SYSTEM_ALERT_WINDOW`? *¿Qué opcodes habría para manejar todo eso?....*
 - ¿`TileService` en Notroid???
 - Quizás si se crean los `opcodes` y `UIs` necesarios, hacer que el **launcher** sea también una app, y que se pueda cambiar (incluso, hasta podríamos hacer un **inputmethod** jeje... (me estoy matando solito wtf)). Si esto llega a suceder, también a las apps añadirles el atributo `isLauncher: true/false` para los launchers jeje, y una `SystemConfig.settings` "`defaultLauncher: "com.example.package"`"
+- Quizás `Intents` con acciones y categorías?????????
 
 ## TO-DO DEFINITIVO (solamente 3)
 1. Hacer una documentación (`Calvik`, `UI`, etc) y `README.md` decentes.

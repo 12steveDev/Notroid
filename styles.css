@@ -214,7 +214,7 @@ input[type="checkbox"].switch:checked {
     background: #b3b;
 }
 input[type="checkbox"].switch:checked::before {
-    left: calc(60%);
+    left: 60%;
 }
 
 /* Clases accesibles para apps Notroid (Futuros Seniors del CSS Notroid? 🗣😭🥀🔥) */

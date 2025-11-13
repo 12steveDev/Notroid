@@ -53,6 +53,9 @@ const ActivityManager = {
             case "br":
                 elem = E("br");
                 break;
+            case "webview":
+                elem = E("iframe");
+                break;
             default:
                 elem = E("b");
                 elem.textContent = `[Elemento desconocido: ${elemObj.type}]`;
@@ -64,8 +67,8 @@ const ActivityManager = {
         if (elemObj.fontSize)    elem.style.fontSize   = Variables.resolveString(elemObj.fontSize, appPackage, activityName);
         if (elemObj.value)       elem.value            = Variables.resolveString(elemObj.value, appPackage, activityName);
         if (elemObj.checked)     elem.checked          = Boolean(Calvik.execute(appPackage, activityName, elemObj.checked));
-        if (elemObj.width)       elem.width            = elemObj.width;
-        if (elemObj.height)      elem.height           = elemObj.height;
+        if (elemObj.width)       elem.style.width      = elemObj.width;
+        if (elemObj.height)      elem.style.height     = elemObj.height;
         if (elemObj.id)          elem.id               = this._resolveId(appPackage, activityName, elemObj.id);
         if (elemObj.placeholder) elem.placeholder      = Variables.resolveString(elemObj.placeholder, appPackage, activityName);
         if (elemObj.onclick)     elem.onclick          = ()=> Calvik.execute(appPackage, activityName, elemObj.onclick);
@@ -75,6 +78,8 @@ const ActivityManager = {
         if (elemObj.bg)          elem.style.background = elemObj.bg;
         if (elemObj.fg)          elem.style.color      = elemObj.fg;
         if (elemObj.padding)     elem.style.padding    = elemObj.padding;
+        if (elemObj.margin)      elem.style.margin     = elemObj.margin;
+        if (elemObj.src)         elem.src              = Variables.resolveString(elemObj.src, appPackage, activityName);
         if (elemObj.child)       elemObj.child.forEach((chItem)=>elem.appendChild(this._render(appPackage, activityName, chItem)));
         if (elemObj.class)       elemObj.class.forEach((cClass)=>this.calvikClasses.includes(cClass) ? elem.classList.add(`not-${cClass}`) : console.warn(`La CalvikClass '${cClass}' no existe.`));
         return elem;
@@ -86,7 +91,7 @@ const ActivityManager = {
         return `act-${pid}`;
     },
     // ["START_ACTIVITY"]
-    startActivity(appPackage, activityName){
+    startActivity(appPackage, activityName, intentData={}){
         if (!verifyAppActivity(appPackage, activityName)) return false;
         const activityObj = ActivityManager.getActivityObj(appPackage, activityName);
 
@@ -95,6 +100,7 @@ const ActivityManager = {
         const actDiv = E("div");
         actDiv.id = this._resolvePid(pid);
         actDiv.classList.add("activity", "hide");
+        Variables.set(appPackage, activityName, "__intent_data__", intentData);
         if (activityObj.background) actDiv.style.background = activityObj.background;
         if (activityObj.foreground) actDiv.style.color = activityObj.foreground;
         actDiv.appendChild(this._render(appPackage, activityName, activityObj.view));
@@ -202,6 +208,12 @@ const ActivityManager = {
         const elem = this.getElementById(appPackage, activityName, id);
         if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
         elem.innerHTML = "";
+    },
+    // ["ID_APPEND_CHILD"]
+    idSetSrc(appPackage, activityName, id, src){
+        const elem = this.getElementById(appPackage, activityName, id);
+        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
+        elem.src = src;
     },
     getElementById(appPackage, activityName, id){
         if (!verifyAppActivity(appPackage, activityName)) return false;

@@ -38,6 +38,8 @@ const Calvik = {
                 return ex(args[0]).toUpperCase();
             case "LOWER":
                 return ex(args[0]).toLowerCase();
+            case "TRIM":
+                return ex(args[0]).trim();
             case "STRING":
                 return String(ex(args[0]));
             case "NUMBER":
@@ -179,9 +181,11 @@ const Calvik = {
                 return ToastManager.show(ex(args[0]));
             // ActivityManager
             case "START_ACTIVITY":
-                return ActivityManager.startActivity(appPackage, args[0]);
+                return ActivityManager.startActivity(appPackage, args[0], ex(args[1]));
             case "FINISH_ACTIVITY":
                 return ActivityManager.finishActivity(appPackage, activityName);
+            case "GET_INTENT_DATA":
+                return Variables.get(appPackage, activityName, "__intent_data__") || {};
             case "ID_CLICK":
                 return ActivityManager.idClick(appPackage, activityName, args[0]);
             case "ID_SET_TEXT":
@@ -204,6 +208,8 @@ const Calvik = {
                 return ActivityManager.idAppendChild(appPackage, activityName, args[0], ex(args[1]));
             case "ID_CLEAR_CHILDS":
                 return ActivityManager.idClearChilds(appPackage, activityName, args[0]);
+            case "ID_SET_SRC":
+                return ActivityManager.idSetSrc(appPackage, activityName, args[0], ex(args[1]));
             // AlertDialog
             case "SHOW_ALERT":
                 // ! No sirve w, solamente sirve para ocupar la pantalla porq la ejecución sigue, mejor usen ["ALERT"] 🥀
@@ -215,6 +221,8 @@ const Calvik = {
                 return AppManager.uninstall(ex(args[0]));
             case "LAUNCH_APP":
                 return AppManager.launch(ex(args[0]));
+            // FileSystem
+            // nada XD
             // LocalStorage:
             case "SET_LOCAL":
                 return LocalStorage.set(appPackage, activityName, args[0], ex(args[1]));
@@ -284,6 +292,8 @@ const Calvik = {
                 return AndroidBridge.getLastPermissionResult();
             case "ANDROID_SEND_NOTIFICATION":
                 return AndroidBridge.sendNotification(ex(args[0]), ex(args[1]));
+            case "ANDROID_FINISH_ACTIVITY":
+                return AndroidBridge.finishActivity();
             // === Default === //
             default:
                 throw new Error(`CALVIK ERROR: Unknown opcode: ${op}`);
@@ -309,6 +319,8 @@ const Calvik = {
         "INSTALL_APP": ["PERMISSION_MANAGE_EXTERNAL_APPS", "PERMISSION_INSTALL_APPS"],
         "UNINSTALL_APP": ["PERMISSION_MANAGE_EXTERNAL_APPS", "PERMISSION_DELETE_APPS"],
         "LAUNCH_APP": ["PERMISSION_MANAGE_EXTERNAL_APPS"],
+        // FileSystem
+        "FS_LIST_DIR": ["PERMISSION_READ_EXTERNAL_STORAGE"],
         // LocalStorage
         "SET_LOCAL": ["PERMISSION_LOCAL_STORAGE"],
         "GET_LOCAL": ["PERMISSION_LOCAL_STORAGE"],
@@ -344,6 +356,7 @@ const Calvik = {
         "ANDROID_HAS_PERMISSION": ["PERMISSION_GOOGLE_APROVEMENT"],
         "ANDROID_REQUEST_PERMISSION": ["PERMISSION_GOOGLE_APROVEMENT"],
         "ANDROID_GET_LAST_PERMISSION_RESULT": ["PERMISSION_GOOGLE_APROVEMENT"],
-        "ANDROID_SEND_NOTIFICATION": ["PERMISSION_GOOGLE_APROVEMENT"], // [android.permission.POST_NOTIFICATIONS]
+        "ANDROID_SEND_NOTIFICATION": ["PERMISSION_GOOGLE_APROVEMENT"],
+        "ANDROID_FINISH_ACTIVITY": ["PERMISSION_GOOGLE_APROVEMENT"],
     },
 }
