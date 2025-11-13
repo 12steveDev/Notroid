@@ -49,6 +49,9 @@ const NavigationBarManager = {
             });
             console.log(`${c} apps cerradas`);
             return true;
+        } else {
+            AndroidBridge.finishActivity();
+            return true;
         }
         if (randint(1, 100) == 12) ToastManager.show("¿Acaso quieres salir del launcher we?");
         return false;
