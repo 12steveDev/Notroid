@@ -699,5 +699,3 @@ AppManager.install({
 
 localStorage.setItem("firstEntry", "true");
 }
-
-localStorage.clear();

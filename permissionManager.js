@@ -13,7 +13,6 @@ const PermissionManager = {
         "PERMISSION_GOOGLE_APROVEMENT",          // Para poder usar características Android JAJAJJAJ (en entorno Android, obvio)
     ],
     appPermissions: JSON.parse(localStorage.getItem(SystemConfig.getConfigValue("permissionManagerLocalStorage"))) || {"com.notroid.settings": ["PERMISSION_READ_CONFIGURATIONS", "PERMISSION_WRITE_CONFIGURATIONS", "PERMISSION_MANAGE_STATUS_BAR", "PERMISSION_MANAGE_NAVIGATION_BAR"]}, // {"com.app": ["INTERNET", "CAMERA"]}
-
     _save(){
         if (SystemConfig.getConfigValue("useLocalStorage")){
             localStorage.setItem(SystemConfig.getConfigValue("permissionManagerLocalStorage"), JSON.stringify(this.appPermissions));
