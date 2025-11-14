@@ -1,5 +1,8 @@
 # === NOTES.md === #
 
+## Notroid:
+**¿Qué podría salir mal?** Todo. **¿Vale la pena?** ABSOLUTAMENTE.
+
 ## TO-DO:
 - Añadir actividades a los paquetes de las aps (`ActivityManager`, `["START_ACTIVITY"]`) (Nota: **YA IMPLEMENTADO KBRONES!!!!**)
 - Hacer que toda acción tenga que estar en un contexto de paquete **Y** de actividad. (Nota: **TAMBIEN ESTÁ KBRONES!!!!!**)

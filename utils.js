@@ -136,3 +136,22 @@ function initializeListeners(){
         statTime.textContent = text;
     }, SystemConfig.getConfigValue("timeReloadIntervalMS"));
 }
+
+/* idea (IA)
+function bootNotroid() {
+    // 1. Cargar frameworks base
+    loadFramework("/system/framework/calvik.js");
+    loadFramework("/system/framework/activity-manager.js");
+    
+    // 2. Ejecutar init scripts
+    executeIfExists("/system/etc/init.notroid.js");
+    executeIfExists("/data/system/startup/user.init.js");
+    
+    // 3. Cargar SystemUI y Launcher por defecto
+    const defaultLauncher = SystemConfig.getConfigValue("defaultLauncher");
+    ActivityManager.startActivity(defaultLauncher, "Home");
+    
+    // 4. Cargar apps de sistema
+    loadSystemApps();
+}
+*/
