@@ -2,6 +2,7 @@
 
 ## Notroid:
 **¿Qué podría salir mal?** Todo. **¿Vale la pena?** ABSOLUTAMENTE.
+> *`JSON` es amor... `JSON` es vida...*
 
 ## TO-DO:
 - Añadir actividades a los paquetes de las aps (`ActivityManager`, `["START_ACTIVITY"]`) (Nota: **YA IMPLEMENTADO KBRONES!!!!**)
@@ -50,3 +51,6 @@
 - Implementar la `NavigationBar`
 - Limpiar las variables de una actividad cuando esa actividad muera (pobrecita 😢)
 - Implementar los últimos SystemConfig.settings
+
+## Estado actual:
+Intentando integrar el FS para TODO we (hasta ahora solamente se ven las carpetas, pero no sirven para nada XDD)

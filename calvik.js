@@ -222,7 +222,12 @@ const Calvik = {
             case "LAUNCH_APP":
                 return AppManager.launch(ex(args[0]));
             // FileSystem
-            // nada XD
+            case "FS_LIST_DIR":
+                return FileSystem.listDir(appPackage, ex(args[0]));
+            case "FS_IS_FILE":
+                return FileSystem.isFile(appPackage, ex(args[0]));
+            case "FS_IS_DIR":
+                return FileSystem.isDir(appPackage, ex(args[0]));
             // LocalStorage:
             case "SET_LOCAL":
                 return LocalStorage.set(appPackage, activityName, args[0], ex(args[1]));

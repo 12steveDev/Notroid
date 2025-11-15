@@ -84,38 +84,68 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         ].forEach(f => systemFramework.addItem(new FILE(f, "binary content...")));
         const systemEtc = new FOLDER("etc");
         systemEtc.addItem(new FILE("init.clvk", '["SHOW_TOAST", "Tiembla google..."]'));
+        const systemBin = new FOLDER("bin");
+        ["sh","dogcat","pm"].forEach(f => systemBin.addItem(new FILE(f, "NotroidSystem.doSomething()")));
+        const systemLib = new FOLDER("lib");
+        ["libgraphics.sys","libaudio.sys","libcrypto.sys"].forEach(f => systemLib.addItem(new FILE(f, "NotroidHardware.doSomething()")));
+        const systemMedia = new FOLDER("media");
+        ["bootanimation.sip","shutdownanimation.sip"].forEach(f => systemMedia.addItem(new FILE(f)));
+        systemMedia.addItem(new FOLDER("audio"));
         system.addItem(systemFramework);
         system.addItem(new FOLDER("priv-app"));
         system.addItem(new FOLDER("app"));
         system.addItem(systemEtc);
+        system.addItem(systemBin);
+        system.addItem(systemLib);
+        system.addItem(systemMedia);
         root.addItem(system);
 
         // product/ y vendor/ para hacer sentir poderosa la ruta raíz de tantos directorios (las apariencias engañan lit)
         ["product", "vendor"].forEach(f => {
             const p = new FOLDER(f);
             p.addItem(new FOLDER("app"));
+            p.addItem(new FOLDER("firmware"));
+            p.addItem(new FOLDER("lib"));
+            p.addItem(new FOLDER("overlays"));
             root.addItem(p);
         });
 
         // data/
         const data = new FOLDER("data");
         const dataData = new FOLDER("data"); // llegó papi 😭🔥
+        const dataSystem = new FOLDER("system");
+        ["locksettings.ndb","packages.xml","settings_system.conf","accounts.db"].forEach(f => dataSystem.addItem(new FILE(f)));
+        dataSystem.addItem(new FOLDER("wallpaper"));
         data.addItem(new FOLDER("app"));
-        data.addItem(new FOLDER("system"));
+        data.addItem(dataSystem);
         data.addItem(dataData);
         root.addItem(data);
+
+        // proc/
+        const proc = new FOLDER("proc");
+        proc.addItem(new FILE("cpuinfo", "Nombre: Raizen\nApellido: we, es una página, ¿qué tipo de cpu crees que tiene Notroid???"));
+        proc.addItem(new FILE("raminfo", "Nombre: DDR12\nApellido: we, es una página, ¿qué tipo de ram crees que tiene Notroid???"));
+        proc.addItem(new FOLDER("we", {"we": new FILE("we", "we")})); // we
+        root.addItem(proc)
+
+        // sys
+        const sys = new FOLDER("sys");
+        ["devices","fs"].forEach(f => sys.addItem(new FOLDER(f)));
+        root.addItem(sys);
 
         // storage/emulated/0/
         const storage = new FOLDER("storage");
         const emulated = new FOLDER("emulated");
         const zero = new FOLDER("12"); // jeje, algo de crédito debo de tener, ¿no? (att: 12steve)
         const sezNotroid = new FOLDER("Notroid");
-        ["Download", "Pictures", "Music"].forEach(f => zero.addItem(new FOLDER(f)));
+        ["Download", "Pictures", "Music","DCIM"].forEach(f => zero.addItem(new FOLDER(f)));
         sezNotroid.addItem(new FOLDER("data"));
         zero.addItem(sezNotroid);
         emulated.addItem(zero);
         storage.addItem(emulated);
         root.addItem(storage);
+
+        root.addItem(new FILE("README.txt", "deje la sapada bro, aquí no es su workspace - att: 12steve"));
 
         return root;
     },
@@ -135,37 +165,217 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
     },
     _save(){
         localStorage.setItem(this._baseStorageKey, JSON.stringify(this._serialize(this.fs)));
-        // this.printTree();
     },
     _resolvePath(appPackage, path){
+        // Si usas este ya no uses _getParentAndName
         if (!path || path === "/") return "/";
-
         // Rutas absolutas
         if (path.startsWith("/")) return path;
-
         // Rutas relativas al directorio de la app
-        if (path.startsWith("./")){
-            return `/data/apps/${appPackage}/files/${path.slice(2)}`;
-        }
-
+        if (path.startsWith("./")) return `/data/data/${appPackage}/files/${path.slice(2)}`;
         // Rutas relativas al directorio actual de la app
-        return `/data/apps/${appPackage}/files/${path}`;
+        return `/data/data/${appPackage}/files/${path}`;
+    },
+    _getParentAndName(appPackage, path){
+        // Si usas este ya no uses _resolvePath
+        path = this._resolvePath(appPackage, path);
+        const parts = path.split("/").filter(p=>p);
+        const newDir = parts.pop();
+        const parentPath = parts.join("/");
+        return [this._goTo("", "/"+parentPath), newDir];
+    },
+    _goTo(appPackage, path){
+        // Navega a una ruta
+        // Solamente se encarga de devolver lo que haya
+        // Si no existe un elemento da error
+        // Si intenta navegar dentro de un archivo da error
+        console.log(`[goto] ${appPackage} | ${path}`)
+        path = this._resolvePath(appPackage, path);
+        const parts = path.split("/").filter(p=>p);
+        let curr = this.fs;
+        for (const [i, part] of parts.entries()){ // para obtener el índice actual
+            // actual es un archivo y falta una iteración?? 
+            if (curr.type !== "folder"){
+                console.warn(`'${curr.name}' no es una carpeta`);
+                return false;
+            }
+            curr = curr.getItem(part);
+            // actual no existe??
+            if (!curr){
+                console.warn((i === parts.length - 1 ? "La carpeta o archivo" : "La carpeta") + ` '${part}' no existe`);
+                return false;
+            }
+        }
+        return curr;
+    },
+    _updatePackagesXML(appObj, apkPath, uid1, uid2){
+        const pkgF = "/data/system/packages.xml";
+        // Leer packages.xml existente (si existe)
+        let data = this.readFile("", pkgF);
+        let json;
+        if (!data){
+            json = { packages: {} };
+        } else {
+            try {
+                json = JSON.parse(data);
+            } catch {
+                json = { packages: {} };
+            }
+        }
+        // Actualizar info de la app
+        json.packages[appObj.package] = {
+            name: appObj.name,
+            package: appObj.package,
+            apkPath: apkPath + "base.npk",
+            uid1: uid1,
+            uid2: uid2,
+            grantedPermissions: []
+        };
+        this.writeFile("", pkgF, JSON.stringify(json));
     },
     printTree(item=null, indent=0){
         if (item === null) item = this.fs;
-        const spaces = "- - ".repeat(indent);
-        console.log(spaces + item.name + (item.type === "folder" ? "/" : ""));
+        const spaces = "    ".repeat(indent);
+        console.log(spaces + (item.type === "folder" ? "📂 " : "📄 ") + item.name + (item.type === "folder" ? "/" : ""));
         if (item.type === "folder"){
             for (const childName of item.listItems()){
                 this.printTree(item.getItem(childName), indent + 1);
             }
         }
+    },
+    isFile(appPackage, path){
+        const f = this._goTo(appPackage, path);
+        if (!f) return false;
+        return f.type === "file";
+    },
+    isDir(appPackage, path){
+        const f = this._goTo(appPackage, path);
+        if (!f) return false;
+        return f.type === "folder";
+    },
+    listDir(appPackage, path){
+        const f = this._goTo(appPackage, path);
+        if (!f) return false; // Ya _goTo() imprime el warning
+        if (f.type !== "folder"){
+            console.warn(`'${f.name}' no es una carpeta`);
+            return false;
+        }
+        return CalvikArray.fromArray(f.listItems());
+    },
+    createDir(appPackage, path){
+        const [p, f] = this._getParentAndName(appPackage, path);
+        if (!p) return false;
+        if (p.type !== "folder"){
+            console.warn(`'${p.name}' no es una carpeta`);
+            return false;
+        }
+
+        if (p.getItem(f)){
+            console.warn(`La carpeta (o archivo) '${f}' ya existe.`);
+            return false;
+        }
+        p.addItem(new FOLDER(f));
+        this._save();
+        return true;
+    },
+    createDirs(appPackage, path){
+        path = this._resolvePath(appPackage, path);
+        const parts = path.split("/").filter(p=>p);
+        let curr = this.fs;
+        for (const part of parts){
+            if (curr.type !== "folder"){
+                console.warn(`'${curr.name}' no es una carpeta`);
+                return false;
+            }
+            if (!curr.getItem(part)){
+                curr.addItem(new FOLDER(part));
+            }
+            curr = curr.getItem(part);
+        }
+        this._save();
+        return true;
+    },
+    createFile(appPackage, path){
+        const [p, f] = this._getParentAndName(appPackage, path);
+        if (!p) return false;
+        if (p.type !== "folder"){
+            console.warn(`'${p.name}' no es una carpeta`);
+            return false;
+        }
+
+        if (p.getItem(f)){
+            console.warn(`El archivo (o carpeta) '${f}' ya existe.`);
+            return false;
+        }
+        p.addItem(new FILE(f));
+        this._save();
+        return true;
+    },
+    readFile(appPackage, path){
+        const f = this._goTo(appPackage, path);
+        if (!f) return false;
+        if (f.type !== "file"){
+            console.warn(`'${f.name}' no es un archivo`);
+            return false;
+        }
+        return f.readFile();
+    },
+    writeFile(appPackage, path, content){
+        const f = this._goTo(appPackage, path);
+        if (!f) return false;
+        if (f.type !== "file"){
+            console.warn(`'${f.name}' no es un archivo`);
+            return false;
+        }
+        f.writeFile(content);
+        this._save();
+        return true;
+    },
+    appendFile(appPackage, path, content){
+        const f = this._goTo(appPackage, path);
+        if (!f) return false;
+        if (f.type !== "file"){
+            console.warn(`'${f.name}' no es un archivo`);
+            return false;
+        }
+        f.appendFile(content);
+        this._save();
+        return true;
+    },
+    remove(appPackage, path){
+        const [p, f] = this._getParentAndName(appPackage, path);
+        if (!p) return false;
+        if (p.type !== "folder"){
+            console.warn(`'${p.name}' no es una carpeta`);
+            return false;
+        }
+
+        if (!p.getItem(f)){
+            console.warn(`La carpeta o archivo '${f}' no existe (ya está borrado XDD)`);
+            return false;
+        }
+        p.removeItem(f);
+        this._save();
+        return true;
+    },
+    installApp(appObj){
+        // /data/app/*...
+        const uid1 = randomString(22, true, true, true, "_-");
+        const uid2 = randomString(22, true, true, true, "_-");
+        const apkPath = `/data/app/~~${uid1}==/${appObj.package}-${uid2}==/`;
+        this.createDirs("", apkPath);
+        this.createFile("", `${apkPath}/base.npk`);
+        this.writeFile("", `${apkPath}/base.npk`, JSON.stringify(appObj));
+        this._updatePackagesXML(appObj, apkPath, uid1, uid2);
+
+        // /data/data/*...
+        ["files","databases","shared_prefs","cache"].forEach(f => this.createDirs(appObj.package, `/data/data/${appObj.package}/${f}`));
     }
 }
+// tests
 localStorage.clear();
 FileSystem.init();
-FileSystem.printTree();
-/*
+/* (No tiene que funcionar, solo existir para verse técnico XDDD)
 N:
 ├── system/                # Apps que NO se pueden desinstalar
 │   ├── framework/         # Librerías del sistema (No son librerías Java, son módulos)
@@ -177,27 +387,55 @@ N:
 │   │   └── system-ui-core.js      // Núcleo de SystemUI
 │   ├── priv-app/          # *.npk (apps privilegiadas: Launcher, SystemUI, Settings)
 │   ├── app/               # *.npk (apps básicas: Calculator, Contacts, etc)
-│   └── etc/               # Configuraciones del sistema (no apps)
-│       └── init.clvk              // Script de inicio del sistema
-├── vendor/                # == product (sí, son lo mismo en Android moderno)
-│   └── app/               # Apps "Extra" del fabricante (quien carajos se pondría a personalizar Notroid XDD??)
+│   ├── etc/               # Configuraciones del sistema (no apps)
+│   │   └── init.clvk              // Script de inicio del sistema
+│   ├── bin/               # Comandos del sistema (shell en Notroid wt)
+│   │   ├── sh                     // Alguna shell para Notroid, aunque sea pura ilusión XDD
+│   │   ├── dogcat                 // logcat de bajo presupuesto🥀
+│   │   └── pm                     // PackageManager CLI???
+│   ├── lib/               # "Módulos nativos"
+│   │   ├── libgraphics.sys        // Módulo nativo del render
+│   │   ├── libaudio.sys           // Motor de sonido
+│   │   └── libcrypto.sys          // Ponte a buscar dónde Notroid usa cripto XDD
+│   └── media/             # Sonidos de notificación, bootanimation, alarmas
+│       ├── bootanimation.sip      // Animación de inicio
+│       ├── shutdownanimation.sip  // Animación al apagar/reiniciar el cel
+│       └── audio/                 // Notis, alarmas, etc..
+├── vendor/                # == product (sí, son lo mismo en Android moderno creo)
+│   ├── app/               # Apps "Extra" del fabricante (quien carajos se pondría a personalizar Notroid XDD??)
+│   ├── firmware/          # Firmwares imaginarios
+│   ├── lib/               # Drivers del fabricante (aunque sea yo mismo XDD)
+│   └── overlays/          # Temas y personalizaciones
 ├── data/
 │   ├── app/               # Apps instaladas por el usuario (*.npk) (.npk = .json pero suena épico)
 │   ├── system/            # Configuraciones del sistema (SystemConfig.settings)
+│   │   ├── locksettings.ndb       // PIN, CONTRASEÑA
+│   │   ├── packages.xml           // Paquetes instalados
+│   │   ├── settings_system.conf   // SystemConfig.settings
+│   │   ├── accounts.db            // no..
+│   │   └── wallpaper/             // Fondos de pantalla
 │   └── data/              # Datos privados de cada app
 │       └── com.x12steve.test/
 │           ├── files/        # Archivos de la app (creados con "./*")
-│           ├── databases/    # Bases de datos SQLite (podrías hacer un SQLite.js 😏)
+│           ├── databases/    # Bases de datos SQLite (ni se ilusionen we JAJJAJA)
 │           ├── shared_prefs/ # Preferencias (LocalStorage actual)
-│           └── cache/        # Cache temporal (Variables temporales)
-└── storage/
-    └── emulated/0/        # Almacenamiento "externo" (público)
-        ├── Download/
-        ├── Pictures/
-        ├── Music/
-        └── Android/data/   # Datos accesibles de apps
+│           └── cache/        # Cache temporal (Variables????)
+├── proc/                  # Info del sistema
+│   ├── cpuinfo                    // Info de la CPU
+│   └── raminfo                    // Info de la RAM
+├── sys/                  # Controladores del kernel
+│   ├── devices/                   // Dispositivos
+│   └── fs/                        // Sistema de archivos
+├── storage/
+│   └── emulated/12/       # Almacenamiento "externo" (público)
+│       ├── Download/
+│       ├── Pictures/
+│       ├── Music/
+│       └── Notroid/       # Datos accesibles de apps
+│           └── data/      # Datos accesibles de apps
+└── README.txt             # Algún mensaje "importante" que quiera dejar el proveedor
 
-Flujo de booteo:
+Flujo de booteo: (actualizar)
 /// ("BOOT" singifica la función de booteo)
 1. BOOT carga frameworks ("/system/framework/*.js")
 2. BOOT verifica que existan las apps del sistema, y si no, las instala ("/system/app/" y "/system/priv-app")
@@ -205,10 +443,9 @@ Flujo de booteo:
 4. BOOT ejecuta script de inicio (posiblemente en Calvik) ("/system/etc/init.clvk");
 
 Preguntas:
-- ¿Los ".js" en serio verdad les voy a pasar un eval() de JavaScript???
-- ¿"Cargar frameworks" se refiere a literalmente importarlos ahí o solamente es tipo "verificar que ese archivo ficticio existe, si no existe, todos los opcodes relacionados no sirven"?
 - ¿El FS si está a corde cómo funcionaría en Android? (más o menos obvio)
-- El root en android, ¿cómo funciona? ¿tengo root y todas las apps pueden tener el poder? o ¿tengo root y yo decido que app puede usar el poder?
+
+(nota: we, siento que esto en vez de ser ideas para FS Notroid más bien es la doc del FS de android que google nunca quiso hacer XDDD)
 */
 
 

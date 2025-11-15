@@ -685,7 +685,7 @@ AppManager.install({
                         ["SET_VAR", "files", ["FS_LIST_DIR", ["ID_GET_VALUE", "pathInput"]]],
                         ["ID_CLEAR_CHILDS", "fileList"],
                         ["FOR_EACH", ["GET_VAR", "files"], "file",
-                            ["ID_APPEND_CHILD", "fileList", 
+                            ["ID_APPEND_CHILD", "fileList",
                                 {type: "text", text: "📁 ${file}", class: ["code"]}
                             ]
                         ]

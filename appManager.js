@@ -12,11 +12,6 @@ const AppManager = {
             appObj.entry
             ); // Recorre cada clave obligatoria para una app
     },
-    _save(){
-        if (SystemConfig.getConfigValue("useLocalStorage")){
-            localStorage.setItem(SystemConfig.getConfigValue("appManagerLocalStorage"), JSON.stringify(this.apps));
-        }
-    },
     getAppObj(appPackage){
         return this.apps.find(app => app.package === appPackage);
     },
@@ -35,6 +30,7 @@ const AppManager = {
             }
             return false;
         }
+        FileSystem.installApp(appObj);
         this.apps.push(appObj);
         this.refresh();
         return true;
@@ -82,6 +78,5 @@ const AppManager = {
                 this.launch(app.package);
             };
         }
-        this._save();
     }
 }

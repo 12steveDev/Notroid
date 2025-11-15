@@ -9,6 +9,22 @@ const isBoolean = (value) => typeof value === "boolean";
 const isCalvikArray = (value) => value instanceof CalvikArray;
 const isObject = (value) => Object.prototype.toString.call(value) === "[object Object]";
 const isAndroidEntorn = () => typeof AndroidBridge !== "undefined";
+const randomString = (len=5,lower=true,upper=true,number=false,extras="")=>{
+    let charset = "";
+    if (lower) charset += "abcdefghijklmnopqrstuvwxyz";
+    if (upper) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    if (number) charset += "0123456789";
+    charset += extras;
+
+    // Si no hay ni un solo caracter, pues... ¿qué generas? 💀
+    if (!charset.length) return "";
+
+    let result = "";
+    for (let i = 0; i < len; i++){
+        result += charset[Math.floor(Math.random()*charset.length)];
+    }
+    return result;
+}
 
 const randint = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const verifyAppActivity = (appPackage="null", activityName="null") => {
@@ -50,34 +66,27 @@ class CalvikArray extends Array {
     constructor(...items) {
         super(...items);
     }
-    
     // Override de métodos que devuelven nuevos arrays
     map(callback) {
         return new CalvikArray(...super.map(callback));
     }
-    
     filter(callback) {
         return new CalvikArray(...super.filter(callback));
     }
-    
     slice(start, end) {
         return new CalvikArray(...super.slice(start, end));
     }
-    
     concat(...arrays) {
         return new CalvikArray(...super.concat(...arrays));
     }
-    
     toString(){
         return `[CalvikArray: ${this.join(", ")}]`;
     }
-    
     // Método útil para Calvik
     static fromArray(array) {
         return new CalvikArray(...array);
     }
 }
-
 const RickRoll = {
     launch(){
         if (SystemConfig.getConfigValue("rickRollBlocker")) alert("¿Creistes que iba a ser tan fácil? 🗣🔥");
