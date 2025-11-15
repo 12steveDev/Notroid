@@ -88,6 +88,10 @@ body {
 }
 #navigationBar #backBtn i {
     font-size: 33px;
+    transition: transform 0.2s;
+}
+#navigationBar #backBtn.keyboardMode i {
+    transform: rotate(-90deg);
 }
 #navigationBar button:active {
     background: #ffffff33;

@@ -62,11 +62,9 @@ const StatusBarManager = {
     },
     _statusBarActionTouchStart(e){
         this.startY = e.touches[0].clientY;
-        console.log(this.startY);
     },
     _statusBarActionTouchEnd(e){
         const endY = e.changedTouches[0].clientY;
-        console.log(endY);
         if (endY > this.startY + SystemConfig.getConfigValue("statusBarMinSwipe")){
             this.toggleNotificationsPanel();
         }

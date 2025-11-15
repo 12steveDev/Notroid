@@ -1,7 +1,7 @@
 // calvik.js
 const Calvik = {
     execute(appPackage, activityName, instructions){
-        console.log(`[EXEC][${appPackage}][${activityName}] ${instructions}`);
+        console.log(`[Calvik][EXEC][${appPackage}][${activityName}] ${instructions}`);
 
         // GoogleMode: Verificar que el "contexto" sea válido jeje
         if (!verifyAppActivity(appPackage, activityName)) return false;
@@ -9,7 +9,7 @@ const Calvik = {
         if (!instructions) return instructions;
         // ¿LA INSTRUCCIÓN ES UNA CADENA, OBJETO LITERAL O NUMERO? => DEVUELVE VALOR DIRECTO (seguramente fue llamado de otra instrucción)
         if (isString(instructions) || isObject(instructions) || isNumber(instructions) || isBoolean(instructions) || isCalvikArray()){
-            console.log(`[DIRECT_VALUE]`)
+            console.log(`[DIRECT_VALUE]`);
             return isString(instructions) ? Variables.resolveString(instructions, appPackage, activityName) : instructions;
         }
         // Para instrucciones vacias []
@@ -52,7 +52,7 @@ const Calvik = {
                 const r = JSON.parse(ex(args[0]));
                 return Array.isArray(r) ? CalvikArray.fromArray(r) : r;
             case "JSON_STRINGIFY":
-                return JSON.stringify(ex(args[0]));
+                return JSON.stringify(ex(args[0]), null, ex(args[1]) || 0);
             case "OBJECT_KEYS":
                 return Object.keys(ex(args[0]));
             case "OBJECT_VALUES":
@@ -74,6 +74,10 @@ const Calvik = {
                 return ex(args[0])[ex(args[1])] = ex(args[2]);
             case "GET_AT":
                 return ex(args[0])[ex(args[1])];
+            case "STARTS_WITH":
+                return ex(args[0]).startsWith(ex(args[1]));
+            case "ENDS_WITH":
+                return ex(args[0]).endsWith(ex(args[1]));
             
             case "EQ":
                 return ex(args[0]) === ex(args[1]);
@@ -221,13 +225,27 @@ const Calvik = {
                 return AppManager.uninstall(ex(args[0]));
             case "LAUNCH_APP":
                 return AppManager.launch(ex(args[0]));
-            // FileSystem
-            case "FS_LIST_DIR":
-                return FileSystem.listDir(appPackage, ex(args[0]));
+            // FileSystem:
             case "FS_IS_FILE":
                 return FileSystem.isFile(appPackage, ex(args[0]));
             case "FS_IS_DIR":
                 return FileSystem.isDir(appPackage, ex(args[0]));
+            case "FS_LIST_DIR":
+                return FileSystem.listDir(appPackage, ex(args[0]));
+            case "FS_CREATE_DIR":
+                return FileSystem.createDir(appPackage, ex(args[0]));
+            case "FS_CREATE_DIRS":
+                return FileSystem.createDirs(appPackage, ex(args[0]));
+            case "FS_CREATE_FILE":
+                return FileSystem.createFile(appPackage, ex(args[0]));
+            case "FS_READ_FILE":
+                return FileSystem.readFile(appPackage, ex(args[0]));
+            case "FS_WRITE_FILE":
+                return FileSystem.writeFile(appPackage, ex(args[0]), ex(args[1]));
+            case "FS_APPEND_FILE":
+                return FileSystem.appendFile(appPackage, ex(args[0]), ex(args[1]));
+            case "FS_REMOVE":
+                return FileSystem.remove(appPackage, ex(args[0]));
             // LocalStorage:
             case "SET_LOCAL":
                 return LocalStorage.set(appPackage, activityName, args[0], ex(args[1]));
@@ -325,7 +343,16 @@ const Calvik = {
         "UNINSTALL_APP": ["PERMISSION_MANAGE_EXTERNAL_APPS", "PERMISSION_DELETE_APPS"],
         "LAUNCH_APP": ["PERMISSION_MANAGE_EXTERNAL_APPS"],
         // FileSystem
+        "FS_IS_FILE": ["PERMISSION_READ_EXTERNAL_STORAGE"],
+        "FS_IS_DIR": ["PERMISSION_READ_EXTERNAL_STORAGE"],
         "FS_LIST_DIR": ["PERMISSION_READ_EXTERNAL_STORAGE"],
+        "FS_CREATE_DIR": ["PERMISSION_READ_EXTERNAL_STORAGE", "PERMISSION_WRITE_EXTERNAL_STORAGE"],
+        "FS_CREATE_DIRS": ["PERMISSION_READ_EXTERNAL_STORAGE", "PERMISSION_WRITE_EXTERNAL_STORAGE"],
+        "FS_CREATE_FILE": ["PERMISSION_READ_EXTERNAL_STORAGE", "PERMISSION_WRITE_EXTERNAL_STORAGE"],
+        "FS_READ_FILE": ["PERMISSION_READ_EXTERNAL_STORAGE"],
+        "FS_WRITE_FILE": ["PERMISSION_READ_EXTERNAL_STORAGE", "PERMISSION_WRITE_EXTERNAL_STORAGE"],
+        "FS_APPEND_FILE": ["PERMISSION_READ_EXTERNAL_STORAGE", "PERMISSION_WRITE_EXTERNAL_STORAGE"],
+        "FS_REMOVE": ["PERMISSION_READ_EXTERNAL_STORAGE", "PERMISSION_WRITE_EXTERNAL_STORAGE"],
         // LocalStorage
         "SET_LOCAL": ["PERMISSION_LOCAL_STORAGE"],
         "GET_LOCAL": ["PERMISSION_LOCAL_STORAGE"],

@@ -23,6 +23,10 @@ const NavigationBarManager = {
         return true;
     },
     goBack(){
+        if (currentFocusedInput){
+            currentFocusedInput.blur();
+            return true;
+        }
         const currAct = ActivityManager.activityStack.at(-1); // obtiene el último elemento sin modificar el array original
         if (currAct){
             ActivityManager.finishActivity(currAct.appPackage, currAct.activityName);

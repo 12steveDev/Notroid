@@ -25,6 +25,7 @@
 - **Buscando ideas:**
 - - Un directorio en el que haya un .clvk (Calvik) para que se ejecute al inicio de todo.
 - - (MUY_IMPORTANTE) Añadir más directorios así "criticos" para que pegue más duro lo "Android-like"
+- Añadir ".validName()" al `FileSystem` para verificar nombres.
 
 ## TO-DO MUY LEJANO
 - Utilizar Google Sheets (pobre pero útil) o vender caramelos para tener una base de datos estable y hacer un `AppStore`

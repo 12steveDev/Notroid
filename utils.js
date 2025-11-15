@@ -25,7 +25,6 @@ const randomString = (len=5,lower=true,upper=true,number=false,extras="")=>{
     }
     return result;
 }
-
 const randint = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const verifyAppActivity = (appPackage="null", activityName="null") => {
     if (appPackage){
@@ -44,7 +43,6 @@ const verifyAppActivity = (appPackage="null", activityName="null") => {
     }
     return true;
 }
-
 const popAt = (arr, index) => arr.splice(index, 1)[0];
 const popWhere = (arr, cond) =>{
     const index = arr.findIndex(cond);
@@ -61,7 +59,7 @@ const getWhere = (arr, cond) =>{
     }
     return undefined;
 }
-
+let currentFocusedInput;
 class CalvikArray extends Array {
     constructor(...items) {
         super(...items);
@@ -129,6 +127,21 @@ function initializeListeners(){
     statusBar.addEventListener("touchend", (e)=>StatusBarManager._statusBarActionTouchEnd(e));
     statusBar.addEventListener("mouseup", (e)=>StatusBarManager._statusBarActionTouchEnd(e));
 
+    document.addEventListener("focusin", (e)=>{
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"){
+            $("#backBtn", navigationBar).classList.add("keyboardMode");
+            currentFocusedInput = e.target;
+        }
+    })
+    document.addEventListener("focusout", (e)=>{
+        setTimeout(()=>{
+            if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"){
+                $("#backBtn", navigationBar).classList.remove("keyboardMode");
+                currentFocusedInput = null;
+            }
+        }, 50);
+    })
+
     setInterval(()=>{
         const showSec = SystemConfig.getConfigValue("timeShowSeconds");
         const hour12mode = SystemConfig.getConfigValue("time12hourMode");
@@ -145,22 +158,3 @@ function initializeListeners(){
         statTime.textContent = text;
     }, SystemConfig.getConfigValue("timeReloadIntervalMS"));
 }
-
-/* idea (IA)
-function bootNotroid() {
-    // 1. Cargar frameworks base
-    loadFramework("/system/framework/calvik.js");
-    loadFramework("/system/framework/activity-manager.js");
-    
-    // 2. Ejecutar init scripts
-    executeIfExists("/system/etc/init.notroid.js");
-    executeIfExists("/data/system/startup/user.init.js");
-    
-    // 3. Cargar SystemUI y Launcher por defecto
-    const defaultLauncher = SystemConfig.getConfigValue("defaultLauncher");
-    ActivityManager.startActivity(defaultLauncher, "Home");
-    
-    // 4. Cargar apps de sistema
-    loadSystemApps();
-}
-*/

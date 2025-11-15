@@ -1,6 +1,6 @@
 // appManager.js
 const AppManager = {
-    apps: JSON.parse(localStorage.getItem(SystemConfig.getConfigValue("appManagerLocalStorage"))) || [],
+    apps: [], // caché de las apps
     _verify(appObj){
         // Verificar una app
         return (
@@ -10,7 +10,28 @@ const AppManager = {
             appObj.activities &&
             Object.keys(appObj.activities).length >= 1,
             appObj.entry
-            ); // Recorre cada clave obligatoria para una app
+        ); // Recorre cada clave obligatoria para una app
+    },
+    _refreshFromFS(){
+        this.apps = [];
+        const data = FileSystem.readFile("", "/data/system/packages.xml");
+        let json;
+        try {
+            json = JSON.parse(data);
+        } catch {
+            json = { packages: {} };
+        }
+        for (const appInfo of Object.values(json.packages)){
+            const appF = FileSystem.readFile("", appInfo.apkPath);
+            let appObj;
+            try {
+                appObj = JSON.parse(appF);
+            } catch {
+                console.error(`La app '${appInfo.name}' corrupta o no existe`);
+                continue;
+            }
+            this.apps.push(appObj);
+        }
     },
     getAppObj(appPackage){
         return this.apps.find(app => app.package === appPackage);
@@ -23,15 +44,13 @@ const AppManager = {
             return false;
         }
         if (this.apps.find(app => app.package === appObj.package)){
-            if (confirm(`La aplicación '${appObj.name}' ya está instalada. ¿Deseas actualizarla?`)){
-                const index = this.apps.findIndex(app => app.package === appObj.package);
-                this.apps[index] = appObj;
-                this.refresh();
+            if (!confirm(`La aplicación '${appObj.name}' ya está instalada. ¿Deseas actualizarla?`)){
+                return false;
             }
-            return false;
+            FileSystem.uninstallApp(appObj.package);
+            this.apps = this.apps.filter(app => app.package !== appObj.package);
         }
         FileSystem.installApp(appObj);
-        this.apps.push(appObj);
         this.refresh();
         return true;
     },
@@ -39,12 +58,13 @@ const AppManager = {
     uninstall(appPackage){
         if (!verifyAppActivity(appPackage, null)) return false;
         const appName = this.getAppObj(appPackage).name;
-        if (confirm(`¿Deseas eliminar '${appName}'?`)){
-            this.apps = this.apps.filter(app => app.package !== appPackage);
-            this.refresh();
-            return true;
+        if (!confirm(`¿Deseas eliminar '${appName}'?`)){
+            return false;
         }
-        return false;
+        const keep = confirm("¿Deseas retener los datos?"); // (aka no borrar su baby "/data/data/")
+        FileSystem.uninstallApp(appPackage, keep);
+        this.refresh();
+        return true;
     },
     // ["LAUNCH_APP"] (P_MANAGE_EXTERNAL_APPS)
     launch(appPackage){
@@ -55,6 +75,7 @@ const AppManager = {
         return ActivityManager.getActivityObj(appPackage, entry) ? ActivityManager.startActivity(appPackage, entry) : ToastManager.show("No se puede iniciar esta app");
     },
     refresh(){
+        this._refreshFromFS();
         $$(".app", desktop).forEach(appIcon => appIcon.remove());
         for (const app of this.apps){
             // Apps ocultas? El inicio de los viruses 👀👀🥀🥀

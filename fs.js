@@ -145,7 +145,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         storage.addItem(emulated);
         root.addItem(storage);
 
-        root.addItem(new FILE("README.txt", "deje la sapada bro, aquí no es su workspace - att: 12steve"));
+        root.addItem(new FILE("README.txt", "deje la sapada bro, aquí no es su workspace\n - att: 12steve"));
 
         return root;
     },
@@ -189,7 +189,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         // Solamente se encarga de devolver lo que haya
         // Si no existe un elemento da error
         // Si intenta navegar dentro de un archivo da error
-        console.log(`[goto] ${appPackage} | ${path}`)
+        console.log(`[FS][goTo] ${appPackage} | ${path}`);
         path = this._resolvePath(appPackage, path);
         const parts = path.split("/").filter(p=>p);
         let curr = this.fs;
@@ -213,14 +213,10 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         // Leer packages.xml existente (si existe)
         let data = this.readFile("", pkgF);
         let json;
-        if (!data){
+        try {
+            json = JSON.parse(data);
+        } catch {
             json = { packages: {} };
-        } else {
-            try {
-                json = JSON.parse(data);
-            } catch {
-                json = { packages: {} };
-            }
         }
         // Actualizar info de la app
         json.packages[appObj.package] = {
@@ -254,6 +250,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         return f.type === "folder";
     },
     listDir(appPackage, path){
+        console.log(`[FS][listDir] ${appPackage} | ${path}`);
         const f = this._goTo(appPackage, path);
         if (!f) return false; // Ya _goTo() imprime el warning
         if (f.type !== "folder"){
@@ -263,6 +260,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         return CalvikArray.fromArray(f.listItems());
     },
     createDir(appPackage, path){
+        console.log(`[FS][createDir] ${appPackage} | ${path}`);
         const [p, f] = this._getParentAndName(appPackage, path);
         if (!p) return false;
         if (p.type !== "folder"){
@@ -279,6 +277,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         return true;
     },
     createDirs(appPackage, path){
+        console.log(`[FS][createDirs] ${appPackage} | ${path}`);
         path = this._resolvePath(appPackage, path);
         const parts = path.split("/").filter(p=>p);
         let curr = this.fs;
@@ -296,6 +295,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         return true;
     },
     createFile(appPackage, path){
+        console.log(`[FS][createFile] ${appPackage} | ${path}`);
         const [p, f] = this._getParentAndName(appPackage, path);
         if (!p) return false;
         if (p.type !== "folder"){
@@ -312,6 +312,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         return true;
     },
     readFile(appPackage, path){
+        console.log(`[FS][readFile] ${appPackage} | ${path}`);
         const f = this._goTo(appPackage, path);
         if (!f) return false;
         if (f.type !== "file"){
@@ -321,6 +322,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         return f.readFile();
     },
     writeFile(appPackage, path, content){
+        console.log(`[FS][writeFile] ${appPackage} | ${path} | ${content.slice(0, 50)}${content.length > 50 ? "..." : ""}`);
         const f = this._goTo(appPackage, path);
         if (!f) return false;
         if (f.type !== "file"){
@@ -332,6 +334,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         return true;
     },
     appendFile(appPackage, path, content){
+        console.log(`[FS][appendFile] ${appPackage} | ${path} | ${content.slice(0, 50)}${content.length > 50 ? "..." : ""}`);
         const f = this._goTo(appPackage, path);
         if (!f) return false;
         if (f.type !== "file"){
@@ -343,6 +346,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         return true;
     },
     remove(appPackage, path){
+        console.log(`[FS][remove] ${appPackage} | ${path}`);
         const [p, f] = this._getParentAndName(appPackage, path);
         if (!p) return false;
         if (p.type !== "folder"){
@@ -370,6 +374,29 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
 
         // /data/data/*...
         ["files","databases","shared_prefs","cache"].forEach(f => this.createDirs(appObj.package, `/data/data/${appObj.package}/${f}`));
+        return true;
+    },
+    uninstallApp(appPackage, keep=false){
+        const pkgF = "/data/system/packages.xml";
+        let data = this.readFile("", pkgF);
+        let json;
+        try {
+            json = JSON.parse(data);
+        } catch {
+            json = { packages: {} };
+        }
+        // Ya está borrada?
+        if (!json.packages[appPackage]) return true; // ya está desinstalada we
+        // Borrar apk
+        FileSystem.remove("", `/data/app/~~${json.packages[appPackage].uid1}==/`);
+        // Borrar/retener datos
+        if (!keep){
+            FileSystem.remove("", `/data/data/${appPackage}/`);
+        }
+        // Actualizar packages.xml
+        delete json.packages[appPackage];
+        this.writeFile("", pkgF, JSON.stringify(json));
+        return true;
     }
 }
 // tests

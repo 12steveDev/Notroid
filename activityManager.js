@@ -97,22 +97,41 @@ const ActivityManager = {
 
         const pid = PID.next();
 
+        // Contenedor de la actividad
         const actDiv = E("div");
         actDiv.id = this._resolvePid(pid);
         actDiv.classList.add("activity", "hide");
-        Variables.set(appPackage, activityName, "__intent_data__", intentData);
         if (activityObj.background) actDiv.style.background = activityObj.background;
         if (activityObj.foreground) actDiv.style.color = activityObj.foreground;
+
+        // Pasar datos entre actividades
+        Variables.set(appPackage, activityName, "__intent_data__", intentData);
+
+        // Ejecutar onCreate (antes del renderizado)
+        try {
+            if (activityObj.onCreate) Calvik.execute(appPackage, activityName, activityObj.onCreate);
+        } catch (e){
+            if (e instanceof CalvikAbort){ // Si la app "abortó" (ej: no se otorgaron permisos necesarios)
+                this.finishActivity(appPackage, activityName);
+                return false;
+            }
+            throw e;
+        }
+
+        // Renderizar y añadir elementos
         actDiv.appendChild(this._render(appPackage, activityName, activityObj.view));
         desktop.appendChild(actDiv);
+        // Recargar elemento para que se muestre la transición (trucazo🔥🔥✅✅)
         void actDiv.offsetWidth;
         actDiv.classList.remove("hide");
 
+        // Matar la última actividad de la pila si excede el límite
         if (this.activityStack.length >= SystemConfig.getConfigValue("maxActivitiesInStack")){
             const firstActPCB = getAt(this.activityStack, 0);
             this.finishActivity(firstActPCB.appPackage, firstActPCB.activityName);
         }
 
+        // Añadir la actividad al stack
         this.activityStack.push({
             appPackage: appPackage,
             activityName: activityName,
@@ -120,8 +139,9 @@ const ActivityManager = {
             pid: pid
         });
 
+        // Ejecutar onStart (después del renderizado)
         try {
-            if (activityObj.onCreate) Calvik.execute(appPackage, activityName, activityObj.onCreate);
+            if (activityObj.onStart) Calvik.execute(appPackage, activityName, activityObj.onStart);
         } catch (e){
             if (e instanceof CalvikAbort){
                 this.finishActivity(appPackage, activityName);
