@@ -72,6 +72,7 @@ body {
 #navigationBar {
     bottom: 0;
     padding: 0 25px;
+    overflow: hidden;
 }
 #navigationBar button {
     display: flex;

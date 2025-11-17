@@ -1,8 +1,10 @@
 # === NOTES.md === #
 
 ## Notroid:
-**¿Qué podría salir mal?** Todo. **¿Vale la pena?** ABSOLUTAMENTE.
+> **¿Qué podría salir mal?** Todo. **¿Vale la pena?** ABSOLUTAMENTE.
 > *`JSON` es amor... `JSON` es vida...*
+> "Notroid: Donde tus sueños de explorar /data/data/ se hacen realidad" 🥀🔥
+> No es un simulador, no es un emulador... ¡ES UNA TERAPIA PARA DEVELOPERS CURIOSOS! 😭✅
 
 ## TO-DO:
 - Añadir actividades a los paquetes de las aps (`ActivityManager`, `["START_ACTIVITY"]`) (Nota: **YA IMPLEMENTADO KBRONES!!!!**)
@@ -17,11 +19,12 @@
 - ! Por favor, **encontrar solución al problema de que no podemos diferenciar entre instrucciones Calvik y un Array**, por lo tanto, no podemos usar Arrays
 - Después de solucionar el problema con Arrays, añadir opcodes para listar paquetes (y devolver array con objetos de cada app ()).
 - Pensar 2 veces si mantener localStorage o mejor añadir un `FileSystem` (con `["CREATE_FILE"]`, `["READ_FILE"]`, `["WRITE_FILE"]`, `["APPEND_FILE"]` y `["DELETE_FILE"]`) y localStorage solo serviría para guardar el estado de FileSystem (por lo que, la data de todas las apps, del sistema, todo, estaría en FileSystem, localstorage solamente guarda el fs).
+- Migrar `LocalStorage` a `SharedPreferences`.
 
 ### Ideas para el FileSystem
-- `/data/apps/*.npk`: Ahí estarán todas las apps (.npk es una escusa, en simplemente un JSON JAJAJAJ) (**`root` para manejo manual**).
+- `/data/apps/*.npk`: Ahí estarán todas las apps (.npk es una escusa, en simplemente un JSON JAJAJAJ).
 - `/storage/emulated/0/`: Espacio de trabajo del usuario.
-- `/storage/emulated/0/Notroid/data/com.example.package/files/`: Archivos de las apps.
+- `/data/data/com.example.package/files/`: Archivos de las apps.
 - **Buscando ideas:**
 - - Un directorio en el que haya un .clvk (Calvik) para que se ejecute al inicio de todo.
 - - (MUY_IMPORTANTE) Añadir más directorios así "criticos" para que pegue más duro lo "Android-like"

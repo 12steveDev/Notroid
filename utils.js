@@ -128,10 +128,12 @@ function initializeListeners(){
     statusBar.addEventListener("mouseup", (e)=>StatusBarManager._statusBarActionTouchEnd(e));
 
     document.addEventListener("focusin", (e)=>{
-        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"){
-            $("#backBtn", navigationBar).classList.add("keyboardMode");
-            currentFocusedInput = e.target;
-        }
+        setTimeout(()=>{
+            if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"){
+                $("#backBtn", navigationBar).classList.add("keyboardMode");
+                currentFocusedInput = e.target;
+            }
+        }, 2);
     })
     document.addEventListener("focusout", (e)=>{
         setTimeout(()=>{
@@ -139,7 +141,7 @@ function initializeListeners(){
                 $("#backBtn", navigationBar).classList.remove("keyboardMode");
                 currentFocusedInput = null;
             }
-        }, 50);
+        }, 1);
     })
 
     setInterval(()=>{

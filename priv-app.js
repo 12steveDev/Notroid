@@ -3,6 +3,7 @@ if (!AppManager.getAppObj("com.notroid.settings")){
     AppManager.install({
         package: "com.notroid.settings",
         name: "Ajustes",
+        permissions:["PERMISSION_READ_CONFIGURATIONS", "PERMISSION_WRITE_CONFIGURATIONS"],
         icon: "https://placehold.co/150x150/666666/FFFFFF?text=Config",
         entry: "Main",
         activities: {
@@ -192,8 +193,9 @@ if (!AppManager.getAppObj("com.notroid.settings")){
                     ]},
                 ]}
             },
-        }
-    })
+        },
+        flags:["PRIV_APP"]
+    });
 }
 if (!AppManager.getAppObj("com.notroid.gogle")){
     AppManager.install({
@@ -249,6 +251,7 @@ if (!AppManager.getAppObj("com.notroid.gogle")){
                     {type:"webview",class:["all-width"],height:"90%",id:"wv"}
                 ]}
             }
-        }
-    })
+        },
+        flags:["SYSTEM_APP"]
+    });
 }

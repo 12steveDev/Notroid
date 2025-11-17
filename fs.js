@@ -189,7 +189,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         // Solamente se encarga de devolver lo que haya
         // Si no existe un elemento da error
         // Si intenta navegar dentro de un archivo da error
-        console.log(`[FS][goTo] ${appPackage} | ${path}`);
+        // console.log(`[FS][goTo] ${appPackage} | ${path}`);
         path = this._resolvePath(appPackage, path);
         const parts = path.split("/").filter(p=>p);
         let curr = this.fs;
@@ -219,13 +219,25 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
             json = { packages: {} };
         }
         // Actualizar info de la app
-        json.packages[appObj.package] = {
+        const permissions = [];
+        if (appObj.permissions){
+            for (const perm of appObj.permissions){
+                permissions.push({name: perm, granted: PermissionManager.isNormalPermission(perm)});
+            }
+        }
+        const flags = [];
+        if (appObj.flags){
+            if (AppManager.isSystemApp(appObj)) flags.push("system-app");
+            if (AppManager.isPrivApp(appObj)) flags.push("priv-app");
+        }
+        json.packages[appObj.package] = { // Hermano, ¿Google no quiere que veamos esto?
             name: appObj.name,
             package: appObj.package,
-            apkPath: apkPath + "base.npk",
+            apkPath: apkPath, // ya debería venir con el nombre del archivo .npk
             uid1: uid1,
             uid2: uid2,
-            grantedPermissions: []
+            permissions: permissions,
+            flags: flags,
         };
         this.writeFile("", pkgF, JSON.stringify(json));
     },
@@ -362,21 +374,36 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         this._save();
         return true;
     },
-    installApp(appObj){
+    _installApp(appObj){
         // /data/app/*...
-        const uid1 = randomString(22, true, true, true, "_-");
-        const uid2 = randomString(22, true, true, true, "_-");
-        const apkPath = `/data/app/~~${uid1}==/${appObj.package}-${uid2}==/`;
+        let apkPath, apkName, uid1, uid2;
+        if (appObj.flags){
+            if (AppManager.isSystemApp(appObj)){
+                apkPath = `/system/app/${appObj.name}`;
+                apkName = `/${appObj.name}.npk`;
+            }
+            if (AppManager.isPrivApp(appObj)){
+                apkPath = `/system/priv-app/${appObj.name}`;
+                apkName = `/${appObj.name}.npk`;
+            }
+        } else {
+            uid1 = randomString(22, true, true, true, "_-");
+            uid2 = randomString(22, true, true, true, "_-");
+            apkPath = `/data/app/~~${uid1}==/${appObj.package}-${uid2}==`;
+            apkName = `/base.apk`;
+        }
         this.createDirs("", apkPath);
-        this.createFile("", `${apkPath}/base.npk`);
-        this.writeFile("", `${apkPath}/base.npk`, JSON.stringify(appObj));
-        this._updatePackagesXML(appObj, apkPath, uid1, uid2);
+        this.createFile("", `${apkPath}/${apkName}`);
+        this.writeFile("", `${apkPath}/${apkName}`, JSON.stringify(appObj));
+
+        // /data/system/packages.xml
+        this._updatePackagesXML(appObj, `${apkPath}${apkName}`, uid1, uid2);
 
         // /data/data/*...
         ["files","databases","shared_prefs","cache"].forEach(f => this.createDirs(appObj.package, `/data/data/${appObj.package}/${f}`));
         return true;
     },
-    uninstallApp(appPackage, keep=false){
+    _uninstallApp(appPackage, keep=false){
         const pkgF = "/data/system/packages.xml";
         let data = this.readFile("", pkgF);
         let json;
@@ -384,6 +411,14 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
             json = JSON.parse(data);
         } catch {
             json = { packages: {} };
+        }
+        if (json.packages[appPackage].flags?.includes("system-app")){
+            console.error(`Las apps del sistema no se pueden borrar`);
+            return false;
+        }
+        if (json.packages[appPackage].flags?.includes("priv-app")){
+            console.error(`Las apps privilegiadas del sistema no se pueden borrar`); // con mucha mas razón w
+            return false;
         }
         // Ya está borrada?
         if (!json.packages[appPackage]) return true; // ya está desinstalada we
@@ -400,7 +435,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
     }
 }
 // tests
-localStorage.clear();
+// localStorage.clear();
 FileSystem.init();
 /* (No tiene que funcionar, solo existir para verse técnico XDDD)
 N:

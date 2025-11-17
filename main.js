@@ -416,6 +416,7 @@ AppManager.install({
     package: "com.test.androidbridge",
     name: "Android Bridge Test",
     icon: "https://placehold.co/150x150/66FF66/000000?text=Andr",
+    permissions: ["PERMISSION_GOOGLE_APROVEMENT"],
     entry: "MainActivity", 
     activities: {
         "MainActivity": {
@@ -671,6 +672,7 @@ AppManager.install({
     package: "com.notroid.fileexplorer",
     name: "File Explorer",
     icon: "https://placehold.co/150x150/6666FF/FFFFFF?text=Files",
+    permissions: ["PERMISSION_READ_EXTERNAL_STORAGE"],
     entry: "Main",
     activities: {
         "Main": {
@@ -687,8 +689,9 @@ AppManager.install({
                     {type: "input", width:"100%", id: "pathInp", value: "/storage/emulated/12/", placeholder: "Ruta..."},{type:"br"},
                     {type: "textarea", width:"100%", height:"100px", id: "contentInp", placeholder: "Contenido... (opcional)"},{type:"br"},
                     {type: "button", id:"listBtn", text: "Listar", bg:"#ccc", onclick: [
+                        ["SET_VAR", "files", ["FS_LIST_DIR", ["ID_GET_VALUE", "pathInp"]]],
+                        ["IF", ["EQ", ["GET_VAR", "files"], false], [["ID_SET_VALUE", "pathInp", "${lastPath}"], ["ID_CLEAR_CHILDS", "fileList"], ["ID_SET_TEXT", "fileList", "La ruta no existe"], ["ABORT"]]],
                         ["SET_VAR", "lastPath", ["ID_GET_VALUE", "pathInp"]],
-                        ["SET_VAR", "files", ["FS_LIST_DIR", ["GET_VAR", "lastPath"]]],
                         ["ID_CLEAR_CHILDS", "fileList"],
                         ["FOR_EACH", ["GET_VAR", "files"], "file",[
                             ["IF", ["FS_IS_DIR", '${["ID_GET_VALUE", "pathInp"]}/${file}'],
@@ -723,7 +726,7 @@ AppManager.install({
                         ["ID_SET_TEXT", "statusTxt", ["IF", ["FS_APPEND_FILE", ["ID_GET_VALUE", "pathInp"], ["ID_GET_VALUE", "contentInp"]], 'Archivo "${["ID_GET_VALUE", "pathInp"]}" expandido', "Error al expandir el archivo"]],
                     ]},
                     {type: "button", text: "Eliminar elemento", bg:"#a00", fg:"#fff", onclick: [
-                        ["ID_SET_TEXT", "statusTxt", ["IF", ["FS_REMOVE", ["ID_GET_VALUE", "pathInp"]], 'Archivo "${["ID_GET_VALUE", "pathInp"]}" eliminado', "Error al eliminar archivo"]],
+                        ["ID_SET_TEXT", "statusTxt", ["IF", ["FS_REMOVE", ["ID_GET_VALUE", "pathInp"]], 'Archivo o carpeta "${["ID_GET_VALUE", "pathInp"]}" eliminado', "Error al eliminar el elemento"]],
                         ["ID_SET_VALUE", "pathInp", "${lastPath}"],
                         ["ID_CLICK", "listBtn"],
                     ]},

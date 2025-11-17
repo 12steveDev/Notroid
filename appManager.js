@@ -13,6 +13,7 @@ const AppManager = {
         ); // Recorre cada clave obligatoria para una app
     },
     _refreshFromFS(){
+        console.groupCollapsed("[AppManager][refresh]");
         this.apps = [];
         const data = FileSystem.readFile("", "/data/system/packages.xml");
         let json;
@@ -23,18 +24,30 @@ const AppManager = {
         }
         for (const appInfo of Object.values(json.packages)){
             const appF = FileSystem.readFile("", appInfo.apkPath);
+            if (!appF){
+                console.error(`La app '${appInfo.name}' no existe`);
+                continue;
+            }
             let appObj;
             try {
                 appObj = JSON.parse(appF);
             } catch {
-                console.error(`La app '${appInfo.name}' corrupta o no existe`);
+                console.error(`La app '${appInfo.name}' está corrupta`);
                 continue;
             }
             this.apps.push(appObj);
         }
+        console.groupEnd();
+        PermissionManager._refreshFromFS();
     },
     getAppObj(appPackage){
         return this.apps.find(app => app.package === appPackage);
+    },
+    isSystemApp(appObj){
+        return Boolean(appObj.flags?.includes("SYSTEM_APP"));
+    },
+    isPrivApp(appObj){
+        return Boolean(appObj.flags?.includes("PRIV_APP"));
     },
     // ["INSTALL_APP"] (P_MANAGE_EXTERNAL_APPS)(P_INSTALL_APPS)
     install(appObj){
@@ -47,12 +60,12 @@ const AppManager = {
             if (!confirm(`La aplicación '${appObj.name}' ya está instalada. ¿Deseas actualizarla?`)){
                 return false;
             }
-            FileSystem.uninstallApp(appObj.package);
+            FileSystem._uninstallApp(appObj.package);
             this.apps = this.apps.filter(app => app.package !== appObj.package);
         }
-        FileSystem.installApp(appObj);
+        const r = FileSystem._installApp(appObj);
         this.refresh();
-        return true;
+        return r;
     },
     // ["UNINSTALL_APP"] (P_MANAGE_EXTERNAL_APPS)(P_DELETE_APPS)
     uninstall(appPackage){
@@ -62,9 +75,9 @@ const AppManager = {
             return false;
         }
         const keep = confirm("¿Deseas retener los datos?"); // (aka no borrar su baby "/data/data/")
-        FileSystem.uninstallApp(appPackage, keep);
+        const r = FileSystem._uninstallApp(appPackage, keep);
         this.refresh();
-        return true;
+        return r;
     },
     // ["LAUNCH_APP"] (P_MANAGE_EXTERNAL_APPS)
     launch(appPackage){

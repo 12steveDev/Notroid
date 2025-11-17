@@ -71,10 +71,46 @@ const ActivityManager = {
         if (elemObj.height)      elem.style.height     = elemObj.height;
         if (elemObj.id)          elem.id               = this._resolveId(appPackage, activityName, elemObj.id);
         if (elemObj.placeholder) elem.placeholder      = Variables.resolveString(elemObj.placeholder, appPackage, activityName);
-        if (elemObj.onclick)     elem.onclick          = ()=> Calvik.execute(appPackage, activityName, elemObj.onclick);
-        if (elemObj.ondblclick)  elem.ondblclick       = ()=> Calvik.execute(appPackage, activityName, elemObj.ondblclick);
-        if (elemObj.oninput)     elem.oninput          = ()=> Calvik.execute(appPackage, activityName, elemObj.oninput);
-        if (elemObj.onchange)    elem.onchange         = ()=> Calvik.execute(appPackage, activityName, elemObj.onchange);
+        if (elemObj.onclick)     elem.onclick          = ()=>{
+            try {
+                Calvik.execute(appPackage, activityName, elemObj.onclick);
+            } catch(e){
+                if (e instanceof CalvikAbort){
+                    return false;
+                }
+                throw e;
+            }
+        }
+        if (elemObj.ondblclick)  elem.ondblclick       = ()=>{
+            try {
+                Calvik.execute(appPackage, activityName, elemObj.ondblclick);
+            } catch(e){
+                if (e instanceof CalvikAbort){
+                    return false;
+                }
+                throw e;
+            }
+        }
+        if (elemObj.oninput)     elem.oninput          = ()=>{
+            try {
+                Calvik.execute(appPackage, activityName, elemObj.oninput);
+            } catch(e){
+                if (e instanceof CalvikAbort){
+                    return false;
+                }
+                throw e;
+            }
+        }
+        if (elemObj.onchange)    elem.onchange         = ()=>{
+            try {
+                Calvik.execute(appPackage, activityName, elemObj.onchange);
+            } catch(e){
+                if (e instanceof CalvikAbort){
+                    return false;
+                }
+                throw e;
+            }
+        }
         if (elemObj.bg)          elem.style.background = elemObj.bg;
         if (elemObj.fg)          elem.style.color      = elemObj.fg;
         if (elemObj.padding)     elem.style.padding    = elemObj.padding;
