@@ -167,7 +167,7 @@ const ActivityManager = {
         if (activityObj.foreground) actDiv.style.color = activityObj.foreground;
 
         // Pasar datos entre actividades
-        Variables.set(appPackage, activityName, "__intent_data__", intentData);
+        Variables.set(pid, "__intent_data__", intentData);
 
         // Añadir la actividad al stack
         this.activityStack.push({

@@ -754,9 +754,6 @@ AppManager.install({
         }
     }
 });
-
-localStorage.setItem("firstEntry", "true");
-}
 AppManager.install({ // Idea: app que use todos los atributos que puede tener una app Notroid
     package: "com.example.package",
     name: "Mi App",
@@ -946,3 +943,6 @@ AppManager.install({
         }
     }
 });
+localStorage.setItem("firstEntry", "true");
+}
+

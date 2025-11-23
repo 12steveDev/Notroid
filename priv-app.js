@@ -355,60 +355,107 @@ if (!AppManager.getAppObj("com.notroid.settings")){
     });
 }
 
-if (!AppManager.getAppObj("com.notroid.gogle")){ // ! AQUÍ ! // TODO: Actualizar todas las apps
+if (!AppManager.getAppObj("com.notroid.gogle")){
     AppManager.install({
         package: "com.notroid.gogle",
         name: "Gogle",
         icon: "https://placehold.co/150x150/EEEEEE/2266DD?text=G",
-        activities: {
-            "Searcher":{
-                background: "#eee",
-                view: {type:"layout",class:["all-width","all-height","flex","justify-center","items-center","flex-column"],child:[
-                    {type:"layout",margin:"0 0 10px 0",class:["all-width","flex","justify-center","items-center"],child:[
-                        {type:"title",text:"G",fg:"#00f"},
-                        {type:"title",text:"o",fg:"#f00"},
-                        {type:"title",text:"g",fg:"#fa0"},
-                        {type:"title",text:"l",fg:"#00f"},
-                        {type:"title",text:"e",fg:"#0d0"},
-                    ]},
-                    {type:"layout",child:[
-                        {type:"input",id:"inpSearch",value:"https://",placeholder:"https://..."},
-                        {type:"button",text:"Buscar",onclick:[
-                        ["SET_VAR", "search", ["TRIM", ["ID_GET_VALUE", "inpSearch"]]],
-                        ["SET_VAR", "intentData", {}],
-                        ["IF", ["NOT", ["GET_VAR", "search"]],
-                            ["SHOW_TOAST", "Escribe algo weonaso"],
-                            [["SET_AT", ["GET_VAR", "intentData"], "url", ["GET_VAR", "search"]],
-                            ["LOG", "Buscando ${search}..."],
-                            ["START_ACTIVITY", "Browser", ["GET_VAR", "intentData"]]]
-                        ]
-                        ]
+        versionCode: 1,
+        res: {
+            layouts: {
+                "searcher_layout": {
+                    type: "layout",
+                    class: ["all-width","all-height","flex","justify-center","items-center","flex-column"],
+                    child: [
+                        {
+                            type: "layout",
+                            margin: "0 0 10px 0",
+                            class: ["all-width","flex","justify-center","items-center"],
+                            child: [
+                                {type:"title",text:"G",fg:"#00f"},
+                                {type:"title",text:"o",fg:"#f00"},
+                                {type:"title",text:"g",fg:"#fa0"},
+                                {type:"title",text:"l",fg:"#00f"},
+                                {type:"title",text:"e",fg:"#0d0"}
+                            ]
+                        },
+                        {
+                            type:"layout",
+                            child:[
+                                {type:"input",id:"inpSearch",value:"https://",placeholder:"https://..."},
+                                {type:"button",text:"Buscar",id:"btnSearch"}
+                            ]
                         }
-                    ]}
-                ]}
+                    ]
+                },
+                "browser_layout": {
+                    type:"layout",
+                    class:["all-width","all-height"],
+                    child:[
+                        {
+                            type:"layout",
+                            class:["all-width","flex","flex-row","justify-center"],
+                            child:[
+                                {
+                                    type:"layout",
+                                    margin:"0 0 10px 0",
+                                    class:["all-width","flex","justify-center","items-center"],
+                                    child:[
+                                        {type:"title",text:"G",fg:"#00f"},
+                                        {type:"title",text:"o",fg:"#f00"},
+                                        {type:"title",text:"g",fg:"#fa0"},
+                                        {type:"title",text:"l",fg:"#00f"},
+                                        {type:"title",text:"e",fg:"#0d0"}
+                                    ]
+                                },
+                                {type:"button",text:"Recargar",id:"btnReload"}
+                            ]
+                        },
+                        {type:"webview",class:["all-width"],height:"90%",id:"wv"}
+                    ]
+                }
+            }
+        },
+        activities: {
+            "Searcher": {
+                actions: ["ACTION_MAIN"],
+                categories: ["CATEGORY_LAUNCHER"],
+                background:"#eee",
+                onCreate:[
+                    ["SET_CONTENT_VIEW", ["RES","layout","searcher_layout"]],
+                    ["SET_VAR","inpSearch",["GET_ELEM_BY_ID","inpSearch"]],
+                    ["SET_VAR","btnSearch",["GET_ELEM_BY_ID","btnSearch"]],
+                    ["ADD_EVENT_LISTENER",["GET_VAR","btnSearch"],"click",[
+                        ["SET_VAR","search",["TRIM",["ELEM_GET_VALUE",["GET_VAR","inpSearch"]]]],
+                        ["IF",["NOT",["GET_VAR","search"]],
+                            ["SHOW_TOAST","Escribe algo weonaso"],
+                            [
+                                ["SET_VAR","intentData",{}],
+                                ["SET_AT",["GET_VAR","intentData"],"url",["GET_VAR","search"]],
+                                ["LOG","Buscando ${search}..."],
+                                ["START_ACTIVITY","Browser",["GET_VAR","intentData"]]
+                            ]
+                        ]
+                    ]]
+                ]
             },
-            "Browser":{
-                background: "#eee",
-                onCreate: [
-                    ["SET_VAR", "intentData", ["GET_INTENT_DATA"]],
-                    ["IF", ["NOT", ["GET_VAR", "intentData"]], ["ABORT"]],
-                    ["SET_VAR", "finalUrl", ["GET_AT", ["GET_VAR", "intentData"], "url"]]
-                ],
-                view: {type:"layout",class:["all-width","all-height"],child:[
-                    {type:"layout",class:["all-width","flex","flex-row","justify-center"],child:[
-                        {type:"layout",margin:"0 0 10px 0",class:["all-width","flex","justify-center","items-center"],child:[
-                            {type:"title",text:"G",fg:"#00f"},
-                            {type:"title",text:"o",fg:"#f00"},
-                            {type:"title",text:"g",fg:"#fa0"},
-                            {type:"title",text:"l",fg:"#00f"},
-                            {type:"title",text:"e",fg:"#0d0"},
-                        ]},
-                        {type:"button",text:"Recargar",onclick:["ID_SET_SRC", "wv", ["GET_VAR", "finalUrl"]]}
-                    ]},
-                    {type:"webview",class:["all-width"],height:"90%",id:"wv"}
-                ]}
+            "Browser": {
+                background:"#eee",
+                onCreate:[
+                    ["SET_VAR","intentData",["GET_INTENT_DATA"]],
+                    ["IF",["NOT",["GET_VAR","intentData"]],["ABORT"]],
+                    ["SET_VAR","finalUrl",["GET_AT",["GET_VAR","intentData"],"url"]],
+                    ["SET_CONTENT_VIEW", ["RES","layout","browser_layout"]],
+                    ["SET_VAR","btnReload",["GET_ELEM_BY_ID","btnReload"]],
+                    ["SET_VAR","wv",["GET_ELEM_BY_ID","wv"]],
+                    ["ADD_EVENT_LISTENER",["GET_VAR","btnReload"],"click",[
+                        ["ELEM_SET_SRC",["GET_VAR","wv"],["GET_VAR","finalUrl"]]
+                    ]],
+                    ["ELEM_SET_SRC",["GET_VAR","wv"],["GET_VAR","finalUrl"]]
+                ]
             }
         },
         flags:["SYSTEM_APP"]
     });
 }
+

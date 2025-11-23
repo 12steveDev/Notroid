@@ -1,5 +1,5 @@
 // calvik.js
-const adb = "andrés debug bró"; //🥶📊 (fuera de joda, ¿es "Linus Torvalds" o "Linus Trovalds")
+const adb = "andrés debug bró"; //🥶📊
 const Calvik = {
     execute(pid, instructions){
         // GoogleMode: Verificar que el "contexto" sea válido jeje
