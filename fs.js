@@ -402,16 +402,26 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
                 apkPath = `/system/priv-app/${appObj.name}`;
                 apkName = `/${appObj.name}.npk`;
             }
+            if (AppManager.isFrameworkResApp(appObj)){
+                apkPath = `/system/framework`;
+                apkName = `/${appObj.name}.npk`;
+            }
         }
         uid1 = randomString(22, true, true, true, "_-");
         uid2 = randomString(22, true, true, true, "_-");
+        // Si los otros flags no eran, instalar como apps humanas
         if (!apkPath) apkPath = `/data/app/~~${uid1}==/${appObj.package}-${uid2}==`;
         if (!apkName) apkName = `/base.apk`;
+
+        // Crear entorno
         this.createDirs("", apkPath);
         this.createFile("", `${apkPath}/${apkName}`);
         this.writeFile("", `${apkPath}/${apkName}`, JSON.stringify(appObj));
 
-        // /data/system/packages.xml
+        // Si es framework-res, hasta ahí namás
+        if (AppManager.isFrameworkResApp(appObj)) return true;
+
+        // Actualizar /data/system/packages.xml
         this._updatePackagesXML(appObj, `${apkPath}${apkName}`, uid1, uid2);
 
         // /data/data/*...
@@ -449,9 +459,6 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         return true;
     }
 }
-// tests
-localStorage.clear();
-FileSystem.init();
 /* (No tiene que funcionar, solo existir para verse técnico XDDD)
 N:
 ├── system/                # Apps que NO se pueden desinstalar

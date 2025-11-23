@@ -5,12 +5,10 @@
 > *`JSON` es amor... `JSON` es vida...*
 > "Notroid: Donde tus sueños de explorar /data/data/ se hacen realidad" 🥀🔥
 > No es un simulador, no es un emulador... ¡ES UNA TERAPIA PARA DEVELOPERS CURIOSOS! 😭✅
+> hacer `framework-res.npk` = no tener vida social✅✅📊📊
 
 ## Errores conocidos:
-- Al crear otra instancia de una misma actividad se va todo a la mrd (los `PID` ayudarán?)
 - Todas las apps no son compatibles con el nuevo sistema, porfa alguien desocupado que me ayude a lavar platos en mi casa y tenderme mi cama (y hacer compatibles las apps también, si quieres)
-- La página tarda en cargar, ojo👀👀 (aunque eso significa que mi proyecto si creció..... *crecen tan rápido...*🥺🎄)
-- Se llama demasiadas veces la lectura desde FS de los permisos (mi tostadora se calienta mucho luego💔)
 
 ## TO-DO:
 - Añadir UI al TopPopup de las notificaciones (Nota: **esto no, tengo pereza JAAJAJAJJAJAJA**)
@@ -20,12 +18,12 @@
 - Migrar `LocalStorage` a `SharedPreferences`.
 - Hacer que el launcher del sistema sea también una app normal como las otras (ya está un launcher beta, nomás falta perfeccionar y ya ta)
 - Añadir a SystemConfigs para poner el paquete de la app de launcher default.
-- Hacer una sola función para **bootear**, y no andar adivinando que funcion de init llamar primero
 - El deslizamiento hacia abajo de la statusBar funciona... Pero no existe el panel de notificaciones, quickSettings, ¡NADA! checa eso
 - Re hacer `Functions.js` para que de verdad sirva, y implementar funciones por actividad y funciones globales :O
 - Sobre lo que se congela un poco la página al iniciar:
 - - O intento optimizar todo
 - - O añado un circulito que de vueltas mientras dice "Cargando Android Pobre (pro tip: borra /data/system/)"
+- Añadir permisos a `/system/framework/framework-res.npk` (full detallados) y que PermissionManager mapee de ahí a su RAM
 
 ### Ideas para el FileSystem
 - `/init.nil` que se ejecute al inicio de todo??
@@ -36,6 +34,7 @@
 - **Buscando ideas:**
 - - (MUY_IMPORTANTE) Añadir más directorios así "criticos" para que pegue más duro lo "Android-like"
 - Añadir ".validName()" al `FileSystem` para verificar nombres.
+- Probablemente añadir una app overlay `3ButtonNavigationBar` y cargarla con un rico `SystemUI`
 
 ## TO-DO MUY LEJANO
 - Utilizar Google Sheets (pobre pero útil) o vender caramelos para alojar una base de datos estable y hacer un `AppStore`
@@ -43,8 +42,8 @@
 - Hacer un lenguaje de programación legible para transformar a Calvik (que también es legible, pero igual es un pokito dificil jeje) (`CalvikScript.js`)
 - ¿`Picture On Picture`? ¿`PERMISSION_SYSTEM_ALERT_WINDOW`? *¿Qué opcodes habría para manejar todo eso?....*
 - ¿`TileService` en Notroid???
-- Quizás `Intents` con acciones y categorías?????????
 - ¿Quizás **inputmethods** intercambiables????? (SE VIENE **NBoard**?????)
+- Añadir Intents **implícitos** y hacer la prueba de fuego, "FileExplorer" abre cada archivo con un editor externo 🗿📈💔
 
 ## TO-DO DEFINITIVO (solamente 5)
 1. Hacer una documentación (`Calvik`, `UI`, etc) y `README.md` decentes.
@@ -55,8 +54,6 @@
 
 ## Estado actual del creador (spoiler: demencial):
 Quiero añadir cada maldito detalle de Android...
-Probablemente añadir una app overlay `3ButtonNavigationBar` y cargarla con un rico `SystemUI`
-Probablemente añadir `installd` y cargarlo desde un `/system/etc/init/installd.rc`;
 ¿Simular `Android Init Languaje` a la perfección?? Y si lo llego a hacer.... jejeje imaginate un `AIL IDE` nativo 🗿🗿 (google nos tendrá miedo...)
 
 ## Datos del creador:
@@ -91,6 +88,7 @@ solo: **Torvalds** 🗿🔥
 - `notificationManager.js`
 - `permissionManager.js`
 - `priv-app.js`
+- `resourceManager.js`
 - `sharedPreferences.js` (el único código funcional ahí son los comentarios XDD)
 - `statusBarManager.js`
 - `styles.css`

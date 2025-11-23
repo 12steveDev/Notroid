@@ -92,6 +92,11 @@ const RickRoll = {
     }
 }
 
+const r = ()=>{ // XDDD
+    localStorage.clear();
+    location.reload();
+}
+
 const PID = {
     currPid: 0,
     next(){
@@ -106,6 +111,27 @@ class CalvikReturn {
     }
 }
 class CalvikAbort {}
+const Desktop = {
+    addIcon(appObj){
+        const appDiv = E("div");
+        appDiv.className = "app flex flex-col justify-center items-center";
+        
+        const iconImg = E("img");
+        iconImg.src = appObj.icon;
+        
+        const titleP = E("p");
+        titleP.textContent = appObj.name;
+        
+        appDiv.appendChild(iconImg);
+        if (SystemConfig.getConfigValue("showAppNames")) appDiv.appendChild(titleP);
+        desktop.appendChild(appDiv);
+        
+        // Acción al hacer click
+        appDiv.onclick = ()=>{
+            ActivityManager.startActivity(appObj.package, appObj.activity);
+        };
+    }
+}
 
 const desktop = $("#desktop");
 const statusBar = $("#statusBar");
@@ -114,6 +140,17 @@ const statIcons = $("#statIcons");
 const notiIcons = $("#notiIcons");
 const navigationBar = $("#navigationBar");
 
+// Manage Boot
+function boot(){
+    FileSystem.init();
+    SystemConfig.apply();
+    StatusBarManager.apply();
+    NavigationBarManager.apply();
+    ToastManager.show("Tiembla Google...");
+    AppManager.init();
+    PrivApp.installApps();
+    initializeListeners();
+}
 // Manage Listeners
 function initializeListeners(){
     document.addEventListener("keydown", (e)=>{

@@ -205,7 +205,9 @@ const Calvik = {
             case "RENDER_LAYOUT":
                 return ActivityManager._render(pid, ex(args[0]));
             case "RES":
-                return ActivityManager.getResource(pid, args[0], args[1]);
+                return ResourceManager.getResource(PCB.appPackage, args[0], args[1]);
+            case "NOTROID_RES": // android.R.* pega duro🔥📈
+                return ResourceManager.getResource("notroid", args[0], args[1]);
             case "START_ACTIVITY":
                 return ActivityManager.startActivity(PCB.appPackage, ex(args[0]), ex(args[1]));
             case "START_INTENT":
@@ -302,8 +304,6 @@ const Calvik = {
                 return AppManager.install(ex(args[0]));
             case "UNINSTALL_APP":
                 return AppManager.uninstall(ex(args[0]));
-            case "LAUNCH_APP": // ! deprecado
-                return AppManager.launch(ex(args[0]));
             case "QUERY_INTENT":
                 return AppManager.queryIntent(pid, ex(args[0]), ex(args[1])); // ! Asegurarse de convertir "args[1]" (categories) en CalvikArray antes de pasarlo!!!!
             // FileSystem:

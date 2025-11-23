@@ -1,13 +1,8 @@
 // main.js
-SystemConfig.apply();
-StatusBarManager.apply();
-NavigationBarManager.apply();
-initializeListeners();
-ToastManager.show("Tiembla Google...");
-AppManager.refresh();
-
+boot();
 if (!localStorage.getItem("firstEntry")) {
 // ! TODAS estas apps son incompatibles XDD // TODO: Actualizar apps de tests
+console.groupCollapsed("Apps preinstaladas normales")
 // App 1: Toast Manager Test
 AppManager.install({
     package: "com.test.toastmanager",
@@ -684,73 +679,112 @@ AppManager.install({
     }
 })
 
+// ! De aquí en adelante las apps si-compatibles
 AppManager.install({
     package: "com.notroid.fileexplorer",
     name: "File Explorer",
     icon: "https://placehold.co/150x150/6666FF/FFFFFF?text=Files",
-    versionCode: 1,
-    permissions: ["PERMISSION_READ_EXTERNAL_STORAGE"],
-    entry: "Main",
-    activities: {
-        "Main": {
-            onCreate: [
-                ["IF", ["REQUEST_PERMISSION", "PERMISSION_READ_EXTERNAL_STORAGE"], [], ["ABORT"]],
-                ["IF", ["REQUEST_PERMISSION", "PERMISSION_WRITE_EXTERNAL_STORAGE"], [], ["ABORT"]]
-            ],
-            onStart: [
-                ["ID_CLICK", "listBtn"] // automaticamente muestra la ruta actual
-            ],
-            view: {
-                type: "layout", padding: "10px", child: [
-                    {type: "title", text: "📂 File Explorer"},
-                    {type: "input", width:"100%", id: "pathInp", value: "/storage/emulated/12/", placeholder: "Ruta..."},{type:"br"},
-                    {type: "textarea", width:"100%", height:"100px", id: "contentInp", placeholder: "Contenido... (opcional)"},{type:"br"},
-                    {type: "button", id:"listBtn", text: "Listar", bg:"#ccc", onclick: [
-                        ["SET_VAR", "files", ["FS_LIST_DIR", ["ID_GET_VALUE", "pathInp"]]],
-                        ["IF", ["EQ", ["GET_VAR", "files"], false], [["ID_SET_VALUE", "pathInp", "${lastPath}"], ["ID_CLEAR_CHILDS", "fileList"], ["ID_SET_TEXT", "fileList", "La ruta no existe"], ["ABORT"]]],
-                        ["SET_VAR", "lastPath", ["ID_GET_VALUE", "pathInp"]],
-                        ["ID_CLEAR_CHILDS", "fileList"],
-                        ["FOR_EACH", ["GET_VAR", "files"], "file",[
-                            ["IF", ["FS_IS_DIR", '${["ID_GET_VALUE", "pathInp"]}/${file}'],
-                                ["ID_APPEND_CHILD", "fileList", {type: "text", text: "📁 ${file}", class: ["code"]}],
-                                ["ID_APPEND_CHILD", "fileList", {type: "text", text: "📄 ${file}", class: ["code"]}]
-                            ]
-                        ]]
-                    ]},
-                    {type: "button", text: "Crear Directorio", bg:"#ef0", onclick: [
-                        ["ID_SET_TEXT", "statusTxt", ["IF", ["FS_CREATE_DIR", ["ID_GET_VALUE", "pathInp"]], 'Directorio "${["ID_GET_VALUE", "pathInp"]}" creado', "Error al crear el directorio"]],
-                        ["ID_SET_VALUE", "pathInp", "${lastPath}"],
-                        ["ID_CLICK", "listBtn"],
-                    ]},
-                    {type: "button", text: "Crear Directorios", bg:"#eb0", onclick: [
-                        ["ID_SET_TEXT", "statusTxt", ["IF", ["FS_CREATE_DIRS", ["ID_GET_VALUE", "pathInp"]], 'Directorios "${["ID_GET_VALUE", "pathInp"]}" creados', "Error al crear los directorios"]],
-                        ["ID_SET_VALUE", "pathInp", "${lastPath}"],
-                        ["ID_CLICK", "listBtn"],
-                    ]},
-                    {type: "button", text: "Crear Archivo", bg:"#fff", onclick: [
-                        ["ID_SET_TEXT", "statusTxt", ["IF", ["FS_CREATE_FILE", ["ID_GET_VALUE", "pathInp"]], 'Archivo "${["ID_GET_VALUE", "pathInp"]}" creado', "Error al crear el archivo"]],
-                        ["ID_SET_VALUE", "pathInp", "${lastPath}"],
-                        ["ID_CLICK", "listBtn"],
-                    ]},
-                    {type: "button", text: "Leer Archivo", bg:"#0a0", fg:"#fff", onclick: [
-                        ["SET_VAR", "fContent", ["FS_READ_FILE", ["ID_GET_VALUE", "pathInp"]]],
-                        ["ID_SET_TEXT", "statusTxt", ["IF", ["GET_VAR", "fContent"], '${fContent}', "Error al leer el archivo"]],
-                    ]},
-                    {type: "button", text: "Escribir Archivo", bg:"#0aa", fg:"#fff", onclick: [
-                        ["ID_SET_TEXT", "statusTxt", ["IF", ["FS_WRITE_FILE", ["ID_GET_VALUE", "pathInp"], ["ID_GET_VALUE", "contentInp"]], 'Archivo "${["ID_GET_VALUE", "pathInp"]}" escrito', "Error al escribir el archivo"]],
-                    ]},
-                    {type: "button", text: "Expandir Archivo", bg:"#00a", fg:"#fff", onclick: [
-                        ["ID_SET_TEXT", "statusTxt", ["IF", ["FS_APPEND_FILE", ["ID_GET_VALUE", "pathInp"], ["ID_GET_VALUE", "contentInp"]], 'Archivo "${["ID_GET_VALUE", "pathInp"]}" expandido', "Error al expandir el archivo"]],
-                    ]},
-                    {type: "button", text: "Eliminar elemento", bg:"#a00", fg:"#fff", onclick: [
-                        ["ID_SET_TEXT", "statusTxt", ["IF", ["FS_REMOVE", ["ID_GET_VALUE", "pathInp"]], 'Archivo o carpeta "${["ID_GET_VALUE", "pathInp"]}" eliminado', "Error al eliminar el elemento"]],
-                        ["ID_SET_VALUE", "pathInp", "${lastPath}"],
-                        ["ID_CLICK", "listBtn"],
-                    ]},
-                    {type: "text", text:"Cargando...", fontSize:"12px", padding: "5px", id: "statusTxt", bg: "#000", fg: "#fff", class:["code"]},
-                    {type: "layout", id: "fileList"}
+    versionCode: 2,
+    permissions: [
+        "PERMISSION_READ_EXTERNAL_STORAGE",
+        "PERMISSION_WRITE_EXTERNAL_STORAGE"
+    ],
+    res: {
+        layouts: {
+            "main_layout": {
+                type: "layout",
+                class: ["all-width", "all-height", "flex", "flex-column", "padding-10"],
+                child: [
+                    { type: "title", text: "📂 File Explorer", class: ["title"] },
+                    { type: "input", id: "pathInp", value: "/storage/emulated/12/", placeholder: "Ruta...", class: ["all-width","code"] },
+                    { type: "br" },
+                    { type: "textarea", id: "contentInp", placeholder: "Contenido... (opcional)", class: ["all-width","code"], height: "100px" },
+                    { type: "br" },
+                    {
+                        type: "layout",
+                        class: ["flex", "flex-row", "gap-5"],
+                        child: [
+                            { type: "button", id: "listBtn", text: "Listar", bg: "#ccc" },
+                            { type: "button", text: "Crear Dir", bg: "#ef0", id: "btnCreateDir" },
+                            { type: "button", text: "Crear Dirs", bg: "#eb0", id: "btnCreateDirs" },
+                            { type: "button", text: "Crear File", bg: "#fff", id: "btnCreateFile" },
+                            { type: "button", text: "Leer File", bg: "#0a0", fg: "#fff", id: "btnReadFile" },
+                            { type: "button", text: "Escribir File", bg: "#0aa", fg: "#fff", id: "btnWriteFile" },
+                            { type: "button", text: "Expandir File", bg: "#00a", fg: "#fff", id: "btnAppendFile" },
+                            { type: "button", text: "Eliminar", bg: "#a00", fg: "#fff", id: "btnRemove" }
+                        ]
+                    },
+                    { type: "text", id: "statusTxt", text: "Cargando...", class: ["code"], bg: "#000", fg: "#fff", fontSize: "12px" },
+                    { type: "layout", id: "fileList" }
                 ]
             }
+        }
+    },
+    activities: {
+        "Main": {
+            actions: ["ACTION_MAIN"],
+            categories: ["CATEGORY_LAUNCHER"],
+            onCreate: [
+                ["IF", ["REQUEST_PERMISSION", "PERMISSION_READ_EXTERNAL_STORAGE"], [], ["ABORT"]],
+                ["IF", ["REQUEST_PERMISSION", "PERMISSION_WRITE_EXTERNAL_STORAGE"], [], ["ABORT"]],
+                ["SET_CONTENT_VIEW", ["RES", "layout", "main_layout"]],
+                ["SET_VAR", "pathInp", ["GET_ELEM_BY_ID", "pathInp"]],
+                ["SET_VAR", "contentInp", ["GET_ELEM_BY_ID", "contentInp"]],
+                ["SET_VAR", "listBtn", ["GET_ELEM_BY_ID", "listBtn"]],
+                ["SET_VAR", "statusTxt", ["GET_ELEM_BY_ID", "statusTxt"]],
+                ["SET_VAR", "fileList", ["GET_ELEM_BY_ID", "fileList"]],
+                ["SET_VAR", "btnCreateDir", ["GET_ELEM_BY_ID", "btnCreateDir"]],
+                ["SET_VAR", "btnCreateDirs", ["GET_ELEM_BY_ID", "btnCreateDirs"]],
+                ["SET_VAR", "btnCreateFile", ["GET_ELEM_BY_ID", "btnCreateFile"]],
+                ["SET_VAR", "btnReadFile", ["GET_ELEM_BY_ID", "btnReadFile"]],
+                ["SET_VAR", "btnWriteFile", ["GET_ELEM_BY_ID", "btnWriteFile"]],
+                ["SET_VAR", "btnAppendFile", ["GET_ELEM_BY_ID", "btnAppendFile"]],
+                ["SET_VAR", "btnRemove", ["GET_ELEM_BY_ID", "btnRemove"]],
+                // Eventos
+                ["ADD_EVENT_LISTENER", ["GET_VAR", "listBtn"], "click", [
+                    ["SET_VAR", "files", ["FS_LIST_DIR", ["ELEM_GET_VALUE", ["GET_VAR", "pathInp"]]]],
+                    ["IF", ["EQ", ["GET_VAR", "files"], false], [["ELEM_SET_TEXT", ["GET_VAR", "fileList"], "La ruta no existe"], ["ABORT"]]],
+                    ["ELEM_CLEAR_CHILDS", ["GET_VAR", "fileList"]],
+                    ["FOR_EACH", ["GET_VAR", "files"], "file", [
+                        ["IF", ["FS_IS_DIR", '${["ELEM_GET_VALUE",["GET_VAR", "pathInp"]]}/${file}'],
+                            ["ELEM_APPEND_CHILD", ["GET_VAR", "fileList"], ["RENDER_LAYOUT", { type: "text", text: "📁 ${file}", class: ["code"] }]],
+                            ["ELEM_APPEND_CHILD", ["GET_VAR", "fileList"], ["RENDER_LAYOUT", { type: "text", text: "📄 ${file}", class: ["code"] }]]
+                        ]
+                    ]],
+                    ["SET_VAR", "lastPath", ["ELEM_GET_VALUE", ["GET_VAR", "pathInp"]]]
+                ]],
+                ["ADD_EVENT_LISTENER", ["GET_VAR", "btnCreateDir"], "click", [
+                    ["ELEM_SET_TEXT", ["GET_VAR", "statusTxt"], ["IF", ["FS_CREATE_DIR", ["ELEM_GET_VALUE", ["GET_VAR", "pathInp"]]], "Directorio creado", "Error al crear"]],
+                    ["ELEM_SET_VALUE", ["GET_VAR", "pathInp"], ["GET_VAR", "lastPath"]],
+                    ["ELEM_CLICK", ["GET_VAR", "listBtn"]],
+                ]],
+                ["ADD_EVENT_LISTENER", ["GET_VAR", "btnCreateDirs"], "click", [
+                    ["ELEM_SET_TEXT", ["GET_VAR", "statusTxt"], ["IF", ["FS_CREATE_DIRS", ["ELEM_GET_VALUE", ["GET_VAR", "pathInp"]]], "Directorios creados", "Error al crear"]],
+                    ["ELEM_SET_VALUE", ["GET_VAR", "pathInp"], ["GET_VAR", "lastPath"]],
+                    ["ELEM_CLICK", ["GET_VAR", "listBtn"]]
+                ]],
+                ["ADD_EVENT_LISTENER", ["GET_VAR", "btnCreateFile"], "click", [
+                    ["ELEM_SET_TEXT", ["GET_VAR", "statusTxt"], ["IF", ["FS_CREATE_FILE", ["ELEM_GET_VALUE", ["GET_VAR", "pathInp"]]], "Archivo creado", "Error al crear"]],
+                    ["ELEM_SET_VALUE", ["GET_VAR", "pathInp"], ["GET_VAR", "lastPath"]],
+                    ["ELEM_CLICK", ["GET_VAR", "listBtn"]]
+                ]],
+                ["ADD_EVENT_LISTENER", ["GET_VAR", "btnReadFile"], "click", [
+                    ["SET_VAR", "fContent", ["FS_READ_FILE", ["ELEM_GET_VALUE", ["GET_VAR", "pathInp"]]]],
+                    ["ELEM_SET_TEXT", ["GET_VAR", "statusTxt"], ["IF", ["EQ", ["GET_VAR", "fContent"], false], "Error al leer", "${fContent}"]]
+                ]],
+                ["ADD_EVENT_LISTENER", ["GET_VAR", "btnWriteFile"], "click", [
+                    ["ELEM_SET_TEXT", ["GET_VAR", "statusTxt"], ["IF", ["FS_WRITE_FILE", ["ELEM_GET_VALUE", ["GET_VAR", "pathInp"]], ["ELEM_GET_VALUE", ["GET_VAR", "contentInp"]]], "Archivo escrito", "Error al escribir"]]
+                ]],
+                ["ADD_EVENT_LISTENER", ["GET_VAR", "btnAppendFile"], "click", [
+                    ["ELEM_SET_TEXT", ["GET_VAR", "statusTxt"], ["IF", ["FS_APPEND_FILE", ["ELEM_GET_VALUE", ["GET_VAR", "pathInp"]], ["ELEM_GET_VALUE", ["GET_VAR", "contentInp"]]], "Archivo expandido", "Error al expandir"]]
+                ]],
+                ["ADD_EVENT_LISTENER", ["GET_VAR", "btnRemove"], "click", [
+                    ["ELEM_SET_TEXT", ["GET_VAR", "statusTxt"], ["IF", ["FS_REMOVE", ["ELEM_GET_VALUE", ["GET_VAR", "pathInp"]]], "Elemento eliminado", "Error al eliminar"]],
+                    ["ELEM_SET_VALUE", ["GET_VAR", "pathInp"], ["GET_VAR", "lastPath"]],
+                    ["ELEM_CLICK", ["GET_VAR", "listBtn"]]
+                ]],
+                ["ELEM_CLICK", ["GET_VAR", "listBtn"]]
+            ]
         }
     }
 });
@@ -944,5 +978,7 @@ AppManager.install({
     }
 });
 localStorage.setItem("firstEntry", "true");
+console.groupEnd();
 }
 
+ResourceManager.init();

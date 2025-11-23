@@ -149,7 +149,12 @@ const ActivityManager = {
         return `act-${pid}`;
     },
     getPCB(pid){
-        return getWhere(this.activityStack, act => act.pid === pid);
+        const PCB = getWhere(this.activityStack, act => act.pid === pid);
+        if (!PCB){
+            console.warn(`El PID '${pid}' no existe`)
+            return false;
+        }
+        return PCB;
     },
     // ["START_ACTIVITY"]
     // ["START_INTENT"]
@@ -234,23 +239,6 @@ const ActivityManager = {
         setTimeout(()=>elem.remove(), 400);
 
         return true;
-    },
-    // ["RES"]
-    getResource(pid, resName, itemName){
-        const PCB = this.getPCB(pid);
-        if (!PCB) return false;
-        const appObj = AppManager.getAppObj(PCB.appPackage);
-        switch (resName){
-            case "layout":
-                return appObj.res.layouts?.[itemName] ?? false;
-            case "color":
-                return appObj.res.colors?.[itemName] ?? false;
-            case "string":
-                return appObj.res.strings?.[itemName] ?? false;
-            default:
-                console.warn(`Recurso desconocido: ${resName}`);
-                return false;
-        }
     },
     // ["SET_CONTENT_VIEW"]
     setContentView(pid, elem){

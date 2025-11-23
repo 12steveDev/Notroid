@@ -1,15 +1,18 @@
 // appManager.js
 const AppManager = { // (aka PackageManager)
     apps: [], // caché de las apps
+    init(){
+        this._refreshFromFS();
+        this.refresh();
+    },
     _verify(appObj){
         // Verificar una app
         return (
                        typeof appObj.package       === "string" &&
                        typeof appObj.icon          === "string" &&
                        typeof appObj.name          === "string" &&
-            Number.isInteger( appObj.versionCode   )            &&
-                              appObj.activities                 &&
-                 Object.keys( appObj.activities    ).length >= 1
+                              appObj.res                        &&
+            Number.isInteger( appObj.versionCode   )            
         ); // Recorre cada clave obligatoria para una app
     },
     _refreshFromFS(){
@@ -38,7 +41,6 @@ const AppManager = { // (aka PackageManager)
             this.apps.push(appObj);
         }
         console.groupEnd();
-        PermissionManager._refreshFromFS();
     },
     getAppObj(appPackage){
         return this.apps.find(app => app.package === appPackage);
@@ -49,6 +51,9 @@ const AppManager = { // (aka PackageManager)
     isPrivApp(appObj){
         return Boolean(appObj.flags?.includes("PRIV_APP"));
     },
+    isFrameworkResApp(appObj){
+        return Boolean(appObj.flags?.includes("FRAMEWORK_RES_APP"));
+    },
     // ["INSTALL_APP"] (P_MANAGE_EXTERNAL_APPS)(P_INSTALL_APPS)
     install(appObj){
         const result = this._verify(appObj);
@@ -57,7 +62,7 @@ const AppManager = { // (aka PackageManager)
             console.error("No se pudo instalar porque el paquete no es válido");
             return false;
         }
-        if (this.apps.find(app => app.package === appObj.package)){
+        if (this.getAppObj(appObj.package)){
             if (!confirm(`La aplicación '${appObj.name}' ya está instalada. ¿Deseas actualizarla?`)){
                 return false;
             }
@@ -65,6 +70,7 @@ const AppManager = { // (aka PackageManager)
             // this.apps = this.apps.filter(app => app.package !== appObj.package); // ya no we
         }
         const r = FileSystem._installApp(appObj);
+        this.apps.push(appObj);
         this.refresh();
         return r;
     },
@@ -75,8 +81,9 @@ const AppManager = { // (aka PackageManager)
         if (!confirm(`¿Deseas eliminar '${appName}'?`)){
             return false;
         }
-        const keep = confirm("¿Deseas retener los datos?"); // (aka no borrar su baby "/data/data/")
+        const keep = !confirm("¿Borrar sus datos?"); // (aka no borrar su baby "/data/data/")
         const r = FileSystem._uninstallApp(appPackage, keep);
+        popWhere(this.apps, app => app.package === appPackage);
         this.refresh();
         return r;
     },
@@ -118,27 +125,9 @@ const AppManager = { // (aka PackageManager)
         return true;
     },
     refresh(){
-        this._refreshFromFS();
         $$(".app", desktop).forEach(appIcon => appIcon.remove());
-        for (const app of this.queryIntent("sepaLaBola.com", "ACTION_MAIN", ["CATEGORY_LAUNCHER"])){
-            // Creamos el ícono desde 0
-            const appDiv = E("div");
-            appDiv.className = "app flex flex-col justify-center items-center";
-            
-            const iconImg = E("img");
-            iconImg.src = app.icon;
-            
-            const titleP = E("p");
-            titleP.textContent = app.name;
-            
-            appDiv.appendChild(iconImg);
-            if (SystemConfig.getConfigValue("showAppNames")) appDiv.appendChild(titleP);
-            desktop.appendChild(appDiv);
-            
-            // Acción al hacer click
-            appDiv.onclick = ()=>{
-                ActivityManager.startActivity(app.package, app.activity);
-            };
+        for (const appObj of this.queryIntent("sepaLaBola.com", "ACTION_MAIN", ["CATEGORY_LAUNCHER"])){
+            Desktop.addIcon(appObj);
         }
     }
 }
