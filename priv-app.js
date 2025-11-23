@@ -5,6 +5,7 @@ if (!AppManager.getAppObj("com.notroid.settings")){
         name: "Ajustes",
         permissions:["PERMISSION_READ_CONFIGURATIONS", "PERMISSION_WRITE_CONFIGURATIONS"],
         icon: "https://placehold.co/150x150/666666/FFFFFF?text=Config",
+        versionCode: 1,
         entry: "Main",
         activities: {
             "Main": {
@@ -202,6 +203,7 @@ if (!AppManager.getAppObj("com.notroid.gogle")){
         package: "com.notroid.gogle",
         name: "Gogle",
         icon: "https://placehold.co/150x150/EEEEEE/2266DD?text=G",
+        versionCode: 1,
         entry: "Searcher",
         activities: {
             "Searcher":{

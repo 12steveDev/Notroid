@@ -130,7 +130,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
 
         // sys
         const sys = new FOLDER("sys");
-        ["devices","fs"].forEach(f => sys.addItem(new FOLDER(f)));
+        ["devices","fs","class","block","bus","dev"].forEach(f => sys.addItem(new FOLDER(f)));
         root.addItem(sys);
 
         // storage/emulated/0/
@@ -241,15 +241,31 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
         };
         this.writeFile("", pkgF, JSON.stringify(json));
     },
-    printTree(item=null, indent=0){
+    printTree(item = null, indent = 0, print = true, tree = null){
+        if (tree === null) tree = []; // usar siempre el mismo array
+    
         if (item === null) item = this.fs;
+    
         const spaces = "    ".repeat(indent);
-        console.log(spaces + (item.type === "folder" ? "📂 " : "📄 ") + item.name + (item.type === "folder" ? "/" : ""));
+        tree.push(
+            spaces +
+            (item.type === "folder" ? "📂 " : "📄 ") +
+            item.name +
+            (item.type === "folder" ? "/" : "")
+        );
+    
         if (item.type === "folder"){
             for (const childName of item.listItems()){
-                this.printTree(item.getItem(childName), indent + 1);
+                this.printTree(
+                    item.getItem(childName),
+                    indent + 1,
+                    false,
+                    tree // seguir usando el mismo array
+                );
             }
         }
+    
+        if (print) console.log(tree.join("\n"));
     },
     isFile(appPackage, path){
         const f = this._goTo(appPackage, path);
@@ -386,12 +402,11 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
                 apkPath = `/system/priv-app/${appObj.name}`;
                 apkName = `/${appObj.name}.npk`;
             }
-        } else {
-            uid1 = randomString(22, true, true, true, "_-");
-            uid2 = randomString(22, true, true, true, "_-");
-            apkPath = `/data/app/~~${uid1}==/${appObj.package}-${uid2}==`;
-            apkName = `/base.apk`;
         }
+        uid1 = randomString(22, true, true, true, "_-");
+        uid2 = randomString(22, true, true, true, "_-");
+        if (!apkPath) apkPath = `/data/app/~~${uid1}==/${appObj.package}-${uid2}==`;
+        if (!apkName) apkName = `/base.apk`;
         this.createDirs("", apkPath);
         this.createFile("", `${apkPath}/${apkName}`);
         this.writeFile("", `${apkPath}/${apkName}`, JSON.stringify(appObj));
@@ -435,7 +450,7 @@ const FileSystem = { // TODO: Borrar y hacer todo denuevo
     }
 }
 // tests
-// localStorage.clear();
+localStorage.clear();
 FileSystem.init();
 /* (No tiene que funcionar, solo existir para verse técnico XDDD)
 N:

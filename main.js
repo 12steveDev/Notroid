@@ -7,11 +7,13 @@ ToastManager.show("Tiembla Google...");
 AppManager.refresh();
 
 if (!localStorage.getItem("firstEntry")) {
+// ! TODAS estas apps son incompatibles XDD // TODO: Actualizar apps de tests
 // App 1: Toast Manager Test
 AppManager.install({
     package: "com.test.toastmanager",
     name: "Toast Manager Test",
     icon: "https://placehold.co/150x150/999999/FFFFFF?text=Toast",
+    versionCode: 1,
     entry: "MainActivity",
     activities: {
         "MainActivity": {
@@ -52,6 +54,7 @@ AppManager.install({
     package: "com.test.activitymanager",
     name: "Activity Manager Test",
     icon: "https://placehold.co/150x150/999999/FFFFFF?text=Activity",
+    versionCode: 1,
     entry: "MainActivity",
     activities: {
         "MainActivity": {
@@ -121,6 +124,7 @@ AppManager.install({
     package: "com.test.alertdialog",
     name: "Alert Dialog Test",
     icon: "https://placehold.co/150x150/999999/FFFFFF?text=Alert",
+    versionCode: 1,
     entry: "MainActivity",
     activities: {
         "MainActivity": {
@@ -170,6 +174,7 @@ AppManager.install({
     package: "com.test.appmanager",
     name: "App Manager Test",
     icon: "https://placehold.co/150x150/999999/FFFFFF?text=Apps",
+    versionCode: 1,
     entry: "MainActivity",
     activities: {
         "MainActivity": {
@@ -221,6 +226,7 @@ AppManager.install({
     package: "com.test.notificationmanager", 
     name: "Notification Manager Test",
     icon: "https://placehold.co/150x150/999999/FFFFFF?text=Noti",
+    versionCode: 1,
     entry: "MainActivity",
     activities: {
         "MainActivity": {
@@ -269,6 +275,7 @@ AppManager.install({
     package: "com.test.permissionmanager",
     name: "Permission Manager Test", 
     icon: "https://placehold.co/150x150/999999/FFFFFF?text=Perm",
+    versionCode: 1,
     entry: "MainActivity",
     activities: {
         "MainActivity": {
@@ -328,6 +335,7 @@ AppManager.install({
     package: "com.test.statusbarmanager", 
     name: "StatusBar Manager Test",
     icon: "https://placehold.co/150x150/999999/FFFFFF?text=Stat",
+    versionCode: 1,
     entry: "MainActivity",
     activities: {
         "MainActivity": {
@@ -371,6 +379,7 @@ AppManager.install({
     package: "com.test.systemconfig",
     name: "System Config Test", 
     icon: "https://placehold.co/150x150/999999/FFFFFF?text=Conf",
+    versionCode: 1,
     entry: "MainActivity",
     activities: {
         "MainActivity": {
@@ -416,6 +425,7 @@ AppManager.install({
     package: "com.test.androidbridge",
     name: "Android Bridge Test",
     icon: "https://placehold.co/150x150/66FF66/000000?text=Andr",
+    versionCode: 1,
     permissions: ["PERMISSION_GOOGLE_APROVEMENT"],
     entry: "MainActivity", 
     activities: {
@@ -480,6 +490,7 @@ AppManager.install({
     package: "com.test.localstorage",
     name: "Local Storage Test",
     icon: "https://placehold.co/150x150/999999/FFFFFF?text=Local",
+    versionCode: 1,
     entry: "MainActivity",
     activities: {
         "MainActivity": {
@@ -529,6 +540,7 @@ AppManager.install({
     package: "com.x12steve.test",
     name: "Test",
     icon: "https://placehold.co/150x150/FF66FF/000000?text=Test",
+    versionCode: 1,
     entry: "MainActivity",
     functions: {},
     activities: {
@@ -551,6 +563,7 @@ AppManager.install({ // ! FINAL BOSS DE LOS TESTS ! //
     package: "com.forms.test",
     name: "Formulario Pro",
     icon: "https://placehold.co/150x150/66AAFF/000000?text=Form",
+    versionCode: 1,
     entry: "MainActivity",
     activities: {
         "MainActivity": {
@@ -603,6 +616,7 @@ AppManager.install({
     package: "com.x12steve.localclear",
     name: "Local Clear",
     icon: "https://placehold.co/150x150/FF4444/FFFFFF?text=CLEAR",
+    versionCode: 1,
     entry: "Main",
     activities: {
         "Main": {
@@ -621,6 +635,7 @@ AppManager.install({
     name: "I am root?",
     hidden: true,
     icon: "https://placehold.co/150x150/44FFAA/000000?text=ROOT",
+    versionCode: 12,
     entry: "Main",
     activities: {
         "Main": {
@@ -637,6 +652,7 @@ AppManager.install({
     package: "com.x12steve.arraytest",
     name: "Array Test",
     icon: "https://placehold.co/150x150/999999/000000?text=Array",
+    versionCode: 1,
     entry: "Main",
     activities: {
         "Main": {
@@ -672,6 +688,7 @@ AppManager.install({
     package: "com.notroid.fileexplorer",
     name: "File Explorer",
     icon: "https://placehold.co/150x150/6666FF/FFFFFF?text=Files",
+    versionCode: 1,
     permissions: ["PERMISSION_READ_EXTERNAL_STORAGE"],
     entry: "Main",
     activities: {
@@ -740,3 +757,144 @@ AppManager.install({
 
 localStorage.setItem("firstEntry", "true");
 }
+AppManager.install({ // Idea: app que use todos los atributos que puede tener una app Notroid
+    package: "com.example.package",
+    name: "Mi App",
+    icon: "https://placehold.co/50x50/999999/FFFFFF?text=Icon",
+    versionCode: 1,
+    versionName: "1.0",
+    entry: "MainActivity", // ! Temporal, debe usarse los filtros del intent para saber el main
+
+    flags: [], // para apps de sistema, "SYSTEM_APP", "PRIV_APP" (si al usuario se le antoja, puede hacer su priv-app y j*der Notroid XDDDD (#añadanFirmasANotroid))
+    permissions: [],
+    
+    // Recursos ("res/")
+    res: {
+        layouts: {
+            "main_layout": {type: "layout", child: [
+                    {type: "text",   text: "¡Hola Notroid!", id: "title"},
+                    {type: "button", text: "Abrir otra app", id: "btn", onclick: [
+                        ["START_INTENT",
+                            "com.notroid.launcher",
+                            "Home",
+                            {"message": "Hola desde app1"}
+                        ]
+                    ]}
+                ]
+            }
+        },
+        colors: {},
+        strings: {},
+    },
+
+    activities: {
+        "MainActivity": {
+            actions: ["ACTION_MAIN"],
+            categories: ["CATEGORY_LAUNCHER"],
+            exported: true,
+            onCreate: [
+                ["SET_CONTENT_VIEW", ["RES", "layout", "main_layout"]] // setContentView lo infla automaticamente si no lo está
+            ],
+        }
+    },
+
+    services: {}, // no están implementados xdd, den ideas
+    receivers: {}, // tampoco implementados
+    providers: {}, // mucho peor
+});
+AppManager.install({
+    package: "com.notroid.launcher", // Beta
+    name: "Lanzador de NOS",
+    icon: "https://placehold.co/150x150/00FF00/000000?text=NOS",
+    versionCode: 1,
+    res: {
+        layouts: {
+            "main_layout": {
+                type: "layout", 
+                class: ["all-width", "all-height"],
+                bg: "#f0f0f0",
+                child: [
+                    {type: "title", text: "Apps", class: ["justify-center"]},
+                    {type: "grid", id: "appsGrid", gridRows: "repeat(5, 20%)", gridColumns: "repeat(6, calc(100% / 6))", padding: "10px"}
+                ]
+            }
+        }
+    },
+    activities: {
+        "Home": {
+            actions: ["ACTION_MAIN"],
+            categories: ["CATEGORY_LAUNCHER", "CATEGORY_HOME", "CATEGORY_DEFAULT"],
+            onCreate: [
+                ["SET_CONTENT_VIEW", ["RES", "layout", "main_layout"]],
+                ["SET_VAR", "apps", ["QUERY_INTENT", "ACTION_MAIN", ["ARRAY", "CATEGORY_LAUNCHER"]]],
+                ["SET_VAR", "appsGrid", ["GET_ELEM_BY_ID", "appsGrid"]],
+                ["FOR_EACH", ["GET_VAR", "apps"], "app",
+                    ["ELEM_APPEND_CHILD", ["GET_VAR", "appsGrid"],
+                        ["RENDER_LAYOUT", {type: "layout", 
+                            class: ["flex", "flex-column", "items-center", "justify-center"],
+                            padding: "10px",
+                            child: [
+                               {type: "img", src: '${["GET_AT", ["GET_VAR", "app"], "icon"]}', width: "50px", height: "50px"},
+                               {type: "text", text: '${["GET_AT", ["GET_VAR", "app"], "name"]}', class: ["code"]}
+                            ],
+                            onclick: [
+                               ["START_INTENT", 
+                                '${["GET_AT", ["GET_VAR", "app"], "package"]}',
+                                '${["GET_AT", ["GET_VAR", "app"], "activity"]}'
+                               ]
+                            ]
+                        }]
+                    ]
+                ]
+            ]
+        }
+    }
+});
+AppManager.install({
+    package: "com.test.launchers",
+    name: "Listador de launchers",
+    icon: "https://placehold.co/150x150/999999/FFFFFF?text=Launchs",
+    versionCode: 1,
+    res: {
+        layouts: {
+            "main_layout": {
+                type: "layout", 
+                class: ["all-width", "all-height"],
+                bg: "#f0f0f0",
+                child: [
+                    {type: "title", text: "Launchers disponibles", class: ["justify-center"]},{type:"br"},
+                    {type: "grid", id: "appsGrid", gridRows: "repeat(5, 20%)", gridColumns: "repeat(6, calc(100% / 6))", padding: "10px"}
+                ]
+            }
+        }
+    },
+    activities: {
+        "Home": {
+            actions: ["ACTION_MAIN"],
+            categories: ["CATEGORY_LAUNCHER"],
+            onCreate: [
+                ["SET_CONTENT_VIEW", ["RES", "layout", "main_layout"]],
+                ["SET_VAR", "apps", ["QUERY_INTENT", "ACTION_MAIN", ["ARRAY", "CATEGORY_HOME", "CATEGORY_DEFAULT"]]],
+                ["SET_VAR", "appsGrid", ["GET_ELEM_BY_ID", "appsGrid"]],
+                ["FOR_EACH", ["GET_VAR", "apps"], "app",
+                    ["ELEM_APPEND_CHILD", ["GET_VAR", "appsGrid"],
+                        ["RENDER_LAYOUT", {type: "layout", 
+                            class: ["flex", "flex-column", "items-center", "justify-center"],
+                            padding: "10px",
+                            child: [
+                               {type: "img", src: '${["GET_AT", ["GET_VAR", "app"], "icon"]}', width: "50px", height: "50px"},
+                               {type: "text", text: '${["GET_AT", ["GET_VAR", "app"], "name"]}', class: ["code"]}
+                            ],
+                            onclick: [
+                               ["START_INTENT", 
+                                '${["GET_AT", ["GET_VAR", "app"], "package"]}',
+                                '${["GET_AT", ["GET_VAR", "app"], "activity"]}'
+                               ]
+                            ]
+                        }]
+                    ]
+                ]
+            ]
+        }
+    }
+});

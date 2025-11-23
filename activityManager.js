@@ -10,14 +10,31 @@ const ActivityManager = {
         "justify-start", "justify-center", "justify-end", "justify-between", "justify-around",
         "items-start", "items-center", "items-end",
         "hide",
+        "ellipsis"
     ],
 
     _render(appPackage, activityName, elemObj){
         // ¿LayoutInflater de bajo presupuesto?😭🥀
+        /* OJO
+        El layout NO debe contener código pendiente por ejecutar, excepto los opcodes en sí.
+        Toda interpolación ${...} debe resolverse ANTES de crear el DOM.
+        O sea, el layout que entra a tu renderer debería ser ya 100%:
+        - texto normal
+        - números normales
+        - URLs normales
+        - opcodes puros sin strings mágicos
+        Nada de dejar ${ ... } vivos.
+        Porque si los dejas vivos → pasan cosas feas como capturar la última variable del loop, como antes pasaba xdd.
+        */
+        elemObj = Variables.resolveDeep(elemObj, appPackage, activityName);
         let elem;
         switch(elemObj.type){
             case "layout":
                 elem = E("div");
+                break;
+            case "grid":
+                elem = E("div");
+                elem.style.display = "grid";
                 break;
             case "title":
                 elem = E("h2");
@@ -34,6 +51,9 @@ const ActivityManager = {
             case "icon":
                 elem = E("i");
                 elem.classList.add("material-symbols-outlined");
+                break;
+            case "img":
+                elem = E("img");
                 break;
             case "button":
                 elem = E("button");
@@ -62,15 +82,15 @@ const ActivityManager = {
                 return elem;
         }
         // No hay verificación de tipo de elemento para los atributos, el dev sabe lo que hace, no es un bebé como Google piensa (#googleDespierta)
-        if (elemObj.text)        elem.textContent      = Variables.resolveString(elemObj.text, appPackage, activityName);
-        if (elemObj.textAlign)   elem.style.textAlign  = Variables.resolveString(elemObj.textAlign, appPackage, activityName);
-        if (elemObj.fontSize)    elem.style.fontSize   = Variables.resolveString(elemObj.fontSize, appPackage, activityName);
-        if (elemObj.value)       elem.value            = Variables.resolveString(elemObj.value, appPackage, activityName);
+        if (elemObj.text)        elem.textContent      = elemObj.text;
+        if (elemObj.textAlign)   elem.style.textAlign  = elemObj.textAlign;
+        if (elemObj.fontSize)    elem.style.fontSize   = elemObj.fontSize;
+        if (elemObj.value)       elem.value            = elemObj.value;
         if (elemObj.checked)     elem.checked          = Boolean(Calvik.execute(appPackage, activityName, elemObj.checked));
         if (elemObj.width)       elem.style.width      = elemObj.width;
         if (elemObj.height)      elem.style.height     = elemObj.height;
         if (elemObj.id)          elem.id               = this._resolveId(appPackage, activityName, elemObj.id);
-        if (elemObj.placeholder) elem.placeholder      = Variables.resolveString(elemObj.placeholder, appPackage, activityName);
+        if (elemObj.placeholder) elem.placeholder      = elemObj.placeholder;
         if (elemObj.onclick)     elem.onclick          = ()=>{
             try {
                 Calvik.execute(appPackage, activityName, elemObj.onclick);
@@ -115,9 +135,11 @@ const ActivityManager = {
         if (elemObj.fg)          elem.style.color      = elemObj.fg;
         if (elemObj.padding)     elem.style.padding    = elemObj.padding;
         if (elemObj.margin)      elem.style.margin     = elemObj.margin;
-        if (elemObj.src)         elem.src              = Variables.resolveString(elemObj.src, appPackage, activityName);
+        if (elemObj.src)         elem.src              = elemObj.src;
         if (elemObj.child)       elemObj.child.forEach((chItem)=>elem.appendChild(this._render(appPackage, activityName, chItem)));
         if (elemObj.class)       elemObj.class.forEach((cClass)=>this.calvikClasses.includes(cClass) ? elem.classList.add(`not-${cClass}`) : console.warn(`La CalvikClass '${cClass}' no existe.`));
+        if (elemObj.gridRows)    elem.style.gridTemplateRows    = elemObj.gridRows;
+        if (elemObj.gridColumns) elem.style.gridTemplateColumns = elemObj.gridColumns;
         return elem;
     },
     _resolveId(appPackage, activityName, id){
@@ -127,7 +149,9 @@ const ActivityManager = {
         return `act-${pid}`;
     },
     // ["START_ACTIVITY"]
+    // ["START_INTENT"]
     startActivity(appPackage, activityName, intentData={}){
+        console.log(`[ActivityManager][startActivity] ${appPackage} | ${activityName}`);
         if (!verifyAppActivity(appPackage, activityName)) return false;
         const activityObj = ActivityManager.getActivityObj(appPackage, activityName);
 
@@ -143,19 +167,27 @@ const ActivityManager = {
         // Pasar datos entre actividades
         Variables.set(appPackage, activityName, "__intent_data__", intentData);
 
+        // Añadir la actividad al stack
+        this.activityStack.push({
+            appPackage: appPackage,
+            activityName: activityName,
+            element: actDiv,
+            pid: pid
+        });
+
         // Ejecutar onCreate (antes del renderizado)
         try {
             if (activityObj.onCreate) Calvik.execute(appPackage, activityName, activityObj.onCreate);
         } catch (e){
             if (e instanceof CalvikAbort){ // Si la app "abortó" (ej: no se otorgaron permisos necesarios)
-                this.finishActivity(appPackage, activityName);
+                actDiv.remove();
                 return false;
             }
             throw e;
         }
 
         // Renderizar y añadir elementos
-        actDiv.appendChild(this._render(appPackage, activityName, activityObj.view));
+        // actDiv.appendChild(this._render(appPackage, activityName, activityObj.view)); // deprecado🥺
         desktop.appendChild(actDiv);
         // Recargar elemento para que se muestre la transición (trucazo🔥🔥✅✅)
         void actDiv.offsetWidth;
@@ -166,14 +198,6 @@ const ActivityManager = {
             const firstActPCB = getAt(this.activityStack, 0);
             this.finishActivity(firstActPCB.appPackage, firstActPCB.activityName);
         }
-
-        // Añadir la actividad al stack
-        this.activityStack.push({
-            appPackage: appPackage,
-            activityName: activityName,
-            element: actDiv,
-            pid: pid
-        });
 
         // Ejecutar onStart (después del renderizado)
         try {
@@ -188,7 +212,7 @@ const ActivityManager = {
 
     },
     // ["FINISH_ACTIVITY"]
-    finishActivity(appPackage, activityName){ // PCB
+    finishActivity(appPackage, activityName){
         if (!verifyAppActivity(appPackage, activityName)) return false;
         const activityObj = ActivityManager.getActivityObj(appPackage, activityName);
         const PCB = popWhere(this.activityStack, (act)=>act.appPackage === appPackage &&  act.activityName === activityName);
@@ -199,83 +223,44 @@ const ActivityManager = {
         elem.classList.add("hide");
         setTimeout(()=>elem.remove(), 400);
     },
-    // ["ID_CLICK"]
-    idClick(appPackage, activityName, id){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.click();
+    // ["RES"]
+    getResource(appPackage, resName, itemName){
+        if (!verifyAppActivity(appPackage, null)) return false;
+        const appObj = AppManager.getAppObj(appPackage);
+        switch (resName){
+            case "layout":
+                return appObj.res.layouts?.[itemName] ?? false;
+            case "color":
+                return appObj.res.colors?.[itemName] ?? false;
+            case "string":
+                return appObj.res.strings?.[itemName] ?? false;
+            default:
+                console.warn(`Recurso desconocido: ${resName}`);
+                return false;
+        }
     },
-    // ["ID_SET_TEXT"]
-    idSetText(appPackage, activityName, id, text){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.textContent = text;
+    // ["SET_CONTENT_VIEW"]
+    setContentView(appPackage, activityName, elem){
+        if (!verifyAppActivity(appPackage, activityName)) return false;
+        const actPCB = getWhere(this.activityStack, act=>act.appPackage === appPackage && act.activityName === activityName);
+        actPCB.element.innerHTML = "";
+        if (!(elem instanceof Node)) elem = ActivityManager._render(appPackage, activityName, elem);
+        actPCB.element.appendChild(elem);
     },
-    // ["ID_GET_TEXT"]
-    idGetText(appPackage, activityName, id){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        return elem.textContent;
-    },
-    // ["ID_SET_VALUE"]
-    idSetValue(appPackage, activityName, id, value){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.value = value
-    },
-    // ["ID_GET_VALUE"]
-    idGetValue(appPackage, activityName, id){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        return elem.value;
-    },
-    // ["ID_SET_CHECKED"]
-    idSetChecked(appPackage, activityName, id, checked){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.checked = checked;
-    },
-    // ["ID_IS_CHECKED"]
-    idIsChecked(appPackage, activityName, id){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        return elem.checked;
-    },
-    // ["ID_ADD_CLASS"]
-    idAddClass(appPackage, activityName, id, clazz){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
+    // ["ELEM_ADD_CLASS"]
+    elemAddClass(appPackage, activityName, elem, clazz){
         this.calvikClasses.includes(clazz) ? elem.classList.add(`not-${clazz}`) : console.warn(`La CalvikClass '${clazz}' no existe.`);
     },
-    // ["ID_REMOVE_CLASS"]
-    idRemoveClass(appPackage, activityName, id, clazz){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
+    // ["ELEM_REMOVE_CLASS"]
+    elemRemoveClass(appPackage, activityName, elem, clazz){
         this.calvikClasses.includes(clazz) ? elem.classList.remove(`not-${clazz}`) : console.warn(`La CalvikClass '${clazz}' no existe.`);
     },
-    // ["ID_APPEND_CHILD"]
-    idAppendChild(appPackage, activityName, id, elemObj){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.appendChild(this._render(appPackage, activityName, elemObj));
-    },
-    // ["ID_CLEAR_CHILDS"]
-    idClearChilds(appPackage, activityName, id){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.innerHTML = "";
-    },
-    // ["ID_APPEND_CHILD"]
-    idSetSrc(appPackage, activityName, id, src){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.src = src;
-    },
+    // ["GET_ELEM_BY_ID"]
     getElementById(appPackage, activityName, id){
         if (!verifyAppActivity(appPackage, activityName)) return false;
         const actPCB = this.activityStack.find((act)=>act.appPackage === appPackage &&  act.activityName === activityName);
 
-        return $(`[id="${this._resolveId(appPackage, activityName, id)}"]`, actPCB.element);
+        return $(`[id="${this._resolveId(appPackage, activityName, id)}"]`, actPCB.element) || false;
     },
     getActivityObj(appPackage, activityName){
         if (!verifyAppActivity(appPackage, null)) return false;

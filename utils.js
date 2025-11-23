@@ -51,7 +51,7 @@ const popWhere = (arr, cond) =>{
     }
     return undefined;
 }
-const getAt = (arr, index) => arr.slice(index, 1)[0];
+const getAt = (arr, index) => arr[index];
 const getWhere = (arr, cond) =>{
     const index = arr.findIndex(cond);
     if (index !== -1){

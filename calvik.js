@@ -1,4 +1,5 @@
 // calvik.js
+const adb = "andrés debug bró"; //🥶📊 (fuera de joda, ¿es "Linus Torvalds" o "Linus Trovalds")
 const Calvik = {
     execute(appPackage, activityName, instructions){
         console.log(`[Calvik][EXEC][${appPackage}][${activityName}] ${instructions}`);
@@ -7,8 +8,8 @@ const Calvik = {
         if (!verifyAppActivity(appPackage, activityName)) return false;
 
         if (!instructions) return instructions;
-        // ¿LA INSTRUCCIÓN ES UNA CADENA, OBJETO LITERAL O NUMERO? => DEVUELVE VALOR DIRECTO (seguramente fue llamado de otra instrucción)
-        if (isString(instructions) || isObject(instructions) || isNumber(instructions) || isBoolean(instructions) || isCalvikArray()){
+        // ¿LA INSTRUCCIÓN NO ES UN ARRAY JS NATIVO? => DEVUELVE VALOR DIRECTO (seguramente fue llamado de otra instrucción)
+        if (!(Array.isArray(instructions) && !(instructions instanceof CalvikArray))){
             console.log(`[DIRECT_VALUE]`);
             return isString(instructions) ? Variables.resolveString(instructions, appPackage, activityName) : instructions;
         }
@@ -59,8 +60,10 @@ const Calvik = {
                 return Object.values(ex(args[0]));
             case "LENGTH":
                 return ex(args[0]).length;
-            case "RELOAD_NOTROID":
+            case "REBOOT":
                 return location.reload();
+            case "EXEC": // un sabio una vez me dijo: "no uses exec() en JS a lo pendejo"🗿📄💔
+                Calvik.execute(appPackage, activityName, args[0]); // De las pocas veces que el args no pasa por "ex()" 🤯🔥
             
             case "JOIN":
                 return ex(args[0]).join(ex(args[1]));
@@ -100,7 +103,7 @@ const Calvik = {
                 return ex(args[0]) || ex(args[1]);
             // === Variables === //
             case "SET_VAR":
-                return Variables.set(appPackage, activityName, args[0], ex(args[1]));
+                return Variables.set(appPackage, activityName, ex(args[0]), ex(args[1])); // args[0] también para poder hacer "var1", "var2" en los FOR_EACH (solución pedorra pero funciona✅)
             case "GET_VAR":
                 return Variables.get(appPackage, activityName, args[0]);
             case "DEL_VAR":
@@ -162,16 +165,30 @@ const Calvik = {
                 return true;
             case "FOR_EACH":
                 const [iterable, varName, bodyForEach] = args;
+                let i = 0;
                 for (const value of ex(iterable)){
-                    Variables.set(appPackage, activityName, varName, value);
+                    if (Array.isArray(varName)) {
+                        // Si varName es String: varName = elemento actual
+                        // Si varName es Array:  varName[0] = elemento actual ; varName[1] = nIteración
+                        Variables.set(appPackage, activityName, varName[0], value);
+                        Variables.set(appPackage, activityName, varName[1], i);
+                    } else {
+                        Variables.set(appPackage, activityName, varName, value);
+                    }
                     try {
                         ex(bodyForEach);
                     } catch (e){
                         if (e instanceof CalvikBreak) break;
                         throw e;
                     }
+                    i++
                 }
-
+                if (Array.isArray(varName)){
+                    Variables.del(appPackage, activityName, varName[0]);
+                    Variables.del(appPackage, activityName, varName[1]);
+                } else {
+                    Variables.del(appPackage, activityName, varName);
+                }
                 return true;
             case "BREAK":
                 throw new CalvikBreak();
@@ -184,36 +201,50 @@ const Calvik = {
             case "SHOW_TOAST":
                 return ToastManager.show(ex(args[0]));
             // ActivityManager
+            case "RENDER_LAYOUT":
+                return ActivityManager._render(appPackage, activityName, ex(args[0]));
+            case "RES":
+                return ActivityManager.getResource(appPackage, args[0], args[1]);
             case "START_ACTIVITY":
                 return ActivityManager.startActivity(appPackage, args[0], ex(args[1]));
+            case "START_INTENT":
+                return ActivityManager.startActivity(ex(args[0]), ex(args[1]), ex(args[2]));
             case "FINISH_ACTIVITY":
                 return ActivityManager.finishActivity(appPackage, activityName);
+            case "SET_CONTENT_VIEW":
+                return ActivityManager.setContentView(appPackage, activityName, ex(args[0]));
+            case "GET_ELEM_BY_ID":
+                return ActivityManager.getElementById(appPackage, activityName, ex(args[0]));
             case "GET_INTENT_DATA":
                 return Variables.get(appPackage, activityName, "__intent_data__") || {};
-            case "ID_CLICK":
-                return ActivityManager.idClick(appPackage, activityName, args[0]);
-            case "ID_SET_TEXT":
-                return ActivityManager.idSetText(appPackage, activityName, args[0], ex(args[1]));
-            case "ID_GET_TEXT":
-                return ActivityManager.idGetText(appPackage, activityName, args[0]);
-            case "ID_SET_VALUE":
-                return ActivityManager.idSetValue(appPackage, activityName, args[0], ex(args[1]));
-            case "ID_GET_VALUE":
-                return ActivityManager.idGetValue(appPackage, activityName, args[0]);
-            case "ID_SET_CHECKED":
-                return ActivityManager.idSetChecked(appPackage, activityName, args[0], ex(args[1]));
-            case "ID_IS_CHECKED":
-                return ActivityManager.idIsChecked(appPackage, activityName, args[0]);
-            case "ID_ADD_CLASS":
-                return ActivityManager.idAddClass(appPackage, activityName, args[0], ex(args[1]));
-            case "ID_REMOVE_CLASS":
-                return ActivityManager.idRemoveClass(appPackage, activityName, args[0], ex(args[1]));
-            case "ID_APPEND_CHILD":
-                return ActivityManager.idAppendChild(appPackage, activityName, args[0], ex(args[1]));
-            case "ID_CLEAR_CHILDS":
-                return ActivityManager.idClearChilds(appPackage, activityName, args[0]);
-            case "ID_SET_SRC":
-                return ActivityManager.idSetSrc(appPackage, activityName, args[0], ex(args[1]));
+            case "ELEM_CLICK":
+                return ex(args[0]).click();
+            case "ELEM_REMOVE":
+                return ex(args[0]).remove();
+            case "ELEM_SET_TEXT":
+                return ex(args[0]).textContent = ex(args[1]);
+            case "ELEM_GET_TEXT":
+                return ex(args[0]).textContent;
+            case "ELEM_SET_VALUE":
+                return ex(args[0]).value = ex(args[1]);
+            case "ELEM_GET_VALUE":
+                return ex(args[0]).value;
+            case "ELEM_SET_CHECKED":
+                return ex(args[0]).checked = Boolean(ex(args[1]));
+            case "ELEM_IS_CHECKED":
+                return ex(args[0]).checked;
+            case "ELEM_ADD_CLASS":
+                return ActivityManager.elemAddClass(appPackage, activityName, ex(args[0]), ex(args[1]));
+            case "ELEM_REMOVE_CLASS":
+                return ActivityManager.elemRemoveClass(appPackage, activityName, ex(args[0]), ex(args[1]));
+            case "ELEM_APPEND_CHILD":
+                return ex(args[0]).appendChild(ex(args[1]));
+            case "ELEM_CLEAR_CHILDS":
+                return ex(args[0]).innerHTML = "";
+            case "ELEM_SET_SRC":
+                return ex(args[0]).src = ex(args[1]);
+            case "ELEM_GET_SRC":
+                return ex(args[0]).src;
             // AlertDialog
             case "SHOW_ALERT":
                 // ! No sirve w, solamente sirve para ocupar la pantalla porq la ejecución sigue, mejor usen ["ALERT"] 🥀
@@ -223,8 +254,10 @@ const Calvik = {
                 return AppManager.install(ex(args[0]));
             case "UNINSTALL_APP":
                 return AppManager.uninstall(ex(args[0]));
-            case "LAUNCH_APP":
+            case "LAUNCH_APP": // ! deprecado
                 return AppManager.launch(ex(args[0]));
+            case "QUERY_INTENT":
+                return AppManager.queryIntent(appPackage, ex(args[0]), ex(args[1])); // ! Asegurarse de convertir "args[1]" (categories) en CalvikArray antes de pasarlo!!!!
             // FileSystem:
             case "FS_IS_FILE":
                 return FileSystem.isFile(appPackage, ex(args[0]));
@@ -246,7 +279,7 @@ const Calvik = {
                 return FileSystem.appendFile(appPackage, ex(args[0]), ex(args[1]));
             case "FS_REMOVE":
                 return FileSystem.remove(appPackage, ex(args[0]));
-            // LocalStorage:
+            // LocalStorage: // TODO: Migrar a la clase "SharedPreferences"
             case "SET_LOCAL":
                 return LocalStorage.set(appPackage, activityName, args[0], ex(args[1]));
             case "GET_LOCAL":
@@ -284,7 +317,7 @@ const Calvik = {
             case "SHOW_STATUS_ICON":
                 return StatusBarManager.showStatIcon(ex(args[0]));
             case "HIDE_STATUS_ICON":
-                return StatusBarManager.hideStatIcon(ex(args[0]));
+                return StatusBarManager.hideStatIcon(ex(args[0]));// dato random: sin Lo-Fi Notroid no existe
             case "TOGGLE_NOTIFICATIONS_PANEL":
                 return StatusBarManager.toggleNotificationsPanel();
             case "GET_STATUS_BAR_CONFIG":
