@@ -6,25 +6,9 @@ if (!AppManager.getAppObj("com.notroid.settings")){
         permissions:["PERMISSION_READ_CONFIGURATIONS", "PERMISSION_WRITE_CONFIGURATIONS"],
         icon: "https://placehold.co/150x150/666666/FFFFFF?text=Config",
         versionCode: 1,
-<<<<<<< HEAD
         res: {
             layouts: {
                 "main_layout": {type:"layout",padding:"5px",class:["all-width","all-height"],child:[
-=======
-        entry: "Main",
-        activities: {
-            "Main": {
-                onCreate: [
-                    ["IF", ["REQUEST_PERMISSION", "PERMISSION_READ_CONFIGURATIONS"], [], ["ABORT"]],
-                    ["IF", ["REQUEST_PERMISSION", "PERMISSION_WRITE_CONFIGURATIONS"], [], ["ABORT"]],
-                    ["IF", ["REQUEST_PERMISSION", "PERMISSION_MANAGE_STATUS_BAR"], [], ["ABORT"]],
-                    ["IF", ["REQUEST_PERMISSION", "PERMISSION_MANAGE_NAVIGATION_BAR"], [], ["ABORT"]],
-                ],
-                onDestroy: [],
-                background: "#111",
-                foreground: "#fff",
-                view: {type:"layout",padding:"5px",class:["all-width","all-height"],child:[
->>>>>>> d5d913d016ecff2f081a0e56ec61eebbadab4d19
                     {type:"title",text:"Configuraciones"},{type:"br"},
 
                     {type:"button",text:"🎨 Apariencia",class:["all-width", "flex", "justify-start"],padding:"5px",bg:"#000",fg:"#fff",fontSize:"15px",onclick:["START_ACTIVITY", "Appearance"]},
@@ -376,11 +360,6 @@ if (!AppManager.getAppObj("com.notroid.gogle")){ // ! AQUÍ ! // TODO: Actualiza
         package: "com.notroid.gogle",
         name: "Gogle",
         icon: "https://placehold.co/150x150/EEEEEE/2266DD?text=G",
-<<<<<<< HEAD
-=======
-        versionCode: 1,
-        entry: "Searcher",
->>>>>>> d5d913d016ecff2f081a0e56ec61eebbadab4d19
         activities: {
             "Searcher":{
                 background: "#eee",
