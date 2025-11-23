@@ -898,6 +898,7 @@ AppManager.install({
         }
     }
 });
+<<<<<<< HEAD
 AppManager.install({
     package: "com.test.alamierdaelmundo",
     name: "Todas las actividades XDD",
@@ -946,3 +947,5 @@ AppManager.install({
         }
     }
 });
+=======
+>>>>>>> d5d913d016ecff2f081a0e56ec61eebbadab4d19

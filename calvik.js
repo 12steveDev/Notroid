@@ -64,7 +64,11 @@ const Calvik = {
             case "REBOOT":
                 return location.reload();
             case "EXEC": // un sabio una vez me dijo: "no uses exec() en JS a lo pendejo"🗿📄💔
+<<<<<<< HEAD
                 Calvik.execute(pid, args[0]); // De las pocas veces que el args no pasa por "ex()" 🤯🔥
+=======
+                Calvik.execute(appPackage, activityName, args[0]); // De las pocas veces que el args no pasa por "ex()" 🤯🔥
+>>>>>>> d5d913d016ecff2f081a0e56ec61eebbadab4d19
             
             case "JOIN":
                 return ex(args[0]).join(ex(args[1]));
@@ -104,7 +108,11 @@ const Calvik = {
                 return ex(args[0]) || ex(args[1]);
             // === Variables === //
             case "SET_VAR":
+<<<<<<< HEAD
                 return Variables.set(pid, ex(args[0]), ex(args[1])); // args[0] también para poder hacer "var1", "var2" en los FOR_EACH (solución pedorra pero funciona✅)
+=======
+                return Variables.set(appPackage, activityName, ex(args[0]), ex(args[1])); // args[0] también para poder hacer "var1", "var2" en los FOR_EACH (solución pedorra pero funciona✅)
+>>>>>>> d5d913d016ecff2f081a0e56ec61eebbadab4d19
             case "GET_VAR":
                 return Variables.get(pid, args[0]);
             case "DEL_VAR":
@@ -171,10 +179,17 @@ const Calvik = {
                     if (Array.isArray(varName)) {
                         // Si varName es String: varName = elemento actual
                         // Si varName es Array:  varName[0] = elemento actual ; varName[1] = nIteración
+<<<<<<< HEAD
                         Variables.set(pid, varName[0], value);
                         Variables.set(pid, varName[1], i);
                     } else {
                         Variables.set(pid, varName, value);
+=======
+                        Variables.set(appPackage, activityName, varName[0], value);
+                        Variables.set(appPackage, activityName, varName[1], i);
+                    } else {
+                        Variables.set(appPackage, activityName, varName, value);
+>>>>>>> d5d913d016ecff2f081a0e56ec61eebbadab4d19
                     }
                     try {
                         ex(bodyForEach);
@@ -185,10 +200,17 @@ const Calvik = {
                     i++
                 }
                 if (Array.isArray(varName)){
+<<<<<<< HEAD
                     Variables.del(pid, varName[0]);
                     Variables.del(pid, varName[1]);
                 } else {
                     Variables.del(pid, varName);
+=======
+                    Variables.del(appPackage, activityName, varName[0]);
+                    Variables.del(appPackage, activityName, varName[1]);
+                } else {
+                    Variables.del(appPackage, activityName, varName);
+>>>>>>> d5d913d016ecff2f081a0e56ec61eebbadab4d19
                 }
                 return true;
             case "BREAK":
@@ -203,6 +225,7 @@ const Calvik = {
                 return ToastManager.show(ex(args[0]));
             // ActivityManager
             case "RENDER_LAYOUT":
+<<<<<<< HEAD
                 return ActivityManager._render(pid, ex(args[0]));
             case "RES":
                 return ActivityManager.getResource(pid, args[0], args[1]);
@@ -220,6 +243,23 @@ const Calvik = {
                 return Variables.get(pid, "__intent_data__") || {};
             case "CREATE_ELEM":
                 return ActivityManager._render(pid, {type: ex(args[0])});
+=======
+                return ActivityManager._render(appPackage, activityName, ex(args[0]));
+            case "RES":
+                return ActivityManager.getResource(appPackage, args[0], args[1]);
+            case "START_ACTIVITY":
+                return ActivityManager.startActivity(appPackage, args[0], ex(args[1]));
+            case "START_INTENT":
+                return ActivityManager.startActivity(ex(args[0]), ex(args[1]), ex(args[2]));
+            case "FINISH_ACTIVITY":
+                return ActivityManager.finishActivity(appPackage, activityName);
+            case "SET_CONTENT_VIEW":
+                return ActivityManager.setContentView(appPackage, activityName, ex(args[0]));
+            case "GET_ELEM_BY_ID":
+                return ActivityManager.getElementById(appPackage, activityName, ex(args[0]));
+            case "GET_INTENT_DATA":
+                return Variables.get(appPackage, activityName, "__intent_data__") || {};
+>>>>>>> d5d913d016ecff2f081a0e56ec61eebbadab4d19
             case "ELEM_CLICK":
                 return ex(args[0]).click();
             case "ELEM_REMOVE":
@@ -237,9 +277,15 @@ const Calvik = {
             case "ELEM_IS_CHECKED":
                 return ex(args[0]).checked;
             case "ELEM_ADD_CLASS":
+<<<<<<< HEAD
                 return ActivityManager.elemAddClass(pid, ex(args[0]), ex(args[1]));
             case "ELEM_REMOVE_CLASS":
                 return ActivityManager.elemRemoveClass(pid, ex(args[0]), ex(args[1]));
+=======
+                return ActivityManager.elemAddClass(appPackage, activityName, ex(args[0]), ex(args[1]));
+            case "ELEM_REMOVE_CLASS":
+                return ActivityManager.elemRemoveClass(appPackage, activityName, ex(args[0]), ex(args[1]));
+>>>>>>> d5d913d016ecff2f081a0e56ec61eebbadab4d19
             case "ELEM_APPEND_CHILD":
                 return ex(args[0]).appendChild(ex(args[1]));
             case "ELEM_CLEAR_CHILDS":
@@ -248,6 +294,7 @@ const Calvik = {
                 return ex(args[0]).src = ex(args[1]);
             case "ELEM_GET_SRC":
                 return ex(args[0]).src;
+<<<<<<< HEAD
             case "ADD_EVENT_LISTENER": {
                 const [elem, eventName, codeBlock] = args;
                 const realElem = ex(elem); // ELEM real del DOM
@@ -293,6 +340,8 @@ const Calvik = {
                 }
                 return true;
             }
+=======
+>>>>>>> d5d913d016ecff2f081a0e56ec61eebbadab4d19
             // AlertDialog
             case "SHOW_ALERT":
                 // ! No sirve w, solamente sirve para ocupar la pantalla porq la ejecución sigue, mejor usen ["ALERT"] 🥀
@@ -305,7 +354,11 @@ const Calvik = {
             case "LAUNCH_APP": // ! deprecado
                 return AppManager.launch(ex(args[0]));
             case "QUERY_INTENT":
+<<<<<<< HEAD
                 return AppManager.queryIntent(pid, ex(args[0]), ex(args[1])); // ! Asegurarse de convertir "args[1]" (categories) en CalvikArray antes de pasarlo!!!!
+=======
+                return AppManager.queryIntent(appPackage, ex(args[0]), ex(args[1])); // ! Asegurarse de convertir "args[1]" (categories) en CalvikArray antes de pasarlo!!!!
+>>>>>>> d5d913d016ecff2f081a0e56ec61eebbadab4d19
             // FileSystem:
             case "FS_IS_FILE":
                 return FileSystem.isFile(PCB.appPackage, ex(args[0]));
@@ -326,7 +379,11 @@ const Calvik = {
             case "FS_APPEND_FILE":
                 return FileSystem.appendFile(PCB.appPackage, ex(args[0]), ex(args[1]));
             case "FS_REMOVE":
+<<<<<<< HEAD
                 return FileSystem.remove(PCB.appPackage, ex(args[0]));
+=======
+                return FileSystem.remove(appPackage, ex(args[0]));
+>>>>>>> d5d913d016ecff2f081a0e56ec61eebbadab4d19
             // LocalStorage: // TODO: Migrar a la clase "SharedPreferences"
             case "SET_LOCAL":
                 return LocalStorage.set(appPackage, activityName, args[0], ex(args[1]));
