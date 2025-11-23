@@ -167,7 +167,7 @@ const ActivityManager = {
         if (activityObj.foreground) actDiv.style.color = activityObj.foreground;
 
         // Pasar datos entre actividades
-        Variables.set(appPackage, activityName, "__intent_data__", intentData);
+        Variables.set(pid, "__intent_data__", intentData);
 
         // Añadir la actividad al stack
         this.activityStack.push({
@@ -182,6 +182,7 @@ const ActivityManager = {
             if (activityObj.onCreate) Calvik.execute(pid, activityObj.onCreate);
         } catch (e){
             if (e instanceof CalvikAbort){ // Si la app "abortó" (ej: no se otorgaron permisos necesarios)
+                Variables.clearByPID(pid);
                 popWhere(this.activityStack, act => act.pid === pid);
                 actDiv.remove();
                 return false;
@@ -207,6 +208,7 @@ const ActivityManager = {
             if (activityObj.onStart) Calvik.execute(pid, activityObj.onStart);
         } catch (e){
             if (e instanceof CalvikAbort){
+                Variables.clearByPID(pid);
                 this.finishActivity(appPackage, activityName);
                 return false;
             }
@@ -217,15 +219,12 @@ const ActivityManager = {
     // ["FINISH_ACTIVITY"]
     finishActivity(pid){ // ! RECONSTRUYENDO
         const PCB = popWhere(this.activityStack, act => act.pid === pid);
-        if (!PCB){
-            console.error(`El PID '${pid}' no existe`);
-            return false;
-        };
+        if (!PCB) return false;
         
         const { appPackage, activityName } = PCB;
         const activityObj = ActivityManager.getActivityObj(appPackage, activityName);
 
-        if (activityObj.onDestroy) Calvik.execute(appPackage, activityName, activityObj.onDestroy);
+        if (activityObj.onDestroy) Calvik.execute(pid, activityObj.onDestroy);
         
         Variables.clearByPID(pid);
 

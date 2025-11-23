@@ -31,7 +31,7 @@ const Variables = {
             if (key.startsWith("[") && key.endsWith("]")){
                 return Calvik.execute(pid, JSON.parse(key));
             } else {
-                return this.get(appPackage, activityName, key.trim()) ?? `[undefined (${this._resolveVarName(pid, key.trim())})]`;
+                return this.get(pid, key.trim()) ?? `[undefined (${this._resolveVarName(pid, key.trim())})]`;
             }
         });
     },
