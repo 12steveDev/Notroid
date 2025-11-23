@@ -7,7 +7,7 @@ const AlertDialog = {
         }, 200);
     },
     // ["SHOW_ALERT"]
-    alert(appPackage, title, message, acceptBtnText, acceptAction){
+    alert(pid, title, message, acceptBtnText, acceptAction){
         const backdropDiv = E("div");
         backdropDiv.classList.add("backdrop", "flex", "justify-center", "items-center", "hide");
 
@@ -26,7 +26,7 @@ const AlertDialog = {
         const acceptBtn = E("button");
         acceptBtn.textContent = acceptBtnText || "Aceptar";
         acceptBtn.onclick = ()=>{
-            if (acceptAction) Calvik.execute(appPackage, acceptAction || []);
+            if (acceptAction) Calvik.execute(pid, acceptAction || []);
             this._closeDialog(backdropDiv);
         }
 

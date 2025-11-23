@@ -1,16 +1,18 @@
 // calvik.js
+const adb = "andrés debug bró"; //🥶📊 (fuera de joda, ¿es "Linus Torvalds" o "Linus Trovalds")
 const Calvik = {
-    execute(appPackage, activityName, instructions){
-        console.log(`[Calvik][EXEC][${appPackage}][${activityName}] ${instructions}`);
-
+    execute(pid, instructions){
         // GoogleMode: Verificar que el "contexto" sea válido jeje
-        if (!verifyAppActivity(appPackage, activityName)) return false;
+        const PCB = ActivityManager.getPCB(pid);
+        if (!PCB) return false;
+
+        console.log(`[Calvik][EXEC](${pid})[${PCB.appPackage}][${PCB.activityName}] ${instructions}`);
 
         if (!instructions) return instructions;
-        // ¿LA INSTRUCCIÓN ES UNA CADENA, OBJETO LITERAL O NUMERO? => DEVUELVE VALOR DIRECTO (seguramente fue llamado de otra instrucción)
-        if (isString(instructions) || isObject(instructions) || isNumber(instructions) || isBoolean(instructions) || isCalvikArray()){
+        // ¿LA INSTRUCCIÓN NO ES UN ARRAY JS NATIVO? => DEVUELVE VALOR DIRECTO (seguramente fue llamado de otra instrucción)
+        if (!(Array.isArray(instructions) && !(instructions instanceof CalvikArray))){
             console.log(`[DIRECT_VALUE]`);
-            return isString(instructions) ? Variables.resolveString(instructions, appPackage, activityName) : instructions;
+            return isString(instructions) ? Variables.resolveString(instructions, pid) : instructions;
         }
         // Para instrucciones vacias []
         if (instructions.length === 0) return;
@@ -18,17 +20,17 @@ const Calvik = {
         // ¿EL OPERADOR ES ARRAY? => SECUENCIA DE INSTRUCCIONES
         if (Array.isArray(op)){
             for (const inst of instructions){
-                this.execute(appPackage, activityName, inst);
+                this.execute(pid, inst);
             }
             return;
         }
         // TODA OPERACIÓN O VALOR SIEMPRE SERÁ TRATADO COMO EXPRESIÓN
-        const ex = (ins) => this.execute(appPackage, activityName, ins); // Anidar expresiones ✨✅
+        const ex = (ins) => this.execute(pid, ins); // Anidar expresiones ✨✅
         // SIEMPRE PASAR EL PACKAGE AL EJECUTAR PORFAVOR
         const opPerm = this.opcodePermissions[op]
         if (opPerm){
-            if (!opPerm.every(perm => PermissionManager.hasPermission(appPackage, perm))){
-                console.warn(`[PERMISSION DENIED][${appPackage}][${activityName}][${op}]: ${opPerm.join(", ")}`);
+            if (!opPerm.every(perm => PermissionManager.hasPermission(PCB.appPackage, perm))){
+                console.warn(`[PERMISSION DENIED](${pid})[${PCB.appPackage}][${PCB.activityName}][${op}]: ${opPerm.join(", ")}`);
                 return false;
             }
         }
@@ -59,8 +61,10 @@ const Calvik = {
                 return Object.values(ex(args[0]));
             case "LENGTH":
                 return ex(args[0]).length;
-            case "RELOAD_NOTROID":
+            case "REBOOT":
                 return location.reload();
+            case "EXEC": // un sabio una vez me dijo: "no uses exec() en JS a lo pendejo"🗿📄💔
+                Calvik.execute(pid, args[0]); // De las pocas veces que el args no pasa por "ex()" 🤯🔥
             
             case "JOIN":
                 return ex(args[0]).join(ex(args[1]));
@@ -100,11 +104,11 @@ const Calvik = {
                 return ex(args[0]) || ex(args[1]);
             // === Variables === //
             case "SET_VAR":
-                return Variables.set(appPackage, activityName, args[0], ex(args[1]));
+                return Variables.set(pid, ex(args[0]), ex(args[1])); // args[0] también para poder hacer "var1", "var2" en los FOR_EACH (solución pedorra pero funciona✅)
             case "GET_VAR":
-                return Variables.get(appPackage, activityName, args[0]);
+                return Variables.get(pid, args[0]);
             case "DEL_VAR":
-                return Variables.del(appPackage, activityName, args[0]);
+                return Variables.del(pid, args[0]);
             // === Funciones === //
             case "CALL":
                 return Functions.run(appPackage, args[0]);
@@ -162,16 +166,30 @@ const Calvik = {
                 return true;
             case "FOR_EACH":
                 const [iterable, varName, bodyForEach] = args;
+                let i = 0;
                 for (const value of ex(iterable)){
-                    Variables.set(appPackage, activityName, varName, value);
+                    if (Array.isArray(varName)) {
+                        // Si varName es String: varName = elemento actual
+                        // Si varName es Array:  varName[0] = elemento actual ; varName[1] = nIteración
+                        Variables.set(pid, varName[0], value);
+                        Variables.set(pid, varName[1], i);
+                    } else {
+                        Variables.set(pid, varName, value);
+                    }
                     try {
                         ex(bodyForEach);
                     } catch (e){
                         if (e instanceof CalvikBreak) break;
                         throw e;
                     }
+                    i++
                 }
-
+                if (Array.isArray(varName)){
+                    Variables.del(pid, varName[0]);
+                    Variables.del(pid, varName[1]);
+                } else {
+                    Variables.del(pid, varName);
+                }
                 return true;
             case "BREAK":
                 throw new CalvikBreak();
@@ -184,69 +202,132 @@ const Calvik = {
             case "SHOW_TOAST":
                 return ToastManager.show(ex(args[0]));
             // ActivityManager
+            case "RENDER_LAYOUT":
+                return ActivityManager._render(pid, ex(args[0]));
+            case "RES":
+                return ActivityManager.getResource(pid, args[0], args[1]);
             case "START_ACTIVITY":
-                return ActivityManager.startActivity(appPackage, args[0], ex(args[1]));
+                return ActivityManager.startActivity(PCB.appPackage, ex(args[0]), ex(args[1]));
+            case "START_INTENT":
+                return ActivityManager.startActivity(ex(args[0]), ex(args[1]), ex(args[2]));
             case "FINISH_ACTIVITY":
-                return ActivityManager.finishActivity(appPackage, activityName);
+                return ActivityManager.finishActivity(pid);
+            case "SET_CONTENT_VIEW":
+                return ActivityManager.setContentView(pid, ex(args[0]));
+            case "GET_ELEM_BY_ID":
+                return ActivityManager.getElementById(pid, ex(args[0]));
             case "GET_INTENT_DATA":
-                return Variables.get(appPackage, activityName, "__intent_data__") || {};
-            case "ID_CLICK":
-                return ActivityManager.idClick(appPackage, activityName, args[0]);
-            case "ID_SET_TEXT":
-                return ActivityManager.idSetText(appPackage, activityName, args[0], ex(args[1]));
-            case "ID_GET_TEXT":
-                return ActivityManager.idGetText(appPackage, activityName, args[0]);
-            case "ID_SET_VALUE":
-                return ActivityManager.idSetValue(appPackage, activityName, args[0], ex(args[1]));
-            case "ID_GET_VALUE":
-                return ActivityManager.idGetValue(appPackage, activityName, args[0]);
-            case "ID_SET_CHECKED":
-                return ActivityManager.idSetChecked(appPackage, activityName, args[0], ex(args[1]));
-            case "ID_IS_CHECKED":
-                return ActivityManager.idIsChecked(appPackage, activityName, args[0]);
-            case "ID_ADD_CLASS":
-                return ActivityManager.idAddClass(appPackage, activityName, args[0], ex(args[1]));
-            case "ID_REMOVE_CLASS":
-                return ActivityManager.idRemoveClass(appPackage, activityName, args[0], ex(args[1]));
-            case "ID_APPEND_CHILD":
-                return ActivityManager.idAppendChild(appPackage, activityName, args[0], ex(args[1]));
-            case "ID_CLEAR_CHILDS":
-                return ActivityManager.idClearChilds(appPackage, activityName, args[0]);
-            case "ID_SET_SRC":
-                return ActivityManager.idSetSrc(appPackage, activityName, args[0], ex(args[1]));
+                return Variables.get(pid, "__intent_data__") || {};
+            case "CREATE_ELEM":
+                return ActivityManager._render(pid, {type: ex(args[0])});
+            case "ELEM_CLICK":
+                return ex(args[0]).click();
+            case "ELEM_REMOVE":
+                return ex(args[0]).remove();
+            case "ELEM_SET_TEXT":
+                return ex(args[0]).textContent = ex(args[1]);
+            case "ELEM_GET_TEXT":
+                return ex(args[0]).textContent;
+            case "ELEM_SET_VALUE":
+                return ex(args[0]).value = ex(args[1]);
+            case "ELEM_GET_VALUE":
+                return ex(args[0]).value;
+            case "ELEM_SET_CHECKED":
+                return ex(args[0]).checked = Boolean(ex(args[1]));
+            case "ELEM_IS_CHECKED":
+                return ex(args[0]).checked;
+            case "ELEM_ADD_CLASS":
+                return ActivityManager.elemAddClass(pid, ex(args[0]), ex(args[1]));
+            case "ELEM_REMOVE_CLASS":
+                return ActivityManager.elemRemoveClass(pid, ex(args[0]), ex(args[1]));
+            case "ELEM_APPEND_CHILD":
+                return ex(args[0]).appendChild(ex(args[1]));
+            case "ELEM_CLEAR_CHILDS":
+                return ex(args[0]).innerHTML = "";
+            case "ELEM_SET_SRC":
+                return ex(args[0]).src = ex(args[1]);
+            case "ELEM_GET_SRC":
+                return ex(args[0]).src;
+            case "ADD_EVENT_LISTENER": {
+                const [elem, eventName, codeBlock] = args;
+                const realElem = ex(elem); // ELEM real del DOM
+                realElem.addEventListener(ex(eventName), ()=>{
+                    try {
+                        Calvik.execute(pid, codeBlock);
+                    } catch(e){
+                        if (e instanceof CalvikAbort){
+                            return false;
+                        }
+                        throw e;
+                    }
+                })
+                return true;
+            }
+            case "SET_ONCLICK_LISTENER": {
+                const [elem, codeBlock] = args;
+                const realElem = ex(elem); // ELEM real del DOM
+                realElem.onclick = ()=>{
+                    try {
+                        Calvik.execute(pid, codeBlock);
+                    } catch(e){
+                        if (e instanceof CalvikAbort){
+                            return false;
+                        }
+                        throw e;
+                    }
+                }
+                return true;
+            }
+            case "SET_ONCHANGE_LISTENER": {
+                const [elem, codeBlock] = args;
+                const realElem = ex(elem); // ELEM real del DOM
+                realElem.onchange = ()=>{
+                    try {
+                        Calvik.execute(pid, codeBlock);
+                    } catch(e){
+                        if (e instanceof CalvikAbort){
+                            return false;
+                        }
+                        throw e;
+                    }
+                }
+                return true;
+            }
             // AlertDialog
             case "SHOW_ALERT":
                 // ! No sirve w, solamente sirve para ocupar la pantalla porq la ejecución sigue, mejor usen ["ALERT"] 🥀
-                return AlertDialog.alert(appPackage, ex(args[0]), ex(args[1]), ex(args[2]), args[3]);
+                return AlertDialog.alert(pid, ex(args[0]), ex(args[1]), ex(args[2]), args[3]);
             // AppManager (app malintencionada + INSTALL + LAUNCH sin consentimiento = primer virus de Notroid)
             case "INSTALL_APP":
                 return AppManager.install(ex(args[0]));
             case "UNINSTALL_APP":
                 return AppManager.uninstall(ex(args[0]));
-            case "LAUNCH_APP":
+            case "LAUNCH_APP": // ! deprecado
                 return AppManager.launch(ex(args[0]));
+            case "QUERY_INTENT":
+                return AppManager.queryIntent(pid, ex(args[0]), ex(args[1])); // ! Asegurarse de convertir "args[1]" (categories) en CalvikArray antes de pasarlo!!!!
             // FileSystem:
             case "FS_IS_FILE":
-                return FileSystem.isFile(appPackage, ex(args[0]));
+                return FileSystem.isFile(PCB.appPackage, ex(args[0]));
             case "FS_IS_DIR":
-                return FileSystem.isDir(appPackage, ex(args[0]));
+                return FileSystem.isDir(PCB.appPackage, ex(args[0]));
             case "FS_LIST_DIR":
-                return FileSystem.listDir(appPackage, ex(args[0]));
+                return FileSystem.listDir(PCB.appPackage, ex(args[0]));
             case "FS_CREATE_DIR":
-                return FileSystem.createDir(appPackage, ex(args[0]));
+                return FileSystem.createDir(PCB.appPackage, ex(args[0]));
             case "FS_CREATE_DIRS":
-                return FileSystem.createDirs(appPackage, ex(args[0]));
+                return FileSystem.createDirs(PCB.appPackage, ex(args[0]));
             case "FS_CREATE_FILE":
-                return FileSystem.createFile(appPackage, ex(args[0]));
+                return FileSystem.createFile(PCB.appPackage, ex(args[0]));
             case "FS_READ_FILE":
-                return FileSystem.readFile(appPackage, ex(args[0]));
+                return FileSystem.readFile(PCB.appPackage, ex(args[0]));
             case "FS_WRITE_FILE":
-                return FileSystem.writeFile(appPackage, ex(args[0]), ex(args[1]));
+                return FileSystem.writeFile(PCB.appPackage, ex(args[0]), ex(args[1]));
             case "FS_APPEND_FILE":
-                return FileSystem.appendFile(appPackage, ex(args[0]), ex(args[1]));
+                return FileSystem.appendFile(PCB.appPackage, ex(args[0]), ex(args[1]));
             case "FS_REMOVE":
-                return FileSystem.remove(appPackage, ex(args[0]));
-            // LocalStorage:
+                return FileSystem.remove(PCB.appPackage, ex(args[0]));
+            // LocalStorage: // TODO: Migrar a la clase "SharedPreferences"
             case "SET_LOCAL":
                 return LocalStorage.set(appPackage, activityName, args[0], ex(args[1]));
             case "GET_LOCAL":
@@ -268,23 +349,23 @@ const Calvik = {
             case "SET_NOTIFICATION_STATE":
                 return NotificationManager.setState(ex(args[0]));
             // PermissionManager
-            case "PACKAGE_GRANT_PERMISSION":
+            case "PACKAGE_GRANT_PERMISSION": // ! REFACTORIZAR CON PID
                 return PermissionManager.grant(ex(args[0]), ex(args[1]));
-            case "REVOKE_PERMISSION":
-                return PermissionManager.revoke(appPackage, ex(args[0]));
-            case "PACKAGE_REVOKE_PERMISSION":
+            case "REVOKE_PERMISSION": // ! REFACTORIZAR CON PID
+                return PermissionManager.revoke(PCB.appPackage, ex(args[0]));
+            case "PACKAGE_REVOKE_PERMISSION": // ! REFACTORIZAR CON PID
                 return PermissionManager.revoke(ex(args[0]), ex(args[1]));
-            case "HAS_PERMISSION":
-                return PermissionManager.hasPermission(appPackage, ex(args[0]));
-            case "PACKAGE_HAS_PERMISSION":
+            case "HAS_PERMISSION": // ! REFACTORIZAR CON PID
+                return PermissionManager.hasPermission(PCB.appPackage, ex(args[0]));
+            case "PACKAGE_HAS_PERMISSION": // ! REFACTORIZAR CON PID
                 return PermissionManager.hasPermission(ex(args[0]), ex(args[1]));
-            case "REQUEST_PERMISSION":
-                return PermissionManager.requestPermission(appPackage, ex(args[0]));
+            case "REQUEST_PERMISSION": // ! REFACTORIZAR CON PID
+                return PermissionManager.requestPermission(PCB.appPackage, ex(args[0]));
             // StatusBarManager
             case "SHOW_STATUS_ICON":
                 return StatusBarManager.showStatIcon(ex(args[0]));
             case "HIDE_STATUS_ICON":
-                return StatusBarManager.hideStatIcon(ex(args[0]));
+                return StatusBarManager.hideStatIcon(ex(args[0]));// dato random: sin Lo-Fi Notroid no existe
             case "TOGGLE_NOTIFICATIONS_PANEL":
                 return StatusBarManager.toggleNotificationsPanel();
             case "GET_STATUS_BAR_CONFIG":
@@ -317,6 +398,8 @@ const Calvik = {
                 return AndroidBridge.sendNotification(ex(args[0]), ex(args[1]));
             case "ANDROID_FINISH_ACTIVITY":
                 return AndroidBridge.finishActivity();
+            case "ANDROID_EXPORT_APP":
+                return ToastManager.showToast("Algún día pequeño bro...");
             // === Default === //
             default:
                 throw new Error(`CALVIK ERROR: Unknown opcode: ${op}`);

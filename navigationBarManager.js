@@ -29,7 +29,7 @@ const NavigationBarManager = {
         }
         const currAct = ActivityManager.activityStack.at(-1); // obtiene el último elemento sin modificar el array original
         if (currAct){
-            ActivityManager.finishActivity(currAct.appPackage, currAct.activityName);
+            ActivityManager.finishActivity(currAct.pid);
             return true;
         }
         // wtf JAJJAJ
@@ -48,7 +48,7 @@ const NavigationBarManager = {
         if (actStack.length > 0){
             let c = 0;
             actStack.forEach((act)=>{
-                ActivityManager.finishActivity(act.appPackage, act.activityName);
+                ActivityManager.finishActivity(act.pid);
                 c++;
             });
             console.log(`${c} apps cerradas`);

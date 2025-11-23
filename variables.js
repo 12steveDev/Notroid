@@ -1,35 +1,50 @@
 // variables.js
 const Variables = {
     vars: new Map(),
-    _resolveVarName(appPackage, activityName, varName){
-        return `notvar.${appPackage}.${activityName}.${varName}`;
+    _resolveVarName(pid, varName){
+        return `notvar.pid-${pid}.${varName}`;
     },
     // ["SET_VAR"]
-    set(appPackage, activityName, varName, varValue){
-        return this.vars.set(this._resolveVarName(appPackage, activityName, varName), varValue);
+    set(pid, varName, varValue){
+        return this.vars.set(this._resolveVarName(pid, varName), varValue);
     },
     // ["GET_VAR"]
-    get(appPackage, activityName, varName){
-        return this.vars.get(this._resolveVarName(appPackage, activityName, varName));
+    get(pid, varName){
+        return this.vars.get(this._resolveVarName(pid, varName));
     },
     // ["DEL_VAR"]
-    del(appPackage, activityName, varName){
-        return this.vars.delete(this._resolveVarName(appPackage, activityName, varName));
+    del(pid, varName){
+        return this.vars.delete(this._resolveVarName(pid, varName));
     },
-    clearByActivity(appPackage, activityName){
+    exists(pid, varName){
+        return this.vars.has(this._resolveVarName(pid, varName));
+    },
+    clearByPID(pid){
         for (const key of this.vars.keys()){
-            if (key.startsWith(`notvar.${appPackage}.${activityName}.`)){
+            if (key.startsWith(`notvar.pid-${pid}.`)){
                 this.vars.delete(key);
             }
         }
     },
-    resolveString(str, appPackage, activityName){
+    resolveString(str, pid){
         return str.replace(/\$\{(.*?)\}/g, (_, key) =>{
             if (key.startsWith("[") && key.endsWith("]")){
-                return Calvik.execute(appPackage, activityName, JSON.parse(key));
+                return Calvik.execute(pid, JSON.parse(key));
             } else {
-                return this.get(appPackage, activityName, key.trim()) ?? `[undefined (${this._resolveVarName(appPackage, activityName, key.trim())})]`;
+                return this.get(appPackage, activityName, key.trim()) ?? `[undefined (${this._resolveVarName(pid, key.trim())})]`;
             }
         });
+    },
+    resolveDeep(obj, pid){
+        if (typeof obj === "string") return this.resolveString(obj, pid);
+        if (Array.isArray(obj)) return obj.map(x => this.resolveDeep(x, pid));
+        if (typeof obj === "object" && obj !== null){
+            const out = {};
+            for (const k in obj){
+                out[k] = this.resolveDeep(obj[k], pid);
+            }
+            return out;
+        }
+        return obj;
     }
 }

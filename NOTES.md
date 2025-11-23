@@ -6,55 +6,101 @@
 > "Notroid: Donde tus sueños de explorar /data/data/ se hacen realidad" 🥀🔥
 > No es un simulador, no es un emulador... ¡ES UNA TERAPIA PARA DEVELOPERS CURIOSOS! 😭✅
 
+## Errores conocidos:
+- Al crear otra instancia de una misma actividad se va todo a la mrd (los `PID` ayudarán?)
+- Todas las apps no son compatibles con el nuevo sistema, porfa alguien desocupado que me ayude a lavar platos en mi casa y tenderme mi cama (y hacer compatibles las apps también, si quieres)
+- La página tarda en cargar, ojo👀👀 (aunque eso significa que mi proyecto si creció..... *crecen tan rápido...*🥺🎄)
+- Se llama demasiadas veces la lectura desde FS de los permisos (mi tostadora se calienta mucho luego💔)
+
 ## TO-DO:
-- Añadir actividades a los paquetes de las aps (`ActivityManager`, `["START_ACTIVITY"]`) (Nota: **YA IMPLEMENTADO KBRONES!!!!**)
-- Hacer que toda acción tenga que estar en un contexto de paquete **Y** de actividad. (Nota: **TAMBIEN ESTÁ KBRONES!!!!!**)
 - Añadir UI al TopPopup de las notificaciones (Nota: **esto no, tengo pereza JAAJAJAJJAJAJA**)
-- Permitir inicializar variables en apps antes de renderizar la UI
-- Pensar, ¿`LocalStorage` también debe ser `notlocal.package.activity.varname` para estar encapsulado o `notlocal.package.varname` para que toda la app pueda acceder?
 - Pensar que haría alguien con `root` en Notroid (literal Notroid ya expone todo)
-- Añadir quizás un `["ID_CLICK"]` para hacer clicks a propósito.
 - ¿Añadir `["FETCH"]`??? ¿Quieren hacer apps profesionales en Notroid!!???
-- Añadir tipo de elemento `webview` (un `<iframe>`), atributo `src`, y opcodes `["ID_SET_SRC"]` y `["ID_SET_SRCDOC"]` (se viene IDE HTML en Notroid wee 👀👀🔥🔥).
-- ! Por favor, **encontrar solución al problema de que no podemos diferenciar entre instrucciones Calvik y un Array**, por lo tanto, no podemos usar Arrays
-- Después de solucionar el problema con Arrays, añadir opcodes para listar paquetes (y devolver array con objetos de cada app ()).
-- Pensar 2 veces si mantener localStorage o mejor añadir un `FileSystem` (con `["CREATE_FILE"]`, `["READ_FILE"]`, `["WRITE_FILE"]`, `["APPEND_FILE"]` y `["DELETE_FILE"]`) y localStorage solo serviría para guardar el estado de FileSystem (por lo que, la data de todas las apps, del sistema, todo, estaría en FileSystem, localstorage solamente guarda el fs).
+- Terminar `SharedPreferences` (y usar las rutas `/data/data/<pkg>/shared_prefs/`).
 - Migrar `LocalStorage` a `SharedPreferences`.
+- Hacer que el launcher del sistema sea también una app normal como las otras (ya está un launcher beta, nomás falta perfeccionar y ya ta)
+- Añadir a SystemConfigs para poner el paquete de la app de launcher default.
+- Hacer una sola función para **bootear**, y no andar adivinando que funcion de init llamar primero
+- El deslizamiento hacia abajo de la statusBar funciona... Pero no existe el panel de notificaciones, quickSettings, ¡NADA! checa eso
+- Re hacer `Functions.js` para que de verdad sirva, y implementar funciones por actividad y funciones globales :O
+- Sobre lo que se congela un poco la página al iniciar:
+- - O intento optimizar todo
+- - O añado un circulito que de vueltas mientras dice "Cargando Android Pobre (pro tip: borra /data/system/)"
 
 ### Ideas para el FileSystem
-- `/data/apps/*.npk`: Ahí estarán todas las apps (.npk es una escusa, en simplemente un JSON JAJAJAJ).
-- `/storage/emulated/0/`: Espacio de trabajo del usuario.
-- `/data/data/com.example.package/files/`: Archivos de las apps.
+- `/init.nil` que se ejecute al inicio de todo??
+- `/system/etc/bin/*.nil` por consiguiente jeje
+- `/system/bin/installd` ¿Queremos *simular* Android o **emularlo**????🗿☠☠☠☠☠
+- `/system/settings.db` y `/system/*.xml` ¿Pasar todas las `SystemConfig.settings` aquí???
+- `/system/build.prop` ... we, ya parezco esas personas que compran cosas y ni las necesitan XDDDD
 - **Buscando ideas:**
-- - Un directorio en el que haya un .clvk (Calvik) para que se ejecute al inicio de todo.
 - - (MUY_IMPORTANTE) Añadir más directorios así "criticos" para que pegue más duro lo "Android-like"
 - Añadir ".validName()" al `FileSystem` para verificar nombres.
 
 ## TO-DO MUY LEJANO
-- Utilizar Google Sheets (pobre pero útil) o vender caramelos para tener una base de datos estable y hacer un `AppStore`
-- Permitir en entornos android exportar una app Notroid a ser una app real JAJAJAJAJ (we ni lo he hecho en Kotlin y lo voy a hacer acá)
+- Utilizar Google Sheets (pobre pero útil) o vender caramelos para alojar una base de datos estable y hacer un `AppStore`
+- Permitir en entornos android exportar una app Notroid a ser una app real JAJAJAJAJ (we ni lo he hecho en Kotlin y lo voy a hacer acá)..... espera..... ¿y si la exportamos metiendo el "runtime" de Notroid y el código ahí????.... weee fuera de bromas esto tiene potencial...
 - Hacer un lenguaje de programación legible para transformar a Calvik (que también es legible, pero igual es un pokito dificil jeje) (`CalvikScript.js`)
 - ¿`Picture On Picture`? ¿`PERMISSION_SYSTEM_ALERT_WINDOW`? *¿Qué opcodes habría para manejar todo eso?....*
 - ¿`TileService` en Notroid???
-- Quizás si se crean los `opcodes` y `UIs` necesarios, hacer que el **launcher** sea también una app, y que se pueda cambiar (incluso, hasta podríamos hacer un **inputmethod** jeje... (me estoy matando solito wtf)). Si esto llega a suceder, también a las apps añadirles el atributo `isLauncher: true/false` para los launchers jeje, y una `SystemConfig.settings` "`defaultLauncher: "com.example.package"`"
 - Quizás `Intents` con acciones y categorías?????????
+- ¿Quizás **inputmethods** intercambiables????? (SE VIENE **NBoard**?????)
 
-## TO-DO DEFINITIVO (solamente 3)
+## TO-DO DEFINITIVO (solamente 5)
 1. Hacer una documentación (`Calvik`, `UI`, etc) y `README.md` decentes.
 2. Crear la app definitiva `Ajustes`.
 3. *Que Google tiemble...*.
+4. *¿que kernel Linux se levante y nos aplauda?...*
+5. ***tocar césped✅***
 
-## Hecho:
-- Implementar elemento `input` y `checkbox` (y sus `ID_GET_VALUE`, `ID_SET_VALUE`)
-- Ejecutar appObj.onDestroy al matar una actividad
-- Implementar persistencia en localStorage para apps (quizás `SET_LOCAL`, `GET_LOCAL`, `DEL_LOCAL`)
-- Implementar opcode `ID_ADD_CLASS` y `ID_REMOVE_CLASS`
-- Optimizar activityManager en el tema de verificar si existe el paquete y la actividad (weon, como 40 lineas repetidas, se nota qje este código es mio JAJAJAJ)
-- Migrar todas las apps antiguas a el modo actual
-- **URGENTE IDEA PRO:** **añadir atributo `pid` a los items en `ActivityManager.activityStack`, y a los divs base de las actividades ponerles de `id` ese `pid`.**
-- Implementar la `NavigationBar`
-- Limpiar las variables de una actividad cuando esa actividad muera (pobrecita 😢)
-- Implementar los últimos SystemConfig.settings
+## Estado actual del creador (spoiler: demencial):
+Quiero añadir cada maldito detalle de Android...
+Probablemente añadir una app overlay `3ButtonNavigationBar` y cargarla con un rico `SystemUI`
+Probablemente añadir `installd` y cargarlo desde un `/system/etc/init/installd.rc`;
+¿Simular `Android Init Languaje` a la perfección?? Y si lo llego a hacer.... jejeje imaginate un `AIL IDE` nativo 🗿🗿 (google nos tendrá miedo...)
 
-## Estado actual:
-Intentando integrar el FS para TODO we (hasta ahora solamente se ven las carpetas, pero no sirven para nada XDD)
+## Datos del creador:
+- *JSON me abraza en las noches...*
+- Me gusta **Lo-Fi** (**¡LA MUSICA, NO LA CHICA!**, *bueno, pueda que sí...*)🗿🎄
+
+## Dato random:
+**ES "Linus Torvalds"**
+- NO `Trovalds`
+- NO `Torvaldo`
+- NO `Toyota`
+- NO `Tortillas`
+- NO `Troid` (meme rancio, solo yo lo entendí XDD😔🔥)
+solo: **Torvalds** 🗿🔥
+
+## Archivos existentes:
+- `activityManager.js`
+- `alertDialog.js` (solo existe, no ayuda en nada)
+- `appManager.js`
+- `calvik.js`
+- `calvikScript.js` (no se usa (ni sirve))
+- `CONTRIBUTORS.md`
+- `discord-notification.mp3`
+- `flex.css`
+- `fs.js`
+- `functions.js` (igual que el `alertDialog`)
+- `index.html`
+- `LICENCE.md`
+- `main.js`
+- `navigationBarManager.js`
+- `NOTES.md`
+- `notificationManager.js`
+- `permissionManager.js`
+- `priv-app.js`
+- `sharedPreferences.js` (el único código funcional ahí son los comentarios XDD)
+- `statusBarManager.js`
+- `styles.css`
+- `systemConfig.js`
+- `toastManager.js`
+- `utils.js`
+- `variables.js`
+
+Y si los archivos de la App Android cuentan:
+- `MainActivity.java`
+- `AndroidManifest.xml`
+
+Fin del documento

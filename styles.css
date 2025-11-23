@@ -189,6 +189,11 @@ body {
     overflow-y: auto;
     z-index: 100;
 }
+.activity > *{ /* aka contentView */
+    height: 100%;
+    width: 100%;
+    margin: 0;
+}
 
 input[type="checkbox"].switch {
     appearance: none; /* Esto es clave */
@@ -273,4 +278,9 @@ input[type="checkbox"].switch:checked::before {
 }
 .not-hide {
     opacity: 0;
+}
+.not-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

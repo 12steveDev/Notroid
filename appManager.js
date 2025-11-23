@@ -1,15 +1,15 @@
 // appManager.js
-const AppManager = {
+const AppManager = { // (aka PackageManager)
     apps: [], // caché de las apps
     _verify(appObj){
         // Verificar una app
         return (
-            appObj.package &&
-            appObj.name &&
-            appObj.icon &&
-            appObj.activities &&
-            Object.keys(appObj.activities).length >= 1,
-            appObj.entry
+                       typeof appObj.package       === "string" &&
+                       typeof appObj.icon          === "string" &&
+                       typeof appObj.name          === "string" &&
+            Number.isInteger( appObj.versionCode   )            &&
+                              appObj.activities                 &&
+                 Object.keys( appObj.activities    ).length >= 1
         ); // Recorre cada clave obligatoria para una app
     },
     _refreshFromFS(){
@@ -54,6 +54,7 @@ const AppManager = {
         const result = this._verify(appObj);
         if (!result){ // Error?
             ToastManager.show("No se pudo instalar porque el paquete no es válido");
+            console.error("No se pudo instalar porque el paquete no es válido");
             return false;
         }
         if (this.apps.find(app => app.package === appObj.package)){
@@ -61,7 +62,7 @@ const AppManager = {
                 return false;
             }
             FileSystem._uninstallApp(appObj.package);
-            this.apps = this.apps.filter(app => app.package !== appObj.package);
+            // this.apps = this.apps.filter(app => app.package !== appObj.package); // ya no we
         }
         const r = FileSystem._installApp(appObj);
         this.refresh();
@@ -87,12 +88,39 @@ const AppManager = {
 
         return ActivityManager.getActivityObj(appPackage, entry) ? ActivityManager.startActivity(appPackage, entry) : ToastManager.show("No se puede iniciar esta app");
     },
+    // ["QUERY_INTENT"]
+    queryIntent(pid, action, categories){
+        const results = new CalvikArray();
+        for (const app of AppManager.apps){
+            for (const [activityName, activityObj] of Object.entries(app.activities)){
+                if (this._matchesIntent(activityObj, action, categories)){
+                    results.push({
+                        package: app.package,
+                        activity: activityName,
+                        name: app.name,
+                        icon: app.icon
+                    });
+                }
+            }
+        }
+        return results;
+    },
+    _matchesIntent(activityObj, action, categories){
+        // Verificar acción
+        if (action && activityObj.actions && !activityObj.actions.includes(action)){
+            return false;
+        }
+        // Verificar categorías
+        if (categories && categories.length){
+            if (!activityObj.categories) return false;
+            return categories.every(cat => activityObj.categories.includes(cat));
+        }
+        return true;
+    },
     refresh(){
         this._refreshFromFS();
         $$(".app", desktop).forEach(appIcon => appIcon.remove());
-        for (const app of this.apps){
-            // Apps ocultas? El inicio de los viruses 👀👀🥀🥀
-            if (app.hidden) continue;
+        for (const app of this.queryIntent("sepaLaBola.com", "ACTION_MAIN", ["CATEGORY_LAUNCHER"])){
             // Creamos el ícono desde 0
             const appDiv = E("div");
             appDiv.className = "app flex flex-col justify-center items-center";
@@ -109,7 +137,7 @@ const AppManager = {
             
             // Acción al hacer click
             appDiv.onclick = ()=>{
-                this.launch(app.package);
+                ActivityManager.startActivity(app.package, app.activity);
             };
         }
     }

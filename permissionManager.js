@@ -15,6 +15,7 @@ const PermissionManager = {
         ["PERMISSION_VIBRATE",                    0], // Vibrar si es entorno Android
         ["PERMISSION_READ_EXTERNAL_STORAGE",      1], // Leer archivos
         ["PERMISSION_WRITE_EXTERNAL_STORAGE",     1], // Escribir archivos
+        ["PERMISSION_QUERY_ALL_PACKAGES",         1], // Listar todas las apps, su ícono, label
     ],
     appPermissions: {}, // cache de permisos // {"com.app": ["INTERNET", "CAMERA"]}
 
@@ -52,13 +53,6 @@ const PermissionManager = {
 
     // ["PACKAGE_GRANT_PERMISSION"] (P_MANAGE_EXTERNAL_APPS)(P_MANAGE_DIRECT_PERMISSIONS)
     grant(appPackage, permission){
-        // TODO Migrar esto hacia FS
-        // if (!this.appPermissions[appPackage]){
-        //     this.appPermissions[appPackage] = [];
-        // }
-        // if (!this.appPermissions[appPackage].includes(permission)){
-        //     this.appPermissions[appPackage].push(permission);
-        // }
 
         const pkgF = "/data/system/packages.xml";
         // Leer packages.xml existente (si existe)

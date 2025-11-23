@@ -51,7 +51,7 @@ const popWhere = (arr, cond) =>{
     }
     return undefined;
 }
-const getAt = (arr, index) => arr.slice(index, 1)[0];
+const getAt = (arr, index) => arr[index];
 const getWhere = (arr, cond) =>{
     const index = arr.findIndex(cond);
     if (index !== -1){
@@ -129,19 +129,19 @@ function initializeListeners(){
 
     document.addEventListener("focusin", (e)=>{
         setTimeout(()=>{
-            if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"){
+            if ((e.target.tagName === "INPUT" && !e.target.classList.contains("switch")) || e.target.tagName === "TEXTAREA"){
                 $("#backBtn", navigationBar).classList.add("keyboardMode");
                 currentFocusedInput = e.target;
             }
-        }, 2);
+        }, 15);
     })
     document.addEventListener("focusout", (e)=>{
         setTimeout(()=>{
-            if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"){
+            if ((e.target.tagName === "INPUT" && !e.target.classList.contains("switch")) || e.target.tagName === "TEXTAREA"){
                 $("#backBtn", navigationBar).classList.remove("keyboardMode");
                 currentFocusedInput = null;
             }
-        }, 1);
+        }, 10);
     })
 
     setInterval(()=>{

@@ -10,14 +10,31 @@ const ActivityManager = {
         "justify-start", "justify-center", "justify-end", "justify-between", "justify-around",
         "items-start", "items-center", "items-end",
         "hide",
+        "ellipsis"
     ],
 
-    _render(appPackage, activityName, elemObj){
+    _render(pid, elemObj){
         // ¿LayoutInflater de bajo presupuesto?😭🥀
+        /* OJO
+        El layout NO debe contener código pendiente por ejecutar, excepto los opcodes en sí.
+        Toda interpolación ${...} debe resolverse ANTES de crear el DOM.
+        O sea, el layout que entra a tu renderer debería ser ya 100%:
+        - texto normal
+        - números normales
+        - URLs normales
+        - opcodes puros sin strings mágicos
+        Nada de dejar ${ ... } vivos.
+        Porque si los dejas vivos → pasan cosas feas como capturar la última variable del loop, como antes pasaba xdd.
+        */
+        elemObj = Variables.resolveDeep(elemObj, pid);
         let elem;
         switch(elemObj.type){
             case "layout":
                 elem = E("div");
+                break;
+            case "grid":
+                elem = E("div");
+                elem.style.display = "grid";
                 break;
             case "title":
                 elem = E("h2");
@@ -34,6 +51,9 @@ const ActivityManager = {
             case "icon":
                 elem = E("i");
                 elem.classList.add("material-symbols-outlined");
+                break;
+            case "img":
+                elem = E("img");
                 break;
             case "button":
                 elem = E("button");
@@ -62,18 +82,18 @@ const ActivityManager = {
                 return elem;
         }
         // No hay verificación de tipo de elemento para los atributos, el dev sabe lo que hace, no es un bebé como Google piensa (#googleDespierta)
-        if (elemObj.text)        elem.textContent      = Variables.resolveString(elemObj.text, appPackage, activityName);
-        if (elemObj.textAlign)   elem.style.textAlign  = Variables.resolveString(elemObj.textAlign, appPackage, activityName);
-        if (elemObj.fontSize)    elem.style.fontSize   = Variables.resolveString(elemObj.fontSize, appPackage, activityName);
-        if (elemObj.value)       elem.value            = Variables.resolveString(elemObj.value, appPackage, activityName);
-        if (elemObj.checked)     elem.checked          = Boolean(Calvik.execute(appPackage, activityName, elemObj.checked));
+        if (elemObj.text)        elem.textContent      = elemObj.text;
+        if (elemObj.textAlign)   elem.style.textAlign  = elemObj.textAlign;
+        if (elemObj.fontSize)    elem.style.fontSize   = elemObj.fontSize;
+        if (elemObj.value)       elem.value            = elemObj.value;
+        if (elemObj.checked)     elem.checked          = Boolean(Calvik.execute(pid, elemObj.checked));
         if (elemObj.width)       elem.style.width      = elemObj.width;
         if (elemObj.height)      elem.style.height     = elemObj.height;
-        if (elemObj.id)          elem.id               = this._resolveId(appPackage, activityName, elemObj.id);
-        if (elemObj.placeholder) elem.placeholder      = Variables.resolveString(elemObj.placeholder, appPackage, activityName);
+        if (elemObj.id)          elem.id               = this._resolveId(pid, elemObj.id);
+        if (elemObj.placeholder) elem.placeholder      = elemObj.placeholder;
         if (elemObj.onclick)     elem.onclick          = ()=>{
             try {
-                Calvik.execute(appPackage, activityName, elemObj.onclick);
+                Calvik.execute(pid, elemObj.onclick);
             } catch(e){
                 if (e instanceof CalvikAbort){
                     return false;
@@ -83,7 +103,7 @@ const ActivityManager = {
         }
         if (elemObj.ondblclick)  elem.ondblclick       = ()=>{
             try {
-                Calvik.execute(appPackage, activityName, elemObj.ondblclick);
+                Calvik.execute(pid, elemObj.ondblclick);
             } catch(e){
                 if (e instanceof CalvikAbort){
                     return false;
@@ -93,7 +113,7 @@ const ActivityManager = {
         }
         if (elemObj.oninput)     elem.oninput          = ()=>{
             try {
-                Calvik.execute(appPackage, activityName, elemObj.oninput);
+                Calvik.execute(pid, elemObj.oninput);
             } catch(e){
                 if (e instanceof CalvikAbort){
                     return false;
@@ -103,7 +123,7 @@ const ActivityManager = {
         }
         if (elemObj.onchange)    elem.onchange         = ()=>{
             try {
-                Calvik.execute(appPackage, activityName, elemObj.onchange);
+                Calvik.execute(pid, elemObj.onchange);
             } catch(e){
                 if (e instanceof CalvikAbort){
                     return false;
@@ -115,23 +135,29 @@ const ActivityManager = {
         if (elemObj.fg)          elem.style.color      = elemObj.fg;
         if (elemObj.padding)     elem.style.padding    = elemObj.padding;
         if (elemObj.margin)      elem.style.margin     = elemObj.margin;
-        if (elemObj.src)         elem.src              = Variables.resolveString(elemObj.src, appPackage, activityName);
-        if (elemObj.child)       elemObj.child.forEach((chItem)=>elem.appendChild(this._render(appPackage, activityName, chItem)));
+        if (elemObj.src)         elem.src              = elemObj.src;
+        if (elemObj.child)       elemObj.child.forEach((chItem)=>elem.appendChild(this._render(pid, chItem)));
         if (elemObj.class)       elemObj.class.forEach((cClass)=>this.calvikClasses.includes(cClass) ? elem.classList.add(`not-${cClass}`) : console.warn(`La CalvikClass '${cClass}' no existe.`));
+        if (elemObj.gridRows)    elem.style.gridTemplateRows    = elemObj.gridRows;
+        if (elemObj.gridColumns) elem.style.gridTemplateColumns = elemObj.gridColumns;
         return elem;
     },
-    _resolveId(appPackage, activityName, id){
-        return `notid.${appPackage}.${activityName}.${id}`;
+    _resolveId(pid, id){
+        return `notid.pid-${pid}.${id}`;
     },
     _resolvePid(pid){
         return `act-${pid}`;
     },
+    getPCB(pid){
+        return getWhere(this.activityStack, act => act.pid === pid);
+    },
     // ["START_ACTIVITY"]
+    // ["START_INTENT"]
     startActivity(appPackage, activityName, intentData={}){
-        if (!verifyAppActivity(appPackage, activityName)) return false;
+        console.log(`[ActivityManager][startActivity] ${appPackage} | ${activityName}`);
         const activityObj = ActivityManager.getActivityObj(appPackage, activityName);
 
-        const pid = PID.next();
+        const pid = PID.next(); // hermano, una instancia COMPLETA depende de este numerito😭
 
         // Contenedor de la actividad
         const actDiv = E("div");
@@ -143,30 +169,6 @@ const ActivityManager = {
         // Pasar datos entre actividades
         Variables.set(appPackage, activityName, "__intent_data__", intentData);
 
-        // Ejecutar onCreate (antes del renderizado)
-        try {
-            if (activityObj.onCreate) Calvik.execute(appPackage, activityName, activityObj.onCreate);
-        } catch (e){
-            if (e instanceof CalvikAbort){ // Si la app "abortó" (ej: no se otorgaron permisos necesarios)
-                this.finishActivity(appPackage, activityName);
-                return false;
-            }
-            throw e;
-        }
-
-        // Renderizar y añadir elementos
-        actDiv.appendChild(this._render(appPackage, activityName, activityObj.view));
-        desktop.appendChild(actDiv);
-        // Recargar elemento para que se muestre la transición (trucazo🔥🔥✅✅)
-        void actDiv.offsetWidth;
-        actDiv.classList.remove("hide");
-
-        // Matar la última actividad de la pila si excede el límite
-        if (this.activityStack.length >= SystemConfig.getConfigValue("maxActivitiesInStack")){
-            const firstActPCB = getAt(this.activityStack, 0);
-            this.finishActivity(firstActPCB.appPackage, firstActPCB.activityName);
-        }
-
         // Añadir la actividad al stack
         this.activityStack.push({
             appPackage: appPackage,
@@ -175,9 +177,34 @@ const ActivityManager = {
             pid: pid
         });
 
+        // Ejecutar onCreate (antes del renderizado)
+        try {
+            if (activityObj.onCreate) Calvik.execute(pid, activityObj.onCreate);
+        } catch (e){
+            if (e instanceof CalvikAbort){ // Si la app "abortó" (ej: no se otorgaron permisos necesarios)
+                popWhere(this.activityStack, act => act.pid === pid);
+                actDiv.remove();
+                return false;
+            }
+            throw e;
+        }
+
+        // Renderizar y añadir elementos
+        // actDiv.appendChild(this._render(appPackage, activityName, activityObj.view)); // deprecado🥺
+        desktop.appendChild(actDiv);
+        // Recargar elemento para que se muestre la transición (trucazo🔥🔥✅✅)
+        void actDiv.offsetWidth;
+        actDiv.classList.remove("hide");
+
+        // Matar la última actividad de la pila si excede el límite
+        if (this.activityStack.length >= SystemConfig.getConfigValue("maxActivitiesInStack")){
+            const firstActPCB = this.activityStack[0];
+            this.finishActivityByPid(firstActPCB.pid);
+        }
+
         // Ejecutar onStart (después del renderizado)
         try {
-            if (activityObj.onStart) Calvik.execute(appPackage, activityName, activityObj.onStart);
+            if (activityObj.onStart) Calvik.execute(pid, activityObj.onStart);
         } catch (e){
             if (e instanceof CalvikAbort){
                 this.finishActivity(appPackage, activityName);
@@ -185,97 +212,69 @@ const ActivityManager = {
             }
             throw e;
         }
-
+        return pid;
     },
     // ["FINISH_ACTIVITY"]
-    finishActivity(appPackage, activityName){ // PCB
-        if (!verifyAppActivity(appPackage, activityName)) return false;
+    finishActivity(pid){ // ! RECONSTRUYENDO
+        const PCB = popWhere(this.activityStack, act => act.pid === pid);
+        if (!PCB){
+            console.error(`El PID '${pid}' no existe`);
+            return false;
+        };
+        
+        const { appPackage, activityName } = PCB;
         const activityObj = ActivityManager.getActivityObj(appPackage, activityName);
-        const PCB = popWhere(this.activityStack, (act)=>act.appPackage === appPackage &&  act.activityName === activityName);
 
         if (activityObj.onDestroy) Calvik.execute(appPackage, activityName, activityObj.onDestroy);
-        Variables.clearByActivity(appPackage, activityName);
-        const elem = $(`#${this._resolvePid(PCB.pid)}`, desktop); // O si quieres: const elem = PCB.element;
+        
+        Variables.clearByPID(pid);
+
+        // remove element
+        const elem = PCB.element;
         elem.classList.add("hide");
         setTimeout(()=>elem.remove(), 400);
+
+        return true;
     },
-    // ["ID_CLICK"]
-    idClick(appPackage, activityName, id){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.click();
+    // ["RES"]
+    getResource(pid, resName, itemName){
+        const PCB = this.getPCB(pid);
+        if (!PCB) return false;
+        const appObj = AppManager.getAppObj(PCB.appPackage);
+        switch (resName){
+            case "layout":
+                return appObj.res.layouts?.[itemName] ?? false;
+            case "color":
+                return appObj.res.colors?.[itemName] ?? false;
+            case "string":
+                return appObj.res.strings?.[itemName] ?? false;
+            default:
+                console.warn(`Recurso desconocido: ${resName}`);
+                return false;
+        }
     },
-    // ["ID_SET_TEXT"]
-    idSetText(appPackage, activityName, id, text){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.textContent = text;
+    // ["SET_CONTENT_VIEW"]
+    setContentView(pid, elem){
+        const PCB = this.getPCB(pid);
+        if (!PCB) return false;
+        PCB.element.innerHTML = "";
+        if (!(elem instanceof Node)) elem = ActivityManager._render(pid, elem);
+        PCB.element.appendChild(elem);
     },
-    // ["ID_GET_TEXT"]
-    idGetText(appPackage, activityName, id){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        return elem.textContent;
-    },
-    // ["ID_SET_VALUE"]
-    idSetValue(appPackage, activityName, id, value){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.value = value
-    },
-    // ["ID_GET_VALUE"]
-    idGetValue(appPackage, activityName, id){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        return elem.value;
-    },
-    // ["ID_SET_CHECKED"]
-    idSetChecked(appPackage, activityName, id, checked){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.checked = checked;
-    },
-    // ["ID_IS_CHECKED"]
-    idIsChecked(appPackage, activityName, id){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        return elem.checked;
-    },
-    // ["ID_ADD_CLASS"]
-    idAddClass(appPackage, activityName, id, clazz){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
+    // ["ELEM_ADD_CLASS"]
+    elemAddClass(pid, elem, clazz){
         this.calvikClasses.includes(clazz) ? elem.classList.add(`not-${clazz}`) : console.warn(`La CalvikClass '${clazz}' no existe.`);
     },
-    // ["ID_REMOVE_CLASS"]
-    idRemoveClass(appPackage, activityName, id, clazz){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
+    // ["ELEM_REMOVE_CLASS"]
+    elemRemoveClass(pid, elem, clazz){
         this.calvikClasses.includes(clazz) ? elem.classList.remove(`not-${clazz}`) : console.warn(`La CalvikClass '${clazz}' no existe.`);
     },
-    // ["ID_APPEND_CHILD"]
-    idAppendChild(appPackage, activityName, id, elemObj){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.appendChild(this._render(appPackage, activityName, elemObj));
-    },
-    // ["ID_CLEAR_CHILDS"]
-    idClearChilds(appPackage, activityName, id){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.innerHTML = "";
-    },
-    // ["ID_APPEND_CHILD"]
-    idSetSrc(appPackage, activityName, id, src){
-        const elem = this.getElementById(appPackage, activityName, id);
-        if (!elem) return console.warn(`El elemento '${this._resolveId(appPackage, activityName, id)}' no existe`);
-        elem.src = src;
-    },
-    getElementById(appPackage, activityName, id){
-        if (!verifyAppActivity(appPackage, activityName)) return false;
-        const actPCB = this.activityStack.find((act)=>act.appPackage === appPackage &&  act.activityName === activityName);
+    // ["GET_ELEM_BY_ID"]
+    getElementById(pid, id){
+        const PCB = this.getPCB(pid);
+        if (!PCB) return false;
 
-        return $(`[id="${this._resolveId(appPackage, activityName, id)}"]`, actPCB.element);
+        return $(`[id="${this._resolveId(pid, id)}"]`, PCB.element) || false;
     },
     getActivityObj(appPackage, activityName){
         if (!verifyAppActivity(appPackage, null)) return false;
