@@ -222,7 +222,7 @@ const ActivityManager = {
         return pid;
     },
     // ["FINISH_ACTIVITY"]
-    finishActivity(pid){ // ! RECONSTRUYENDO
+    finishActivity(pid){
         const PCB = popWhere(this.activityStack, act => act.pid === pid);
         if (!PCB) return false;
         
@@ -232,6 +232,7 @@ const ActivityManager = {
         if (activityObj.onDestroy) Calvik.execute(pid, activityObj.onDestroy);
         
         Variables.clearByPID(pid);
+        PID.release(pid);
 
         // remove element
         const elem = PCB.element;

@@ -59,6 +59,12 @@ const NavigationBarManager = {
         if (randint(1, 100) == 12) ToastManager.show("¿Acaso quieres salir del launcher we?");
         return false;
     },
+    goRecents(){
+        const currAct = ActivityManager.activityStack.at(-1); // obtiene el último elemento sin modificar el array original
+        if (!currAct) return false;
+        const PCB = ActivityManager.getPCB(currAct.pid);
+        html12canvas(PCB.element);
+    },
     apply(){
         navigationBar.innerHTML = "";
         navigationBar.classList.remove("flex-row-reverse");
@@ -81,7 +87,7 @@ const NavigationBarManager = {
         recentBtn.style.color = this.getConfigValue("foreground");
         recentBtn.innerHTML = `<i class="material-symbols-outlined">square</i>`;
         recentBtn.id = "recentBtn";
-        recentBtn.onclick = ()=> ToastManager.show("'RecentButton' dice: Implementenme!🗣🔥");
+        recentBtn.onclick = ()=> NavigationBarManager.goRecents(); //ToastManager.show("'RecentButton' dice: Implementenme!🗣🔥");
 
         navigationBar.appendChild(backBtn);
         navigationBar.appendChild(homeBtn);

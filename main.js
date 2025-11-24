@@ -1,4 +1,5 @@
 // main.js
+localStorage.clear();
 boot();
 if (!localStorage.getItem("firstEntry")) {
 // ! TODAS estas apps son incompatibles XDD // TODO: Actualizar apps de tests
@@ -804,7 +805,7 @@ AppManager.install({ // Idea: app que use todos los atributos que puede tener un
         layouts: {
             "main_layout": {type: "layout", child: [
                     {type: "text",   text: "¡Hola Notroid!", id: "title"},
-                    {type: "button", text: "Abrir otra app", id: "btn", onclick: [
+                    {type: "button", text: "Abrir otra app", padding: "10px", id: "btn", onclick: [
                         ["START_INTENT",
                             "com.notroid.launcher",
                             "Home",
@@ -982,3 +983,4 @@ console.groupEnd();
 }
 
 ResourceManager.init();
+const j = ActivityManager.startActivity("com.example.package", "MainActivity")
