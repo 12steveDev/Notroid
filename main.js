@@ -1,5 +1,4 @@
 // main.js
-localStorage.clear();
 boot();
 if (!localStorage.getItem("firstEntry")) {
 // ! TODAS estas apps son incompatibles XDD // TODO: Actualizar apps de tests
@@ -983,4 +982,3 @@ console.groupEnd();
 }
 
 ResourceManager.init();
-const j = ActivityManager.startActivity("com.example.package", "MainActivity")
